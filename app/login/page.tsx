@@ -9,9 +9,7 @@ import { toast } from "react-toastify";
 
 export default function Login() {
 	const user = useAppSelector((state: RootState) => state.user);
-	const isLoggedIn = useAppSelector(
-		(state: RootState) => state.user?.user?.loggedIn
-	);
+	const isLoggedIn = useAppSelector((state: RootState) => state.user?.loggedIn);
 	const dispatch = useAppDispatch();
 	const router = useRouter();
 
@@ -30,15 +28,16 @@ export default function Login() {
 
 				return null;
 			}
+			console.log("User data fetched successfully:", data);
 			dispatch(
 				setUser({
-					name: data[0]?.name,
-					email: data[0]?.email,
-					phone: data[0]?.phone_number,
-					is_verified: data[0]?.is_verified,
-					roles: data[0].roles ? data[0].roles : [],
-					id: data[0]?.id,
-					active_role: data[0]?.active_role,
+					name: data.name,
+					email: data.email,
+					phone_number: data.phone_number,
+					is_verified: data.is_verified,
+					roles: data.roles ? data.roles : [],
+					id: data.id,
+					active_role: data.active_role,
 					loggedIn: true,
 				})
 			); // Dispatch a redux action
@@ -56,14 +55,14 @@ export default function Login() {
 		if (!isLoggedIn) {
 			return;
 		}
-		if (isLoggedIn && user?.user?.roles?.length === 0) {
+		if (isLoggedIn && user?.roles?.length === 0) {
 			router.push("/onboarding");
 		} else {
-			if (isLoggedIn && user?.user?.activeRole === "investor") {
+			if (isLoggedIn && user?.active_role === "investor") {
 				router.push("/i/dashboard");
-			} else if (isLoggedIn && user?.user?.activeRole === "producer") {
+			} else if (isLoggedIn && user?.active_role === "producer") {
 				router.push("/p/dashboard");
-			} else if (isLoggedIn && user?.user?.activeRole === undefined) {
+			} else if (isLoggedIn && user?.active_role === undefined) {
 				router.push("/");
 			}
 		}

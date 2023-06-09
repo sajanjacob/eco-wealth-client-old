@@ -1,8 +1,7 @@
 import ProjectCard from "@/components/ProjectCard";
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import { useRouter } from "next/router";
-function Discover(props) {
+function Discover() {
 	const treeProduce = [
 		"All",
 		"Timber / Lumber",

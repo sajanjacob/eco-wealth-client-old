@@ -12,28 +12,22 @@ type Props = {};
 const Header = ({}: Props) => {
 	const router = useRouter();
 	const dispatch = useAppDispatch();
-	const activeRole = useAppSelector(
-		(state: { user: UserState }) => state.user?.user?.activeRole
-	);
-	const currentTheme = useAppSelector(
-		(state: { user: UserState }) => state.user?.user?.currentTheme
-	);
-	const user = useAppSelector((state: { user: UserState }) => state);
-	const isLoggedIn = useAppSelector(
-		(state: { user: UserState }) => state.user?.user?.loggedIn
-	);
+	const activeRole = useAppSelector((state) => state.user?.active_role);
+	const currentTheme = useAppSelector((state) => state.user?.currentTheme);
+	const user = useAppSelector((state) => state.user);
+	const isLoggedIn = useAppSelector((state) => state.user?.loggedIn);
 
 	const [theme, setTheme] = useState("light");
 
 	const uiTheme = currentTheme === "light" ? lightTheme : darkTheme;
-
+	console.log("(header) redux user >>> ", user);
 	const switchRole = (role: String) => {
 		fetch("/api/switchActiveRole", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ role: role, userId: user?.user?.user?.id }),
+			body: JSON.stringify({ role: role, userId: user?.id }),
 		})
 			.then((response) => response.json())
 			.then((data) => {
@@ -43,11 +37,11 @@ const Header = ({}: Props) => {
 
 	const handleToggleRole = () => {
 		if (activeRole === "producer") {
-			dispatch(setUser({ ...user, activeRole: "investor" }));
+			dispatch(setUser({ ...user, active_role: "investor" }));
 			router.push("/i/dashboard");
 			switchRole("investor");
 		} else if (activeRole === "investor") {
-			dispatch(setUser({ ...user, activeRole: "producer" }));
+			dispatch(setUser({ ...user, active_role: "producer" }));
 			router.push("/p/dashboard");
 			switchRole("producer");
 		}
@@ -65,7 +59,21 @@ const Header = ({}: Props) => {
 		// Handle logout logic here
 		console.log("logging user out...");
 		await supabase.auth.signOut();
-		dispatch(setUser({ user: null }));
+		dispatch(
+			setUser({
+				roles: [],
+				loggedIn: false,
+				id: null,
+				active_role: null,
+				currentTheme: null,
+				email: null,
+				name: null,
+				phone_number: null,
+				is_verified: false,
+				totalUserTreeCount: 0,
+				userTreeCount: 0,
+			})
+		);
 		router.push("/login");
 	};
 
@@ -187,12 +195,17 @@ const Header = ({}: Props) => {
 						>
 							Logout
 						</button>
-						<button
-							className='bg-transparent border-none cursor-pointer text-green-600 ml-4'
-							onClick={handleToggleRole}
-						>
-							Switch to {activeRole === "investor" ? "Producer" : "Investor"}
-						</button>
+						{user?.roles?.length > 0 ? (
+							<>
+								<button
+									className='bg-transparent border-none cursor-pointer text-green-600 ml-4'
+									onClick={handleToggleRole}
+								>
+									Switch to{" "}
+									{activeRole === "investor" ? "Producer" : "Investor"}
+								</button>
+							</>
+						) : null}
 					</>
 				) : (
 					<>
