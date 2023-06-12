@@ -1,27 +1,39 @@
 interface User {
 	name: string;
 	email: string;
-	phone_number: string;
-	is_verified: boolean;
+	phoneNumber: string;
+	isVerified: boolean;
 	roles: string[];
 	id: string;
-	active_role: string;
+	activeRole: string;
 	totalUserTreeCount: number;
 	userTreeCount: number;
+	onboardingComplete: boolean;
+	emailNotification: boolean;
+	smsNotification: boolean;
+	pushNotification: boolean;
+	investorOnboardingComplete: boolean;
+	producerOnboardingComplete: boolean;
 }
 interface UserState {
 	roles: string[];
 	loggedIn: boolean;
 	roles: string[];
 	id: string | null;
-	active_role: string | null;
+	activeRole: string | null;
 	currentTheme: string | null;
 	email: string | null;
 	name: string | null;
-	phone_number: string | null;
-	is_verified: boolean;
+	phoneNumber: string | null;
+	isVerified: boolean;
 	totalUserTreeCount: number;
 	userTreeCount: number;
+	onboardingComplete: boolean;
+	emailNotification: boolean;
+	smsNotification: boolean;
+	pushNotification: boolean;
+	investorOnboardingComplete: boolean;
+	producerOnboardingComplete: boolean;
 }
 
 interface Project {

@@ -33,11 +33,11 @@ export default function Login() {
 				setUser({
 					name: data.name,
 					email: data.email,
-					phone_number: data.phone_number,
-					is_verified: data.is_verified,
+					phoneNumber: data.phone_number,
+					isVerified: data.is_verified,
 					roles: data.roles ? data.roles : [],
 					id: data.id,
-					active_role: data.active_role,
+					activeRole: data.active_role,
 					loggedIn: true,
 				})
 			); // Dispatch a redux action
@@ -58,11 +58,11 @@ export default function Login() {
 		if (isLoggedIn && user?.roles?.length === 0) {
 			router.push("/onboarding");
 		} else {
-			if (isLoggedIn && user?.active_role === "investor") {
+			if (isLoggedIn && user?.activeRole === "investor") {
 				router.push("/i/dashboard");
-			} else if (isLoggedIn && user?.active_role === "producer") {
+			} else if (isLoggedIn && user?.activeRole === "producer") {
 				router.push("/p/dashboard");
-			} else if (isLoggedIn && user?.active_role === undefined) {
+			} else if (isLoggedIn && user?.activeRole === undefined) {
 				router.push("/");
 			}
 		}

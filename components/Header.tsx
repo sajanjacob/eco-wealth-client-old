@@ -17,18 +17,18 @@ import { RxAvatar } from "react-icons/rx";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { FiPower } from "react-icons/fi";
-import { CgProfile } from "react-icons/cg";
+import { MdSettings } from "react-icons/md";
 type Props = {};
 
 const Header = ({}: Props) => {
 	const router = useRouter();
 	const dispatch = useAppDispatch();
-	const activeRole = useAppSelector((state) => state.user?.active_role);
+	const activeRole = useAppSelector((state) => state.user?.activeRole);
 	const currentTheme = useAppSelector((state) => state.user?.currentTheme);
 	const user = useAppSelector((state) => state.user);
 	const isLoggedIn = useAppSelector((state) => state.user?.loggedIn);
 
-	const [theme, setTheme] = useState("dark");
+	const [theme, setTheme] = useState<string>(currentTheme ?? "dark");
 
 	// Avatar Menu
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -57,11 +57,11 @@ const Header = ({}: Props) => {
 
 	const handleToggleRole = () => {
 		if (activeRole === "producer") {
-			dispatch(setUser({ ...user, active_role: "investor" }));
+			dispatch(setUser({ ...user, activeRole: "investor" }));
 			router.push("/i/dashboard");
 			switchRole("investor");
 		} else if (activeRole === "investor") {
-			dispatch(setUser({ ...user, active_role: "producer" }));
+			dispatch(setUser({ ...user, activeRole: "producer" }));
 			router.push("/p/dashboard");
 			switchRole("producer");
 		}
@@ -84,12 +84,12 @@ const Header = ({}: Props) => {
 				roles: [],
 				loggedIn: false,
 				id: null,
-				active_role: null,
+				activeRole: null,
 				currentTheme: null,
 				email: null,
 				name: null,
-				phone_number: null,
-				is_verified: false,
+				phoneNumber: null,
+				isVerified: false,
 				totalUserTreeCount: 0,
 				userTreeCount: 0,
 			})
@@ -145,11 +145,11 @@ const Header = ({}: Props) => {
 		router.push("/learn");
 	};
 
-	const handleProfileClick = () => router.push("/profile");
+	const handleSettingsClick = () => router.push("/settings");
 
 	console.log(`isLoggedIn: ${isLoggedIn}`);
 	return (
-		<div className='flex justify-between items-center p-4 bg-green-500 dark:bg-gradient-to-r from-green-950 to-[#0C2100] border-b border-b-gray-200 dark:border-b-green-900 sticky top-0'>
+		<div className='flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-gray-200 dark:border-b-green-900 sticky top-0'>
 			<div
 				className='text-xl cursor-pointer text-black font-semibold dark:text-white'
 				onClick={handleReturnHome}
@@ -269,9 +269,9 @@ const Header = ({}: Props) => {
 
 							<MenuItem
 								className='menu-link'
-								onClick={handleProfileClick}
+								onClick={handleSettingsClick}
 							>
-								<CgProfile className='mr-2' /> Account Center
+								<MdSettings className='mr-2' /> Account Settings
 							</MenuItem>
 							<MenuItem
 								className='menu-link'

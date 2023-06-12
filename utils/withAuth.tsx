@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -26,14 +27,18 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 				}
 				dispatch(
 					setUser({
+						...user,
 						name: data.name,
 						email: data.email,
-						phone_number: data.phone_number,
-						is_verified: data.is_verified,
+						phoneNumber: data.phone_number,
+						isVerified: data.is_verified,
 						roles: data.roles ? data.roles : [],
 						id: data.id,
-						active_role: data.active_role,
+						activeRole: data.active_role,
 						loggedIn: true,
+						emailNotification: data.email_notification,
+						smsNotification: data.sms_notification,
+						pushNotification: data.push_notification,
 					})
 				); // Dispatch a redux action
 				console.log("user is logged in, ", data);

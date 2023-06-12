@@ -29,9 +29,30 @@ body {
 
 @layer components{
   .menu-link {
-    @apply transition-colors text-gray-800 hover:text-green-300 dark:hover:text-green-400 cursor-pointer dark:text-gray-300;
+    @apply transition-colors text-gray-800 hover:text-green-300 dark:hover:text-green-400 cursor-pointer dark:text-gray-300 hover:drop-shadow-[0px_8px_8px_rgba(0,0,0,0.222)] dark:hover:drop-shadow-[0px_8px_8px_rgba(244,244,244,0.222)];
   }
   .avatar-menu-link {
     @apply transition-colors text-gray-800 hover:text-green-300 dark:hover:text-green-400 cursor-pointer dark:text-gray-300;
+  }
+}
+
+@layer components {
+  .toggle__dot {
+    top: -0.25rem;
+    left: -0.25rem;
+    transition: all 0.3s ease-in-out;
+  }
+
+  input:checked ~ .toggle__dot {
+    transform: translateX(100%);
+    background-color: #48bb78;
+  }
+
+  .toggle__line {
+    transition: background 0.3s ease-in-out;
+  }
+
+  input:checked ~ .toggle__line {
+    background-color: #48bb78;
   }
 }

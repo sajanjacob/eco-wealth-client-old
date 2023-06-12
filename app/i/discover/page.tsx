@@ -21,7 +21,7 @@ function Discover() {
 
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const activeFilter = searchParams.get("filter") || "All";
+	const activeFilter = searchParams.get("filter") ?? "All";
 
 	const [projects, setProjects] = useState<Projects>([]);
 
@@ -49,7 +49,11 @@ function Discover() {
 
 	return (
 		<div className='w-3/4 mx-auto py-8 h-[100%]'>
-			<h1 className='text-xl font-bold mb-8'>Discover Projects</h1>
+			<h1 className='text-2xl font-bold'>Discover Projects</h1>
+			<h2 className='font-light text-lg mb-8'>
+				Find projects for investing instantly into tree-based agriculture and
+				renewable energy.
+			</h2>
 			<div className='flex flex-wrap gap-4 mb-8'>
 				{filters.map((item, index) => (
 					<button

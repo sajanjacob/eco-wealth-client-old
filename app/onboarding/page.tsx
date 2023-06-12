@@ -18,10 +18,15 @@ const Onboarding: FC = () => {
 
 	//  Here we update the user's role in the database and redux store
 	const updateUserRole = async (role: string) => {
-		dispatch(setUser({ ...user, roles: [role], active_role: role }));
+		dispatch(setUser({ ...user, roles: [role], activeRole: role }));
 		const { data, error } = await supabase
 			.from("users")
-			.update({ name: name, roles: [role], active_role: role })
+			.update({
+				name: name,
+				roles: [role],
+				activeRole: role,
+				onboarding_complete: true,
+			})
 			.eq("id", user.id);
 		if (error) {
 			console.error("Error updating user role:", error.message);
@@ -61,13 +66,13 @@ const Onboarding: FC = () => {
 	};
 
 	useEffect(() => {
-		console.log("user role >>> ", user?.active_role);
-		if (user?.active_role === "investor") {
+		console.log("user role >>> ", user?.activeRole);
+		if (user?.activeRole === "investor") {
 			router.push("/i/dashboard");
-		} else if (user?.active_role === "producer") {
+		} else if (user?.activeRole === "producer") {
 			router.push("/p/dashboard");
 		}
-	}, [user?.active_role, router]);
+	}, [user?.activeRole, router]);
 
 	switch (step) {
 		case 0:
