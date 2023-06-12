@@ -23,3 +23,27 @@ interface UserState {
 	totalUserTreeCount: number;
 	userTreeCount: number;
 }
+
+interface Project {
+	id: string;
+	title: string;
+	name: string;
+	description: string;
+	created_at: string;
+	updated_at: string;
+	created_by: string;
+	updated_by: string;
+	role: string;
+	tree_target: number;
+	tree_count: number;
+	image_url: string;
+	status: string;
+	type: string;
+	funds_requested_per_tree: number;
+	projectType: string;
+	projectId: string;
+	project_coordinator_contact_name: string;
+	project_coordinator_contact_email: string;
+}
+
+type Projects = Project[];

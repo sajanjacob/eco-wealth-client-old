@@ -30,7 +30,7 @@ export default function Home() {
 
 	return (
 		<div
-			className='w-[98vw] mx-auto h-[95vh] bg-cover bg-center flex justify-center items-center bg-no-repeat'
+			className='w-[100%] mx-auto h-[95vh] bg-cover bg-center flex justify-center items-center bg-no-repeat'
 			style={{
 				backgroundImage: `url(${backgroundImageUrl})`,
 			}}

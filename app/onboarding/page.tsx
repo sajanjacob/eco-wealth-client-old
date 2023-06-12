@@ -74,7 +74,7 @@ const Onboarding: FC = () => {
 			return (
 				<form
 					onSubmit={handleNameSubmit}
-					className='flex flex-col items-center justify-center min-h-screen bg-green-50 dark:bg-green-950 '
+					className='flex flex-col items-center justify-center min-h-screen'
 				>
 					<div>
 						<h1 className='text-left mb-4 text-xl text-gray-500 dark:text-white'>
@@ -105,7 +105,7 @@ const Onboarding: FC = () => {
 
 		case 1:
 			return (
-				<div className='flex flex-col items-center justify-center min-h-screen bg-green-50 dark:bg-green-950 '>
+				<div className='flex flex-col items-center justify-center min-h-screen'>
 					<div className='w-[60%]'>
 						<h1 className='mb-2 text-3xl text-gray-500 dark:text-white'>
 							👋 Hey {name}, let&apos;s get started!

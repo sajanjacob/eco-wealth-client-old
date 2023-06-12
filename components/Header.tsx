@@ -1,12 +1,23 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
+import React, {
+	useState,
+	useEffect,
+	useContext,
+	useRef,
+	useCallback,
+	Ref,
+} from "react";
 import { useRouter } from "next/navigation";
 import { lightTheme, darkTheme } from "@/styles/themes";
 import { BsFillMoonFill, BsFillSunFill } from "react-icons/bs";
 import supabase from "@/utils/supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-
+import { RxAvatar } from "react-icons/rx";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { FiPower } from "react-icons/fi";
+import { CgProfile } from "react-icons/cg";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -17,9 +28,18 @@ const Header = ({}: Props) => {
 	const user = useAppSelector((state) => state.user);
 	const isLoggedIn = useAppSelector((state) => state.user?.loggedIn);
 
-	const [theme, setTheme] = useState("light");
+	const [theme, setTheme] = useState("dark");
 
-	const uiTheme = currentTheme === "light" ? lightTheme : darkTheme;
+	// Avatar Menu
+	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+	const open = Boolean(anchorEl);
+	const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+		setAnchorEl(event.currentTarget);
+	};
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
+
 	console.log("(header) redux user >>> ", user);
 	const switchRole = (role: String) => {
 		fetch("/api/switchActiveRole", {
@@ -83,7 +103,7 @@ const Header = ({}: Props) => {
 			const newTheme = prevTheme === "light" ? "dark" : "light";
 
 			// Apply or remove the 'dark' class to the root HTML element
-			if (theme === "dark") {
+			if (theme === "light") {
 				document.documentElement.classList.add("dark");
 			} else {
 				document.documentElement.classList.remove("dark");
@@ -129,18 +149,18 @@ const Header = ({}: Props) => {
 
 	console.log(`isLoggedIn: ${isLoggedIn}`);
 	return (
-		<div className='flex justify-between items-center p-4 bg-white dark:bg-[#0C2100] border-b border-gray-200 dark:border-green-950 sticky top-0'>
+		<div className='flex justify-between items-center p-4 bg-green-500 dark:bg-gradient-to-r from-green-950 to-[#0C2100] border-b border-b-gray-200 dark:border-b-green-900 sticky top-0'>
 			<div
 				className='text-xl cursor-pointer text-black font-semibold dark:text-white'
 				onClick={handleReturnHome}
 			>
 				Eco Wealth
 			</div>
-			<div className='flex space-x-4'>
+			<div className='flex space-x-4 items-center'>
 				{isLoggedIn ? (
 					<>
 						<a
-							className='cursor-pointer hover:underline text-gray-900 dark:text-gray-300'
+							className='menu-link'
 							onClick={handleDashboardClick}
 						>
 							Dashboard
@@ -148,13 +168,13 @@ const Header = ({}: Props) => {
 						{activeRole === "investor" && (
 							<>
 								<a
-									className='cursor-pointer hover:underline text-gray-900 dark:text-gray-300'
+									className='menu-link'
 									onClick={handleDiscoverClick}
 								>
 									Discover
 								</a>
 								<a
-									className='cursor-pointer hover:underline text-gray-900 dark:text-gray-300'
+									className='menu-link'
 									onClick={handlePortfolioClick}
 								>
 									My Portfolio
@@ -164,13 +184,13 @@ const Header = ({}: Props) => {
 						{activeRole === "producer" && (
 							<>
 								<a
-									className='cursor-pointer hover:underline text-gray-900 dark:text-gray-300'
+									className='menu-link'
 									onClick={handleAddProjectClick}
 								>
 									Add Project
 								</a>
 								<a
-									className='cursor-pointer hover:underline text-gray-900 dark:text-gray-300'
+									className='menu-link'
 									onClick={handleMyProjectsClick}
 								>
 									My Projects
@@ -178,34 +198,88 @@ const Header = ({}: Props) => {
 							</>
 						)}
 						<a
-							className='cursor-pointer hover:underline text-gray-900 dark:text-gray-300'
+							className='menu-link'
 							onClick={handleEducationCenterClick}
 						>
 							Education Center
 						</a>
-						<a
-							className='cursor-pointer hover:underline text-gray-900 dark:text-gray-300'
-							onClick={handleProfileClick}
+						<div
+							className='cursor-pointer'
+							id='basic-button'
+							aria-controls={open ? "basic-menu" : undefined}
+							aria-haspopup='true'
+							aria-expanded={open ? "true" : undefined}
+							onClick={handleClick}
 						>
-							Profile
-						</a>
-						<button
-							className='bg-transparent border-none cursor-pointer text-green-600'
-							onClick={handleLogoutClick}
+							<RxAvatar className='text-2xl menu-link' />
+						</div>
+						<Menu
+							id='basic-menu'
+							className=''
+							anchorEl={anchorEl}
+							open={open}
+							onClose={handleClose}
+							MenuListProps={{
+								"aria-labelledby": "basic-button",
+							}}
+							disableScrollLock={true}
+							sx={
+								theme === "dark"
+									? {
+											"& .MuiPaper-root": {
+												backgroundColor: "rgb(12 33 0 / 90%)",
+												borderColor: "rgb(20 83 45 / 90%)",
+												borderWidth: "2px",
+											},
+									  }
+									: {
+											"& .MuiPaper-root": {
+												backgroundColor: "",
+											},
+									  }
+							}
 						>
-							Logout
-						</button>
-						{user?.roles?.length > 0 ? (
-							<>
-								<button
-									className='bg-transparent border-none cursor-pointer text-green-600 ml-4'
-									onClick={handleToggleRole}
-								>
-									Switch to{" "}
-									{activeRole === "investor" ? "Producer" : "Investor"}
-								</button>
-							</>
-						) : null}
+							<MenuItem
+								className='menu-link'
+								onClick={handleToggleTheme}
+							>
+								{theme === "light" ? (
+									<>
+										<BsFillMoonFill className='text-black mr-2' />
+										Dark Mode
+									</>
+								) : (
+									<>
+										<BsFillSunFill className='text-yellow-300 mr-2' />
+										Light Mode
+									</>
+								)}
+							</MenuItem>
+							{user?.roles?.length > 1 ? (
+								<>
+									<MenuItem
+										className='menu-link'
+										onClick={handleToggleRole}
+									>
+										Switch to{" "}
+										{activeRole === "investor" ? "Producer" : "Investor"}
+									</MenuItem>
+								</>
+							) : null}
+
+							<MenuItem
+								className='menu-link'
+								onClick={handleProfileClick}
+							>
+								<CgProfile className='mr-2' /> Account Center
+							</MenuItem>
+							<MenuItem
+								className='menu-link'
+								onClick={handleLogoutClick}
+							>
+								<FiPower className='mr-2' /> Logout
+							</MenuItem>
+						</Menu>
 					</>
 				) : (
 					<>
@@ -223,16 +297,6 @@ const Header = ({}: Props) => {
 						</a>
 					</>
 				)}
-				<button
-					className='bg-transparent border-none cursor-pointer text-blue-600'
-					onClick={handleToggleTheme}
-				>
-					{theme === "dark" ? (
-						<BsFillMoonFill className='text-black' />
-					) : (
-						<BsFillSunFill className='text-yellow-300' />
-					)}
-				</button>
 			</div>
 		</div>
 	);

@@ -59,7 +59,7 @@ const SignUp: React.FC = () => {
 	};
 
 	return (
-		<div className='flex flex-col items-center justify-center min-h-screen bg-green-50 dark:bg-green-950 '>
+		<div className='flex flex-col items-center justify-center min-h-screen'>
 			<h1
 				onClick={handleReturnHome}
 				className='mb-2 text-6xl text-green-700 cursor-pointer transition-colors hover:text-green-600'

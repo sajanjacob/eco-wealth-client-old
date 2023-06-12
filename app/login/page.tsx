@@ -110,7 +110,7 @@ export default function Login() {
 		router.push("/");
 	};
 	return (
-		<div className='flex flex-col items-center justify-center min-h-screen bg-green-50 dark:bg-green-950'>
+		<div className='flex flex-col items-center justify-center min-h-screen'>
 			<h1
 				className='mb-2 text-green-700 text-6xl cursor-pointer transition-colors hover:text-green-600'
 				onClick={handleReturnHome}

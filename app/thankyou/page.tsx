@@ -9,7 +9,7 @@ const ThankYou = () => {
 	const email = params.get("email");
 
 	return (
-		<div className='flex flex-col items-center justify-center min-h-screen bg-green-50 dark:bg-green-950'>
+		<div className='flex flex-col items-center justify-center min-h-screen'>
 			<h1 className='mb-8'>Thank you for creating an account!</h1>
 			<p>
 				Please check your email at <strong>{email}</strong> to verify your

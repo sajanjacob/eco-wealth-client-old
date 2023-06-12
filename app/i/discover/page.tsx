@@ -1,63 +1,72 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProjectCard from "@/components/ProjectCard";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import withAuth from "@/utils/withAuth";
+
 function Discover() {
-	const treeProduce = [
-		"All",
-		"Timber / Lumber",
-		"Fruit",
-		"Nut",
-		"Bio Fuel",
-		"Pulp",
-		"Syrup",
-		"Oil / Chemical",
-		"Non-Profit Initiative",
+	const filters = [
+		{ label: "All", value: "All" },
+		{ label: "🌳 Timber / Lumber", value: "Timber / Lumber" },
+		{ label: "🌳 Fruit", value: "Fruit" },
+		{ label: "🌳 Nut", value: "Nut" },
+		{ label: "🌳 Bio Fuel", value: "Bio Fuel" },
+		{ label: "🌳 Pulp", value: "Pulp" },
+		{ label: "🌳 Syrup", value: "Syrup" },
+		{ label: "🌳 Oil / Chemical", value: "Oil / Chemical" },
+		{ label: "🌳 Non-Profit Initiative", value: "Non-Profit Initiative" },
+		{ label: "☀️ Solar", value: "Solar" },
+		{ label: "☀️ Non-Profit Initiative", value: "Non-Profit Initiative" },
 	];
 
 	const router = useRouter();
-	const activeFilterFromQuery = router.query.filter || "All";
-	const [activeFilter, setActiveFilter] = useState(activeFilterFromQuery);
+	const searchParams = useSearchParams();
+	const activeFilter = searchParams.get("filter") || "All";
 
-	const handleFilterClick = async (e) => {
-		const filterType = e.target.value;
-		if (filterType !== activeFilter) {
-			setActiveFilter(filterType);
+	const [projects, setProjects] = useState<Projects>([]);
 
-			// Update the URL with the new filter value
-			await router.push({
-				pathname: "/i/discover",
-				query: { filter: filterType },
-			});
-		}
-	};
-	const [projects, setProjects] = useState([]);
+	// Here we fetch the projects from supabase
 	useEffect(() => {
-		const fetchProjects = async (type) => {
-			const res = await fetch(`/api/projects?type=${type}`);
-			const data = await res.json();
-			// Do something with the data, e.g., update state or display it
-			setProjects(data);
+		const fetchProjects = async (type: string) => {
+			const res = await fetch(`/api/projects?type=${type}`)
+				.then((res) => res.json())
+				.catch((err) => console.log(err));
+			if (res) {
+				setProjects(res);
+			}
 		};
 
 		fetchProjects(activeFilter);
 	}, [activeFilter]);
 
+	// Here we handle the filter click by pushing the filter type to the url
+	const handleFilterClick = (e: any) => {
+		const filterType = e.target.value;
+		if (filterType !== activeFilter) {
+			router.push(`/i/discover?filter=${filterType}`);
+		}
+	};
+
 	return (
-		<Container>
-			<h1>Discover Agroforestry Projects</h1>
-			<ButtonContainer>
-				{treeProduce.map((produce, index) => (
-					<ProduceButton
+		<div className='w-3/4 mx-auto py-8 h-[100%]'>
+			<h1 className='text-xl font-bold mb-8'>Discover Projects</h1>
+			<div className='flex flex-wrap gap-4 mb-8'>
+				{filters.map((item, index) => (
+					<button
 						key={index}
-						value={`${produce}`}
+						value={`${item.value}`}
 						onClick={handleFilterClick}
-						active={produce === activeFilter}
+						className={`px-4 py-2 rounded transition-colors border border-black ${
+							item.value === activeFilter
+								? "bg-green-500 text-white"
+								: "bg-gray-800 text-white hover:bg-gray-700"
+						}`}
 					>
-						{produce}
-					</ProduceButton>
+						{item.label}
+					</button>
 				))}
-			</ButtonContainer>
-			<CardContainer>
+			</div>
+			<div className='flex flex-wrap w-full min-h-screen'>
 				{projects.length > 0 ? (
 					projects.map(
 						(
@@ -71,6 +80,8 @@ function Discover() {
 								tree_target,
 								funds_requested_per_tree,
 								status,
+								project_coordinator_contact_name,
+								project_coordinator_contact_email,
 							},
 							index
 						) => (
@@ -80,18 +91,20 @@ function Discover() {
 								title={title}
 								description={description}
 								projectId={id}
-								created_at={created_at}
+								createdAt={created_at}
 								projectType={type}
-								tree_target={tree_target}
-								funds_requested_per_tree={funds_requested_per_tree}
+								treeTarget={tree_target}
+								fundsRequestedPerTree={funds_requested_per_tree}
 								status={status}
 								role={"investor"}
+								projectCoordinatorContactName={""}
+								projectCoordinatorContactPhone={""}
 							/>
 						)
 					)
 				) : (
-					<NoProjectsFoundTextContainer>
-						<h3>
+					<div className='mx-auto flex flex-col items-center text-center mt-48'>
+						<h3 className='mb-4'>
 							No {activeFilter !== "All" ? activeFilter : null} Projects Found.
 						</h3>{" "}
 						<br />
@@ -100,53 +113,11 @@ function Discover() {
 							become a Producer and start a{" "}
 							{activeFilter !== "All" ? activeFilter : null} project today!
 						</p>
-					</NoProjectsFoundTextContainer>
+					</div>
 				)}
-			</CardContainer>
-		</Container>
+			</div>
+		</div>
 	);
 }
 
-export default Discover;
-
-const Container = styled.div`
-	width: 75%;
-	margin: 0 auto;
-	padding: 2rem 0;
-`;
-const CardContainer = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	width: 100%;
-	min-height: 80vh;
-`;
-const ButtonContainer = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1rem;
-`;
-
-const ProduceButton = styled.button`
-	background-color: ${({ active }) => (active ? "#a0d6b4" : "#3a3a3a")};
-	color: #ffffff;
-	border: none;
-	border-radius: 4px;
-	padding: 0.5rem 1rem;
-	transition: background-color 0.3s;
-	border: 1px solid #3a3a3a;
-
-	cursor: ${({ active }) => (active ? "default" : "pointer")};
-	&:hover {
-		background-color: ${({ active }) => (active ? "#a0d6b4" : "#5a5a5a")};
-		border: 1px solid green;
-	}
-`;
-
-const NoProjectsFoundTextContainer = styled.div`
-	margin: 0 auto;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	text-align: center;
-`;
+export default withAuth(Discover);

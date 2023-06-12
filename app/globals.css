@@ -19,10 +19,19 @@
 }
 
 body {
-  @apply text-white bg-gradient-to-b from-gray-300 to-white;
+  @apply text-gray-700 bg-gradient-to-b from-green-100 to-green-200;
+}
+@layer base {
+  .dark body {
+    @apply text-white bg-gradient-to-b from-green-950 to-black;
+  }
 }
 
-.dark body {
-  @apply text-white bg-gradient-to-b from-black to-black;
+@layer components{
+  .menu-link {
+    @apply transition-colors text-gray-800 hover:text-green-300 dark:hover:text-green-400 cursor-pointer dark:text-gray-300;
+  }
+  .avatar-menu-link {
+    @apply transition-colors text-gray-800 hover:text-green-300 dark:hover:text-green-400 cursor-pointer dark:text-gray-300;
+  }
 }
-
