@@ -6,6 +6,10 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import InvestorOnboardingGoals from "./InvestorOnboardingGoals";
 import InvestorOnboardingRiskToleranceAndTimeHorizon from "./InvestorOnboardingRiskToleranceAndTimeHorizon";
+import LinearProgress from "@mui/material/LinearProgress";
+import InvestorOnboardingImpact from "./InvestorOnboardingImpact";
+import InvestorOnboardingCompliance from "./InvestorOnboardingCompliance";
+import InvestorOnboardingSubmit from "./InvestorOnboardingSubmit";
 
 export default function InvestorOnboarding() {
 	const [investmentExperience, setInvestmentExperience] = useState("");
@@ -127,17 +131,63 @@ export default function InvestorOnboarding() {
 			);
 		}
 	};
-	const [step, setStep] = useState(1);
 
+	const [riskTolerance, setRiskTolerance] = useState(5);
+	const [timeHorizon, setTimeHorizon] = useState("");
+
+	const handleTimeHorizonChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setTimeHorizon(e.target.value);
+	};
+
+	const [investmentFluctuations, setInvestmentFluctuations] = useState("");
+
+	const handleInvestmentFluctuationsChange = (
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
+		setInvestmentFluctuations(e.target.value);
+	};
+
+	const [investmentImpact, setInvestmentImpact] = useState<string[]>([]);
+	const [otherInvestmentImpact, setOtherInvestmentImpact] = useState("");
+
+	const handleInvestmentImpactChange = (
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
+		if (e.target.checked) {
+			setInvestmentImpact([...investmentImpact, e.target.value]);
+		} else {
+			setInvestmentImpact(
+				investmentImpact.filter((impact) => impact !== e.target.value)
+			);
+		}
+	};
+
+	const [investmentRegions, setInvestmentRegions] = useState<string>("");
+
+	const [accreditedInvestor, setAccreditedInvestor] = useState("");
+
+	const handleAccreditedInvestorChange = (
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
+		setAccreditedInvestor(e.target.value);
+	};
+
+	const [investmentRiskAgreement, setInvestmentRiskAgreement] = useState("");
+
+	const handleInvestmentRiskAgreementChange = (
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
+		setInvestmentRiskAgreement(e.target.value);
+	};
+
+	// Here we manage the view of the onboarding steps
+	const [step, setStep] = useState(4);
 	const handleNextStep = () => {
 		setStep(step + 1);
 	};
 	const handlePreviousStep = () => {
 		setStep(step - 1);
 	};
-
-	const [riskTolerance, setRiskTolerance] = useState("");
-	const [timeHorizon, setTimeHorizon] = useState("");
 	const renderInvestorOnboardingContent = () => {
 		switch (step) {
 			case 1:
@@ -161,12 +211,61 @@ export default function InvestorOnboarding() {
 					<InvestorOnboardingRiskToleranceAndTimeHorizon
 						riskTolerance={riskTolerance}
 						setRiskTolerance={setRiskTolerance}
+						handleNextStep={handleNextStep}
+						handlePreviousStep={handlePreviousStep}
+						timeHorizon={timeHorizon}
+						setTimeHorizon={setTimeHorizon}
+						handleTimeHorizonChange={handleTimeHorizonChange}
+						investmentFluctuations={investmentFluctuations}
+						handleInvestmentFluctuationsChange={
+							handleInvestmentFluctuationsChange
+						}
 					/>
 				);
+			case 3:
+				return (
+					<InvestorOnboardingImpact
+						investmentImpact={investmentImpact}
+						handleInvestmentImpactChange={handleInvestmentImpactChange}
+						otherInvestmentImpact={otherInvestmentImpact}
+						setOtherInvestmentImpact={setOtherInvestmentImpact}
+						handleNextStep={handleNextStep}
+						handlePreviousStep={handlePreviousStep}
+						investmentRegions={investmentRegions}
+						setInvestmentRegions={setInvestmentRegions}
+					/>
+				);
+			case 4:
+				return (
+					<InvestorOnboardingCompliance
+						accreditedInvestor={accreditedInvestor}
+						handleAccreditedInvestorChange={handleAccreditedInvestorChange}
+						handleNextStep={handleNextStep}
+						handlePreviousStep={handlePreviousStep}
+						investmentRiskAgreement={investmentRiskAgreement}
+						handleInvestmentRiskAgreementChange={
+							handleInvestmentRiskAgreementChange
+						}
+					/>
+				);
+			case 5:
+				return <InvestorOnboardingSubmit />;
 		}
 	};
 	return (
 		<div className='my-8'>
+			<LinearProgress
+				variant='determinate'
+				color='success'
+				value={(step - 1) * 25}
+			/>
+			<div className='flex justify-end'>
+				{step !== 5 ? (
+					<p className='text-xs font-light mt-[4px]'>Step {step} / 4</p>
+				) : (
+					<p className='text-xs font-light mt-[4px]'>Onboarding Complete</p>
+				)}
+			</div>
 			<form onSubmit={handleFormSubmit}>
 				{renderInvestorOnboardingContent()}
 			</form>

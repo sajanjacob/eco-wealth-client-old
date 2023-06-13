@@ -39,9 +39,26 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						emailNotification: data.email_notification,
 						smsNotification: data.sms_notification,
 						pushNotification: data.push_notification,
+						investorOnboardingComplete: data.investor_onboarding_complete,
+						producerOnboardingComplete: data.producer_onboarding_complete,
 					})
 				); // Dispatch a redux action
-				console.log("user is logged in, ", data);
+
+				console.log("(withAuth) → user is logged in, ", data);
+
+				// Here we check for the user's active role from supabase and then push them to their
+				// respective onboarding page if they haven't completed it yet.
+				if (
+					data.active_role === "investor" &&
+					!data.investor_onboarding_complete
+				) {
+					router.push("/i/onboarding/");
+				} else if (
+					data.active_role === "producer" &&
+					!data.producer_onboarding_complete
+				) {
+					router.push("/p/onboarding/");
+				}
 			} catch (err) {
 				console.error("Unexpected error fetching user data:", err);
 				return null;
@@ -61,8 +78,19 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 
 		useEffect(() => {
 			if (user.loggedIn) {
-				// User is logged in, do nothing
-				console.log("user is logged in, ", user);
+				// Here we check for the user's active role in redux and then push them to their
+				// respective onboarding page if they haven't completed it yet.
+				if (
+					user.activeRole === "investor" &&
+					!user.investorOnboardingComplete
+				) {
+					router.push("/i/onboarding/");
+				} else if (
+					user.activeRole === "producer" &&
+					!user.producerOnboardingComplete
+				) {
+					router.push("/p/onboarding/");
+				}
 			} else {
 				checkUserLoggedInStatus();
 			}

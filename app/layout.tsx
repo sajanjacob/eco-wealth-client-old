@@ -25,7 +25,11 @@ export default function RootLayout({
 		>
 			<body>
 				<Providers>
-					{path !== "/thankyou" && path !== "/login" && path !== "/signup" ? (
+					{path !== "/thankyou" &&
+					path !== "/login" &&
+					path !== "/signup" &&
+					path !== "/i/onboarding" &&
+					path !== "/p/onboarding" ? (
 						<Header />
 					) : null}
 					<ToastContainer />
