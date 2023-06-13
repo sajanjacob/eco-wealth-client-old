@@ -13,7 +13,7 @@ const initialState: UserState = {
 	totalUserTreeCount: 0,
 	userTreeCount: 0,
 	onboardingComplete: true,
-	investorOnboardingComplete: false,
+	investorOnboardingComplete: true,
 	producerOnboardingComplete: false,
 	emailNotification: false,
 	smsNotification: true,
@@ -41,6 +41,16 @@ export const userSlice = createSlice({
 				state.userTreeCount = userData.userTreeCount;
 			if (userData.onboardingComplete !== undefined)
 				state.onboardingComplete = userData.onboardingComplete;
+			if (userData.investorOnboardingComplete !== undefined)
+				state.investorOnboardingComplete = userData.investorOnboardingComplete;
+			if (userData.producerOnboardingComplete !== undefined)
+				state.producerOnboardingComplete = userData.producerOnboardingComplete;
+			if (userData.emailNotification !== undefined)
+				state.emailNotification = userData.emailNotification;
+			if (userData.smsNotification !== undefined)
+				state.smsNotification = userData.smsNotification;
+			if (userData.pushNotification !== undefined)
+				state.pushNotification = userData.pushNotification;
 		},
 	},
 });

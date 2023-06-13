@@ -10,49 +10,19 @@ import LinearProgress from "@mui/material/LinearProgress";
 import InvestorOnboardingImpact from "./InvestorOnboardingImpact";
 import InvestorOnboardingCompliance from "./InvestorOnboardingCompliance";
 import InvestorOnboardingSubmit from "./InvestorOnboardingSubmit";
-
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 export default function InvestorOnboarding() {
 	const [investmentExperience, setInvestmentExperience] = useState("");
 	const [investmentAmount, setInvestmentAmount] = useState("");
-	const [investmentSector, setInvestmentSector] = useState("");
 	const [investmentGoals, setInvestmentGoals] = useState<string[]>([]);
 	const [otherInvestmentGoal, setOtherInvestmentGoal] = useState("");
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state: RootState) => state.user);
 	const [investmentSectors, setInvestmentSectors] = useState<string[]>([]);
 
-	const handleFormSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-
-		const { error } = await supabase
-			.from("users")
-			.update({
-				investment_goal: investmentGoals,
-				investment_experience: investmentExperience,
-				investment_amount: investmentAmount,
-				investment_sector: investmentSector,
-			})
-			.eq("id", user.id);
-
-		if (error) {
-			console.error("Error updating user data:", error);
-		} else {
-			const goals = {
-				investment_goal: investmentGoals,
-				investment_experience: investmentExperience,
-				investment_amount: investmentAmount,
-				investment_sector: investmentSector,
-			};
-			// const { data, error } = await supabase
-			//     .from("investors")
-			//     .update({})
-			// const { data, error } = await supabase
-			//     .from("users")
-			//     .update({investor_onboarding_complete: true})
-			//     .eq("id", user.id);
-			dispatch(setUser({ ...user, investorOnboardingComplete: true }));
-		}
-	};
+	const router = useRouter();
 
 	const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.checked) {
@@ -96,6 +66,12 @@ export default function InvestorOnboarding() {
 
 	useEffect(() => {
 		if (
+			investmentSectors.includes("Trees") &&
+			investmentSectors.includes("Renewable Energy") &&
+			investmentSectors.includes("Both")
+		) {
+			return;
+		} else if (
 			investmentSectors.includes("Trees") &&
 			investmentSectors.includes("Renewable Energy")
 		) {
@@ -179,15 +155,81 @@ export default function InvestorOnboarding() {
 	) => {
 		setInvestmentRiskAgreement(e.target.value);
 	};
+	const [loading, setLoading] = useState(false);
+
+	const handleUpdateInvestorOnboardingStatus = async (onboardingId: string) => {
+		const { data, error } = await supabase
+			.from("investors")
+			.update({
+				onboarding_complete: true,
+				onboarding_id: onboardingId,
+			})
+			.eq("user_id", user.id);
+		if (error) {
+			console.error("Error updating investor onboarding status:", error);
+			toast.error(
+				`Error updating investor onboarding status: ${error.message}`
+			);
+			return;
+		}
+		if (data) {
+			dispatch(setUser({ ...user, investorOnboardingComplete: true }));
+			setLoading(false);
+		}
+	};
+
+	const handleUpdateInvestorOnboardingData = async () => {
+		let allGoals = [...investmentGoals];
+		if (otherInvestmentGoal !== "") {
+			allGoals = [...investmentGoals, otherInvestmentGoal];
+		}
+		let allImpact = [...investmentImpact];
+		if (otherInvestmentImpact !== "") {
+			allImpact = [...investmentImpact, otherInvestmentImpact];
+		}
+		console.log(
+			`allGoals: ${allGoals}, allImpact ${allImpact}, user: ${user.id}, accreditedInvestor: ${accreditedInvestor}, investmentRiskAgreement: ${investmentRiskAgreement},
+			investmentSector: ${investmentSectors}, investmentRegions: ${investmentRegions}, investmentFluctuations: ${investmentFluctuations}, timeHorizon: ${timeHorizon}, riskTolerance: ${riskTolerance}, preferredTreeTypes: ${preferredTreeTypes}, preferredEnergyTypes: ${preferredEnergyTypes}
+			`
+		);
+		const { data, error } = await supabase
+			.from("investor_onboarding")
+			.insert([
+				{
+					id: uuidv4(),
+					user_id: user.id,
+					goals: allGoals,
+					sectors: investmentSectors,
+					renewable_energy_preferences: preferredEnergyTypes,
+					tree_preferences: preferredTreeTypes,
+					risk_tolerance: riskTolerance,
+					time_horizon: timeHorizon,
+					okay_with_investment_fluctuations: investmentFluctuations,
+					impact: allImpact,
+					regions: investmentRegions,
+					is_accredited_investor: accreditedInvestor,
+					agreed_to_risk: investmentRiskAgreement,
+				},
+			])
+			.select();
+		if (error) {
+			console.error("Error updating investor onboarding data:", error);
+			toast.error(`Error updating investor onboarding data: ${error.message}`);
+		}
+		if (data) {
+			handleUpdateInvestorOnboardingStatus(data[0].id);
+		}
+	};
 
 	// Here we manage the view of the onboarding steps
-	const [step, setStep] = useState(4);
+	const [step, setStep] = useState(1);
 	const handleNextStep = () => {
 		setStep(step + 1);
 	};
 	const handlePreviousStep = () => {
 		setStep(step - 1);
 	};
+
 	const renderInvestorOnboardingContent = () => {
 		switch (step) {
 			case 1:
@@ -249,7 +291,15 @@ export default function InvestorOnboarding() {
 					/>
 				);
 			case 5:
-				return <InvestorOnboardingSubmit />;
+				return (
+					<InvestorOnboardingSubmit
+						handleUpdateInvestorOnboardingData={
+							handleUpdateInvestorOnboardingData
+						}
+						loading={loading}
+						setLoading={setLoading}
+					/>
+				);
 		}
 	};
 	return (
@@ -266,9 +316,7 @@ export default function InvestorOnboarding() {
 					<p className='text-xs font-light mt-[4px]'>Onboarding Complete</p>
 				)}
 			</div>
-			<form onSubmit={handleFormSubmit}>
-				{renderInvestorOnboardingContent()}
-			</form>
+			<form>{renderInvestorOnboardingContent()}</form>
 		</div>
 	);
 }

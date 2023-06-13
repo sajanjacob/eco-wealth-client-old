@@ -45,12 +45,12 @@ export default function InvestorOnboardingImpact({
 					<input
 						id='impact1'
 						type='checkbox'
-						value='Short-term profit'
-						checked={investmentImpact.includes("Short-term profit")}
+						value='Carbon Offset'
+						checked={investmentImpact.includes("Carbon Offset")}
 						onChange={handleInvestmentImpactChange}
 						className='mr-2 w-5 h-5 cursor-pointer'
 					/>
-					Short-term profit
+					Carbon Offset
 				</label>
 				<label
 					htmlFor='impact2 '
@@ -59,12 +59,12 @@ export default function InvestorOnboardingImpact({
 					<input
 						id='impact2'
 						type='checkbox'
-						value='Long-term profit'
-						checked={investmentImpact.includes("Long-term profit")}
+						value='Promoting Renewable Energy'
+						checked={investmentImpact.includes("Promoting Renewable Energy")}
 						onChange={handleInvestmentImpactChange}
 						className='mr-2 w-5 h-5 cursor-pointer'
 					/>
-					Long-term profit
+					Promoting Renewable Energy
 				</label>
 				<label
 					htmlFor='impact3 '
@@ -73,12 +73,12 @@ export default function InvestorOnboardingImpact({
 					<input
 						id='impact3'
 						type='checkbox'
-						value='Diversify portfolio'
-						checked={investmentImpact.includes("Diversify portfolio")}
+						value='Supporting Local Communities'
+						checked={investmentImpact.includes("Supporting Local Communities")}
 						onChange={handleInvestmentImpactChange}
 						className='mr-2 w-5 h-5 cursor-pointer'
 					/>
-					Diversify portfolio
+					Supporting Local Communities
 				</label>
 				<label
 					htmlFor='other '

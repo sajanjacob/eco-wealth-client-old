@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 interface DashboardProps {}
 
 const Dashboard: React.FC<DashboardProps> = () => {
+	const user = useAppSelector((state) => state.user);
 	// Tree count values
 	const targetTotalUserTreeCount = 333333;
 	const targetTotalAppTreeCount = 1111111111111;
@@ -92,7 +93,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
 	const averageHomeEnergyConsumption = 11000;
 	return (
 		<div className='h-[100vh] w-[100%]'>
-			<h1 className='mb-12 pt-12 ml-8 text-2xl'>Investor Dashboard</h1>
+			<h1 className='mb-12 pt-12 ml-8 text-2xl'>
+				Investor Dashboard | Hello {user.name}!
+			</h1>
 			<div className='w-3/4 mx-auto border border-gray-700  rounded-lg p-8 '>
 				<div className='grid grid-cols-2 gap-8'>
 					<div className='flex flex-col items-center'>

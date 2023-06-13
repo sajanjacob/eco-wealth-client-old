@@ -33,9 +33,18 @@ const Onboarding: FC = () => {
 			setLoading(false);
 		}
 		if (data) {
-			setLoading(false);
 			if (role === "investor") {
-				router.push("/i/onboarding");
+				const { data, error } = await supabase.from("investors").insert([
+					{
+						user_id: user.id,
+					},
+				]);
+				if (error) {
+					console.error("Error inserting investor:", error.message);
+				}
+				if (data) {
+					router.push("/i/onboarding");
+				}
 			}
 
 			if (role === "producer") {
