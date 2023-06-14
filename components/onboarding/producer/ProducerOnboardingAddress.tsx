@@ -12,7 +12,6 @@ type Props = {
 export default function ProducerOnboardingAddress({ handleNextStep }: Props) {
 	const dispatch = useAppDispatch();
 	const [disableNextStep, setDisableNextStep] = useState(true);
-
 	const [producerPostalCode, setProducerPostalCode] = useState("");
 	const [producerAddressLineOne, setProducerAddressLineOne] = useState("");
 	const [producerAddressLineTwo, setProducerAddressLineTwo] = useState("");
@@ -22,14 +21,12 @@ export default function ProducerOnboardingAddress({ handleNextStep }: Props) {
 		e: React.ChangeEvent<HTMLInputElement>
 	) => {
 		setProducerAddressLineOne(e.target.value);
-		dispatch(setOnboarding({ addressLineOne: e.target.value }));
 	};
 
 	const handleProducerAddressLineTwoChange = (
 		e: React.ChangeEvent<HTMLInputElement>
 	) => {
 		setProducerAddressLineTwo(e.target.value);
-		dispatch(setOnboarding({ addressLineTwo: e.target.value }));
 	};
 
 	const handleProducerPostalCodeChange = (
@@ -39,7 +36,6 @@ export default function ProducerOnboardingAddress({ handleNextStep }: Props) {
 		const validPostalCode = postalCodes.validate(countryCode, e.target.value);
 		if (validPostalCode === true) {
 			setPostalCodeError(false);
-			dispatch(setOnboarding({ postalCode: e.target.value }));
 		} else {
 			setPostalCodeError(true);
 		}
@@ -68,6 +64,17 @@ export default function ProducerOnboardingAddress({ handleNextStep }: Props) {
 		city,
 		stateProvince,
 	]);
+	const handleContinue = (e: React.MouseEvent<HTMLElement>) => {
+		dispatch(
+			setOnboarding({
+				addressLineOne: producerAddressLineOne,
+				addressLineTwo: producerAddressLineTwo,
+				postalCode: producerPostalCode,
+			})
+		);
+		handleNextStep();
+	};
+
 	return (
 		<div>
 			<fieldset className='flex flex-col'>
@@ -137,7 +144,7 @@ export default function ProducerOnboardingAddress({ handleNextStep }: Props) {
 			<div className='flex justify-end mt-6'>
 				<button
 					type='button'
-					onClick={handleNextStep}
+					onClick={handleContinue}
 					className={
 						disableNextStep
 							? "w-[33%] bg-gray-500 text-white font-bold py-2 px-4 rounded cursor-default"

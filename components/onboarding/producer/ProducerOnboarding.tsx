@@ -13,106 +13,17 @@ import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import ProducerOnboardingSubmit from "./ProducerOnboardingSubmit";
 import ProducerOnboardingAddress from "./ProducerOnboardingAddress";
+import ProducerOnboardingGoals from "./ProducerOnboardingGoals";
+import ProducerOnboardingCurrentOps from "./ProducerOnboardingCurrentOps";
+import ProducerOnboardingPropertyZone from "./ProducerOnboardingPropertyZone";
 
 export default function ProducerOnboarding() {
-	const [investmentGoals, setInvestmentGoals] = useState<string[]>([]);
-	const [otherInvestmentGoal, setOtherInvestmentGoal] = useState("");
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state: RootState) => state.user);
-	const [investmentSectors, setInvestmentSectors] = useState<string[]>([]);
+	const onboarding = useAppSelector((state: RootState) => state.onboarding);
 
 	const router = useRouter();
 
-	const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.checked) {
-			setInvestmentGoals([...investmentGoals, e.target.value]);
-		} else {
-			setInvestmentGoals(
-				investmentGoals.filter((goal) => goal !== e.target.value)
-			);
-		}
-	};
-
-	const handleSectorCheckboxChange = (
-		e: React.ChangeEvent<HTMLInputElement>
-	) => {
-		if (e.target.checked && e.target.value === "Both") {
-			setInvestmentSectors(["Trees", "Renewable Energy", "Both"]);
-		} else if (e.target.checked) {
-			setInvestmentSectors([...investmentSectors, e.target.value]);
-		} else if (
-			!e.target.checked &&
-			e.target.value === "Both" &&
-			investmentSectors.includes("Trees") &&
-			investmentSectors.includes("Renewable Energy")
-		) {
-			setInvestmentSectors([]);
-		} else if (
-			(!e.target.checked && e.target.value === "Trees") ||
-			(!e.target.checked && e.target.value === "Renewable Energy")
-		) {
-			setInvestmentSectors(
-				investmentSectors.filter(
-					(sector) => sector !== e.target.value && sector !== "Both"
-				)
-			);
-		} else {
-			setInvestmentSectors(
-				investmentSectors.filter((sector) => sector !== e.target.value)
-			);
-		}
-	};
-
-	useEffect(() => {
-		if (
-			investmentSectors.includes("Trees") &&
-			investmentSectors.includes("Renewable Energy") &&
-			investmentSectors.includes("Both")
-		) {
-			return;
-		} else if (
-			investmentSectors.includes("Trees") &&
-			investmentSectors.includes("Renewable Energy")
-		) {
-			setInvestmentSectors([...investmentSectors, "Both"]);
-		}
-	}, [investmentSectors]);
-
-	// Tree Investment Preferences
-	const [preferredTreeTypes, setPreferredTreeTypes] = useState<string[]>([]);
-
-	const handleTreeTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.checked) {
-			setPreferredTreeTypes([...preferredTreeTypes, e.target.value]);
-		} else {
-			setPreferredTreeTypes(
-				preferredTreeTypes.filter((treeType) => treeType !== e.target.value)
-			);
-		}
-	};
-
-	const [preferredEnergyTypes, setPreferredEnergyTypes] = useState<string[]>(
-		[]
-	);
-
-	const handleEnergyTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.checked) {
-			setPreferredEnergyTypes([...preferredEnergyTypes, e.target.value]);
-		} else {
-			setPreferredEnergyTypes(
-				preferredEnergyTypes.filter(
-					(energyType) => energyType !== e.target.value
-				)
-			);
-		}
-	};
-	const city = useAppSelector((state: RootState) => state.onboarding.city);
-	const stateProvince = useAppSelector(
-		(state: RootState) => state.onboarding.stateProvince
-	);
-	const country = useAppSelector(
-		(state: RootState) => state.onboarding.country
-	);
 	const handleUpdateProducerOnboardingStatus = async (onboardingId: string) => {
 		const { data, error } = await supabase
 			.from("producers")
@@ -122,15 +33,15 @@ export default function ProducerOnboarding() {
 			})
 			.eq("user_id", user.id);
 		if (error) {
-			console.error("Error updating investor onboarding status:", error);
+			console.error("Error updating producer onboarding status:", error);
 			toast.error(
-				`Error updating investor onboarding status: ${error.message}`
+				`Error updating producer onboarding status: ${error.message}`
 			);
 			return;
 		}
 		if (data) {
 		}
-		dispatch(setUser({ ...user, investorOnboardingComplete: true }));
+		dispatch(setUser({ ...user, producerOnboardingComplete: true }));
 	};
 
 	const handleUpdateProducerOnboardingData = async () => {
@@ -140,12 +51,31 @@ export default function ProducerOnboarding() {
 				{
 					id: uuidv4(),
 					user_id: user.id,
+					address: {
+						address_line_one: onboarding.addressLineOne,
+						address_line_two: onboarding.addressLineTwo,
+						city: onboarding.city,
+						state_province: onboarding.stateProvince,
+						postal_code: onboarding.postalCode,
+						country: onboarding.country,
+					},
+					goals: onboarding.producerGoal,
+					operation_type: onboarding.operationType,
+					current_operations: {
+						has_tree_farm_operation: onboarding.hasTreeFarmOperation,
+						tree_types: onboarding.treeTypes,
+						tree_op_size: onboarding.treeOpSize,
+						has_solar_farm_operation: onboarding.hasSolarFarmOperation,
+						solar_types: onboarding.solarTypes,
+						solar_op_size: onboarding.solarOpSize,
+					},
+					property_zone_map: onboarding.propertyZoneMap,
 				},
 			])
 			.select();
 		if (error) {
-			console.error("Error updating investor onboarding data:", error);
-			toast.error(`Error updating investor onboarding data: ${error.message}`);
+			console.error("Error updating producer onboarding data:", error);
+			toast.error(`Error updating producer onboarding data: ${error.message}`);
 		}
 		if (data) {
 			handleUpdateProducerOnboardingStatus(data[0].id);
@@ -153,7 +83,7 @@ export default function ProducerOnboarding() {
 	};
 
 	// Here we manage the view of the onboarding steps
-	const [step, setStep] = useState(1);
+	const [step, setStep] = useState(4);
 	const handleNextStep = () => {
 		setStep(step + 1);
 	};
@@ -165,7 +95,27 @@ export default function ProducerOnboarding() {
 		switch (step) {
 			case 1:
 				return <ProducerOnboardingAddress handleNextStep={handleNextStep} />;
-
+			case 2:
+				return (
+					<ProducerOnboardingGoals
+						handleNextStep={handleNextStep}
+						handlePreviousStep={handlePreviousStep}
+					/>
+				);
+			case 3:
+				return (
+					<ProducerOnboardingCurrentOps
+						handleNextStep={handleNextStep}
+						handlePreviousStep={handlePreviousStep}
+					/>
+				);
+			case 4:
+				return (
+					<ProducerOnboardingPropertyZone
+						handleNextStep={handleNextStep}
+						handlePreviousStep={handlePreviousStep}
+					/>
+				);
 			case 5:
 				return (
 					<ProducerOnboardingSubmit

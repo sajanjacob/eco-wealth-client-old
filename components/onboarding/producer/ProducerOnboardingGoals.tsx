@@ -1,3 +1,6 @@
+import { setOnboarding } from "@/redux/features/onboardingSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { RootState } from "@/redux/store";
 import React, { useEffect, useState } from "react";
 
 type Props = {
@@ -5,19 +8,65 @@ type Props = {
 	handlePreviousStep: () => void;
 };
 
-export default function InvestorOnboardingGoals({
+export default function ProducerOnboardingGoals({
 	handleNextStep,
 	handlePreviousStep,
 }: Props) {
 	const [disableNextStep, setDisableNextStep] = useState(true);
 
 	const [producerGoal, setProducerGoal] = useState("");
-
+	const dispatch = useAppDispatch();
+	const onboarding = useAppSelector((state: RootState) => state.onboarding);
 	const handleProducerGoalChange = (
 		e: React.ChangeEvent<HTMLTextAreaElement>
 	) => {
 		setProducerGoal(e.target.value);
 	};
+	const [operationType, setOperationType] = useState<string[]>([]);
+	const handleOperationTypeCheckboxChange = (
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
+		if (e.target.checked && e.target.value === "Both") {
+			setOperationType(["Trees", "Solar Farm", "Both"]);
+		} else if (e.target.checked) {
+			setOperationType([...operationType, e.target.value]);
+		} else if (
+			!e.target.checked &&
+			e.target.value === "Both" &&
+			operationType.includes("Trees") &&
+			operationType.includes("Solar Farm")
+		) {
+			setOperationType([]);
+		} else if (
+			(!e.target.checked && e.target.value === "Trees") ||
+			(!e.target.checked && e.target.value === "Solar Farm")
+		) {
+			setOperationType(
+				operationType.filter(
+					(sector) => sector !== e.target.value && sector !== "Both"
+				)
+			);
+		} else {
+			setOperationType(
+				operationType.filter((sector) => sector !== e.target.value)
+			);
+		}
+	};
+
+	useEffect(() => {
+		if (
+			operationType.includes("Trees") &&
+			operationType.includes("Solar Farm") &&
+			operationType.includes("Both")
+		) {
+			return;
+		} else if (
+			operationType.includes("Trees") &&
+			operationType.includes("Solar Farm")
+		) {
+			setOperationType([...operationType, "Both"]);
+		}
+	}, [operationType]);
 
 	// Here we handle the next step button
 	useEffect(() => {
@@ -27,6 +76,17 @@ export default function InvestorOnboardingGoals({
 			setDisableNextStep(false);
 		}
 	}, [producerGoal]);
+
+	const handleContinue = () => {
+		handleNextStep();
+		dispatch(
+			setOnboarding({
+				...onboarding,
+				producerGoal: producerGoal,
+				operationType: operationType,
+			})
+		);
+	};
 	return (
 		<>
 			{/* Investor's Primary Goal */}
@@ -83,8 +143,8 @@ export default function InvestorOnboardingGoals({
 					<input
 						id='treeAndSolarOperation'
 						type='checkbox'
-						value='Long-term profit'
-						checked={operationType.includes("Long-term profit")}
+						value='Both'
+						checked={operationType.includes("Both")}
 						onChange={handleOperationTypeCheckboxChange}
 						className='mr-2 w-5 h-5 cursor-pointer'
 					/>
@@ -94,7 +154,7 @@ export default function InvestorOnboardingGoals({
 			<div className='flex justify-end'>
 				<button
 					type='button'
-					onClick={handleNextStep}
+					onClick={handleContinue}
 					className={
 						disableNextStep
 							? "w-[33%] bg-gray-500 text-white font-bold py-2 px-4 rounded cursor-default"

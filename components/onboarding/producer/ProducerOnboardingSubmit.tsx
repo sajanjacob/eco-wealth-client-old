@@ -11,7 +11,7 @@ export default function ProducerOnboardingSubmit({
 }: Props) {
 	const [loadingMessage, setLoadingMessage] =
 		useState(`Submitting your answers and activating
-	your investor account...`);
+	your producer account...`);
 	useEffect(() => {
 		handleUpdateProducerOnboardingData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps

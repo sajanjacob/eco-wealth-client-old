@@ -43,6 +43,15 @@ interface OnboardingState {
 	country: string;
 	postalCode: string;
 	stateProvince: string;
+	operationType: string[];
+	treeTypes: string;
+	solarTypes: string;
+	treeOpSize: string;
+	solarOpSize: string;
+	producerGoal: string;
+	propertyZoneMap: string;
+	hasSolarFarmOperation: string;
+	hasTreeFarmOperation: string;
 }
 
 interface Project {

@@ -7,6 +7,15 @@ const initialState: OnboardingState = {
 	country: "",
 	postalCode: "",
 	stateProvince: "",
+	operationType: ["Trees", "Solar Farm"],
+	treeTypes: "",
+	hasTreeFarmOperation: "",
+	hasSolarFarmOperation: "",
+	solarTypes: "",
+	treeOpSize: "",
+	solarOpSize: "",
+	producerGoal: "",
+	propertyZoneMap: "",
 };
 
 export const onboardingSlice = createSlice({
@@ -25,6 +34,19 @@ export const onboardingSlice = createSlice({
 				state.postalCode = onboardingData.postalCode;
 			if (onboardingData.stateProvince)
 				state.stateProvince = onboardingData.stateProvince;
+			if (onboardingData.operationType)
+				state.operationType = onboardingData.operationType;
+			if (onboardingData.treeTypes) state.treeTypes = onboardingData.treeTypes;
+			if (onboardingData.solarTypes)
+				state.solarTypes = onboardingData.solarTypes;
+			if (onboardingData.treeOpSize)
+				state.treeOpSize = onboardingData.treeOpSize;
+			if (onboardingData.solarOpSize)
+				state.solarOpSize = onboardingData.solarOpSize;
+			if (onboardingData.producerGoal)
+				state.producerGoal = onboardingData.producerGoal;
+			if (onboardingData.propertyZoneMap)
+				state.propertyZoneMap = onboardingData.propertyZoneMap;
 		},
 	},
 });
