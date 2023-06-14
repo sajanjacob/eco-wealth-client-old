@@ -36,6 +36,15 @@ interface UserState {
 	producerOnboardingComplete: boolean;
 }
 
+interface OnboardingState {
+	addressLineOne: string;
+	addressLineTwo: string;
+	city: string;
+	country: string;
+	postalCode: string;
+	stateProvince: string;
+}
+
 interface Project {
 	id: string;
 	title: string;

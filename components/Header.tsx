@@ -18,6 +18,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { FiPower } from "react-icons/fi";
 import { MdSettings } from "react-icons/md";
+import { AiOutlineUserSwitch } from "react-icons/ai";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -261,6 +262,7 @@ const Header = ({}: Props) => {
 										className='menu-link'
 										onClick={handleToggleRole}
 									>
+										<AiOutlineUserSwitch className='mr-2' />
 										Switch to{" "}
 										{activeRole === "investor" ? "Producer" : "Investor"}
 									</MenuItem>

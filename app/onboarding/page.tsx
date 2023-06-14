@@ -14,16 +14,20 @@ const Onboarding: FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [role, setRole] = useState<string | null>(null);
 	const [name, setName] = useState<string>("");
+	const [phone, setPhone] = useState<string>("");
 	const [step, setStep] = useState(0);
 
 	//  Here we update the user's role in the database and redux store
-	const updateUserRole = async (role: string) => {
-		dispatch(setUser({ ...user, roles: [role], activeRole: role }));
+	const updateUserData = async (role: string) => {
+		dispatch(
+			setUser({ ...user, roles: [role], activeRole: role, phoneNumber: phone })
+		);
 		const { data, error } = await supabase
 			.from("users")
 			.update({
 				name: name,
 				roles: [role],
+				phone_number: phone,
 				activeRole: role,
 				onboarding_complete: true,
 			})
@@ -59,7 +63,7 @@ const Onboarding: FC = () => {
 		const accountRole =
 			event.currentTarget.getAttribute("data-account-role") || "";
 		setRole(accountRole);
-		updateUserRole(accountRole);
+		updateUserData(accountRole);
 	};
 
 	const handleNameSubmit = (e: React.FormEvent) => {
@@ -73,6 +77,9 @@ const Onboarding: FC = () => {
 	const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setName(e.target.value);
 	};
+	const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setPhone(e.target.value);
+	};
 
 	useEffect(() => {
 		console.log("user role >>> ", user?.activeRole);
@@ -83,6 +90,15 @@ const Onboarding: FC = () => {
 		}
 	}, [user?.activeRole, router]);
 
+	const [disabled, setDisabled] = useState(false);
+	useEffect(() => {
+		if (name.length > 0 && phone.length > 0) {
+			setDisabled(false);
+		} else {
+			setDisabled(true);
+		}
+	}, [name, phone]);
+
 	switch (step) {
 		case 0:
 			return (
@@ -91,9 +107,9 @@ const Onboarding: FC = () => {
 					className='flex flex-col items-center justify-center min-h-screen'
 				>
 					<div>
-						<h1 className='text-left mb-4 text-xl text-gray-500 dark:text-white'>
+						<label className='text-left mb-4 text-xl text-gray-500 dark:text-white'>
 							What&apos;s your name?
-						</h1>
+						</label>
 						<input
 							value={name}
 							onChange={handleNameInput}
@@ -102,14 +118,26 @@ const Onboarding: FC = () => {
 							placeholder='Full name'
 							name='name'
 						/>
+						<label className='text-left mb-4 text-xl text-gray-500 dark:text-white'>
+							What&apos;s your phone number?
+						</label>
+						<input
+							value={phone}
+							onChange={handlePhoneInput}
+							className='w-[300px] p-2 mb-4 rounded text-gray-800 border-gray-100 border-2 outline-green-300 transition-colors hover:border-green-200'
+							type='tel'
+							placeholder='Phone Number'
+							name='phone'
+						/>
 					</div>
 					<div>
 						<button
 							className={`px-4 py-2 rounded text-white mt-8  ${
-								loading
+								disabled
 									? "bg-gray-500"
 									: "cursor-pointer bg-green-700 transition-all hover:scale-105 hover:bg-green-500"
 							}  `}
+							disabled={disabled}
 						>
 							Continue to next step
 						</button>

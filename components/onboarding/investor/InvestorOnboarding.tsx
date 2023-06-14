@@ -13,6 +13,7 @@ import InvestorOnboardingSubmit from "./InvestorOnboardingSubmit";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import InvestorOnboardingBilling from "./InvestorOnboardingBilling";
 export default function InvestorOnboarding() {
 	const [investmentExperience, setInvestmentExperience] = useState("");
 	const [investmentAmount, setInvestmentAmount] = useState("");
@@ -155,8 +156,15 @@ export default function InvestorOnboarding() {
 	) => {
 		setInvestmentRiskAgreement(e.target.value);
 	};
-	const [loading, setLoading] = useState(false);
 
+	const [investorBillingAddressLineOne, setInvestorBillingAddressLineOne] =
+		useState("");
+	const [investorBillingAddressLineTwo, setInvestorBillingAddressLineTwo] =
+		useState("");
+	const [investorBillingCity, setInvestorBillingCity] = useState("");
+	const [investorBillingCountry, setInvestorBillingCountry] = useState("");
+	const [investorBillingPostalCode, setInvestorBillingPostalCode] =
+		useState("");
 	const handleUpdateInvestorOnboardingStatus = async (onboardingId: string) => {
 		const { data, error } = await supabase
 			.from("investors")
@@ -173,9 +181,8 @@ export default function InvestorOnboarding() {
 			return;
 		}
 		if (data) {
-			dispatch(setUser({ ...user, investorOnboardingComplete: true }));
-			setLoading(false);
 		}
+		dispatch(setUser({ ...user, investorOnboardingComplete: true }));
 	};
 
 	const handleUpdateInvestorOnboardingData = async () => {
@@ -290,14 +297,13 @@ export default function InvestorOnboarding() {
 						}
 					/>
 				);
+
 			case 5:
 				return (
 					<InvestorOnboardingSubmit
 						handleUpdateInvestorOnboardingData={
 							handleUpdateInvestorOnboardingData
 						}
-						loading={loading}
-						setLoading={setLoading}
 					/>
 				);
 		}

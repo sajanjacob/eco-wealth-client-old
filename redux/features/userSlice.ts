@@ -4,7 +4,7 @@ const initialState: UserState = {
 	roles: ["investor", "producer"],
 	loggedIn: true,
 	id: "23d2690a-487c-4eca-9cc8-b5303aacbf70",
-	activeRole: "investor",
+	activeRole: "producer",
 	currentTheme: null,
 	email: "sajanjacob67@gmail.com",
 	name: "Sajan",
