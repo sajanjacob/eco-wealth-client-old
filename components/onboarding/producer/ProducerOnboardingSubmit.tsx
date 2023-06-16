@@ -9,9 +9,16 @@ type Props = {
 export default function ProducerOnboardingSubmit({
 	handleUpdateProducerOnboardingData,
 }: Props) {
-	const [loadingMessage, setLoadingMessage] =
-		useState(`Submitting your answers and activating
-	your producer account...`);
+	const reduxLoadingMessage = useAppSelector(
+		(state) => state.onboarding.loadingMsg
+	);
+
+	let loadingMessage =
+		reduxLoadingMessage !== ""
+			? reduxLoadingMessage
+			: `Submitting your answers and activating
+	your producer account...`;
+
 	useEffect(() => {
 		handleUpdateProducerOnboardingData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps

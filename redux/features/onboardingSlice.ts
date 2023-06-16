@@ -16,6 +16,7 @@ const initialState: OnboardingState = {
 	solarOpSize: "",
 	producerGoal: "",
 	propertyZoneMap: "",
+	loadingMsg: "",
 };
 
 export const onboardingSlice = createSlice({
@@ -47,6 +48,8 @@ export const onboardingSlice = createSlice({
 				state.producerGoal = onboardingData.producerGoal;
 			if (onboardingData.propertyZoneMap)
 				state.propertyZoneMap = onboardingData.propertyZoneMap;
+			if (onboardingData.loadingMsg)
+				state.loadingMsg = onboardingData.loadingMsg;
 		},
 	},
 });

@@ -139,7 +139,10 @@ export default function ProducerOnboardingPropertyZone({
 							src='https://i.postimg.cc/XY4ht7zW/share-map.png'
 						/>
 					</div>
-					<h3 className='text-xl my-2'>Step 11 - Share the link below:</h3>
+					<h3 className='text-xl my-2'>
+						Step 11 - Paste the link in the input at the top of the page and
+						click continue to complete the onboarding.
+					</h3>
 
 					<h3>
 						Note: You can edit the map at anytime in case if you made a mistake

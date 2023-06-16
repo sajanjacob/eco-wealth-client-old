@@ -52,6 +52,7 @@ interface OnboardingState {
 	propertyZoneMap: string;
 	hasSolarFarmOperation: string;
 	hasTreeFarmOperation: string;
+	loadingMsg: string;
 }
 
 interface Project {
