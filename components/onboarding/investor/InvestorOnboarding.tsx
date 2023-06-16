@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import supabase from "@/utils/supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -13,10 +13,8 @@ import InvestorOnboardingSubmit from "./InvestorOnboardingSubmit";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
-import InvestorOnboardingBilling from "./InvestorOnboardingBilling";
+
 export default function InvestorOnboarding() {
-	const [investmentExperience, setInvestmentExperience] = useState("");
-	const [investmentAmount, setInvestmentAmount] = useState("");
 	const [investmentGoals, setInvestmentGoals] = useState<string[]>([]);
 	const [otherInvestmentGoal, setOtherInvestmentGoal] = useState("");
 	const dispatch = useAppDispatch();
@@ -35,6 +33,7 @@ export default function InvestorOnboarding() {
 		}
 	};
 
+	// Here we manage the logic for the "Both" checkbox.
 	const handleSectorCheckboxChange = (
 		e: React.ChangeEvent<HTMLInputElement>
 	) => {
@@ -65,6 +64,7 @@ export default function InvestorOnboarding() {
 		}
 	};
 
+	// If the user selects both Trees and Renewable Energy, we add "Both" to the investmentSectors array.
 	useEffect(() => {
 		if (
 			investmentSectors.includes("Trees") &&
@@ -157,14 +157,8 @@ export default function InvestorOnboarding() {
 		setInvestmentRiskAgreement(e.target.value);
 	};
 
-	const [investorBillingAddressLineOne, setInvestorBillingAddressLineOne] =
-		useState("");
-	const [investorBillingAddressLineTwo, setInvestorBillingAddressLineTwo] =
-		useState("");
-	const [investorBillingCity, setInvestorBillingCity] = useState("");
-	const [investorBillingCountry, setInvestorBillingCountry] = useState("");
-	const [investorBillingPostalCode, setInvestorBillingPostalCode] =
-		useState("");
+	// As the onboarding data is submitted, we update the investor's onboarding status
+	// along with the onboarding_survey id that's related to the investor_onboarding table in supabase.
 	const handleUpdateInvestorOnboardingStatus = async (onboardingId: string) => {
 		const { data, error } = await supabase
 			.from("investors")
@@ -185,6 +179,8 @@ export default function InvestorOnboarding() {
 		dispatch(setUser({ ...user, investorOnboardingComplete: true }));
 	};
 
+	// Here we submit the onboarding survey data to supabase.
+	// TODO: Convert to redux.
 	const handleUpdateInvestorOnboardingData = async () => {
 		let allGoals = [...investmentGoals];
 		if (otherInvestmentGoal !== "") {
@@ -228,7 +224,7 @@ export default function InvestorOnboarding() {
 		}
 	};
 
-	// Here we manage the view of the onboarding steps
+	// Here we manage the view of the onboarding steps.
 	const [step, setStep] = useState(1);
 	const handleNextStep = () => {
 		setStep(step + 1);
@@ -237,6 +233,7 @@ export default function InvestorOnboarding() {
 		setStep(step - 1);
 	};
 
+	// Here we render the onboarding content based on the step.
 	const renderInvestorOnboardingContent = () => {
 		switch (step) {
 			case 1:
