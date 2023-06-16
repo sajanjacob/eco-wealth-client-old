@@ -29,7 +29,7 @@ const Header = ({}: Props) => {
 	const user = useAppSelector((state) => state.user);
 	const isLoggedIn = useAppSelector((state) => state.user?.loggedIn);
 
-	const [theme, setTheme] = useState<string>(currentTheme ?? "dark");
+	const [theme, setTheme] = useState<string>(currentTheme || "dark");
 
 	// Avatar Menu
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -41,7 +41,6 @@ const Header = ({}: Props) => {
 		setAnchorEl(null);
 	};
 
-	console.log("(header) redux user >>> ", user);
 	const switchRole = (role: String) => {
 		fetch("/api/switchActiveRole", {
 			method: "POST",
@@ -76,9 +75,9 @@ const Header = ({}: Props) => {
 		router.push("/signup");
 	};
 
+	// Logout logic
 	const handleLogoutClick = async () => {
 		// Handle logout logic here
-		console.log("logging user out...");
 		await supabase.auth.signOut();
 		dispatch(
 			setUser({
@@ -93,11 +92,18 @@ const Header = ({}: Props) => {
 				isVerified: false,
 				totalUserTreeCount: 0,
 				userTreeCount: 0,
+				onboardingComplete: false,
+				investorOnboardingComplete: false,
+				producerOnboardingComplete: false,
+				emailNotification: false,
+				smsNotification: false,
+				pushNotification: false,
 			})
 		);
 		router.push("/login");
 	};
 
+	// Here we toggle the theme between light and dark.
 	const handleToggleTheme = () => {
 		// Toggle the theme state between 'light' and 'dark'
 		setTheme((prevTheme: string) => {
@@ -113,6 +119,14 @@ const Header = ({}: Props) => {
 			return newTheme;
 		});
 	};
+
+	// When the theme is initially loaded from redux and it's the 'light' class, we apply it
+	// by removing 'dark' from the root html element.  Else, we leave the element alone.
+	useEffect(() => {
+		if (currentTheme === "light") {
+			document.documentElement.classList.remove("dark");
+		}
+	}, [currentTheme]);
 
 	const handleReturnHome = () => {
 		router.push("/");
@@ -148,9 +162,8 @@ const Header = ({}: Props) => {
 
 	const handleSettingsClick = () => router.push("/settings");
 
-	console.log(`isLoggedIn: ${isLoggedIn}`);
 	return (
-		<div className='flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-gray-200 dark:border-b-green-900 sticky top-0'>
+		<div className='flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
 			<div
 				className='text-xl cursor-pointer text-black font-semibold dark:text-white'
 				onClick={handleReturnHome}

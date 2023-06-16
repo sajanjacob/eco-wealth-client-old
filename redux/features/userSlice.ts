@@ -5,7 +5,7 @@ const initialState: UserState = {
 	loggedIn: true,
 	id: "23d2690a-487c-4eca-9cc8-b5303aacbf70",
 	activeRole: "producer",
-	currentTheme: null,
+	currentTheme: "dark",
 	email: "sajanjacob67@gmail.com",
 	name: "Sajan",
 	phoneNumber: "7802463275",
