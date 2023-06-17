@@ -1,15 +1,17 @@
-import React, { useContext, useState } from "react";
-import { useRouter } from "next/router";
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import supabase from "@/utils/supabaseClient";
-import UserContext from "@/state/UserContext";
+import { RootState } from "@/redux/store";
 import { toast } from "react-toastify";
-
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 export default function AddProject() {
 	const router = useRouter();
-	const { state, send } = useContext(UserContext);
+	const user = useAppSelector((state: RootState) => state.user);
+	const dispatch = useAppDispatch();
 
 	const [title, setTitle] = useState("");
-	const [image, setImage] = useState(null);
+	const [image, setImage] = useState<File | null>(null);
 	const [coordinatorName, setCoordinatorName] = useState("");
 	const [coordinatorPhone, setCoordinatorPhone] = useState("");
 	const [description, setDescription] = useState("");
@@ -21,13 +23,27 @@ export default function AddProject() {
 	const [uploadMethod, setUploadMethod] = useState(true);
 	const [treeType, setTreeType] = useState("");
 
-	const handleAgreementChange = (index) => {
+	const handleAgreementChange = (index: number) => {
 		const newAgreements = [...agreements];
 		newAgreements[index] = !newAgreements[index];
 		setAgreements(newAgreements);
 	};
 
-	const handleSubmit = async (e) => {
+	// TODO: TEST THIS -> Generated from Co-Pilot
+	const uploadImage = async (file: File) => {
+		const fileExt = file.name.split(".").pop();
+		const fileName = `${Math.random()}.${fileExt}`;
+		const filePath = `projects/${fileName}`;
+		const { data, error } = await supabase.storage
+			.from("projects")
+			.upload(filePath, file);
+		if (error) {
+			throw error;
+		}
+		return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/projects/${fileName}`;
+	};
+
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (!agreements.every((val) => val)) {
@@ -35,25 +51,25 @@ export default function AddProject() {
 			return;
 		}
 
-		const userId = state.context.user.id;
+		const userId = user.id;
 		let projectImageUrl = imageUrlInput;
 
 		if (imageFile) {
 			try {
 				projectImageUrl = await uploadImage(imageFile);
 			} catch (error) {
-				toast.error(`Error uploading image. ${error.message}`);
+				toast.error(`Error uploading image. ${error}`);
 				return;
 			}
 		}
 
-		const projectData = {
+		const projectData: Project = {
 			title: title,
-			image_url: imageUrlInput, // You will need to upload the image and replace this with the image URL
-			project_coordinator_contact: JSON.stringify({
+			image_url: imageUrlInput,
+			project_coordinator_contact: {
 				name: coordinatorName,
 				phone: coordinatorPhone,
-			}),
+			},
 			description: description,
 			tree_target: numTrees,
 			funds_requested_per_tree: pricePerTree,
@@ -63,6 +79,16 @@ export default function AddProject() {
 			project_verification_consent_given: true,
 			admin_fee_consent: true,
 			agree_to_pay_investor: true,
+			id: "",
+			name: "",
+			created_at: "",
+			updated_at: "",
+			created_by: "",
+			updated_by: "",
+			role: "",
+			tree_count: 0,
+			projectType: "",
+			projectId: "",
 		};
 
 		const { data, error } = await supabase.from("projects").insert(projectData);
@@ -77,9 +103,16 @@ export default function AddProject() {
 	const toggleUploadMethod = () => {
 		setUploadMethod(!uploadMethod);
 	};
+
+	const handleSetImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+		if (event.target.files) {
+			setImage(event.target.files[0]);
+		}
+	};
+
 	return (
-		<div>
-			<h1>Add Project</h1>
+		<div className='container mx-auto py-6 px-4'>
+			<h1 className='text-2xl font-semibold mb-6'>Add Project</h1>
 			<form onSubmit={handleSubmit}>
 				<label>
 					Project Title:
@@ -114,14 +147,17 @@ export default function AddProject() {
 				<br />
 				<label>Project Banner/Main Image:</label>
 				<br />
-				<button type='button' onClick={toggleUploadMethod}>
+				<button
+					type='button'
+					onClick={toggleUploadMethod}
+				>
 					{uploadMethod ? "Switch to URL" : "Switch to Upload"}
 				</button>
 				<br />
 				{uploadMethod ? (
 					<input
 						type='file'
-						onChange={(event) => setImageFile(event.target.files[0])}
+						onChange={handleSetImage}
 						accept='image/*'
 					/>
 				) : (
@@ -171,7 +207,7 @@ export default function AddProject() {
 					<input
 						type='number'
 						value={numTrees}
-						onChange={(e) => setNumTrees(e.target.value)}
+						onChange={(e) => setNumTrees(e.target.valueAsNumber)}
 						required
 					/>
 				</label>
@@ -182,7 +218,7 @@ export default function AddProject() {
 						type='number'
 						step='0.01'
 						value={pricePerTree}
-						onChange={(e) => setPricePerTree(e.target.value)}
+						onChange={(e) => setPricePerTree(e.target.valueAsNumber)}
 						required
 					/>
 				</label>

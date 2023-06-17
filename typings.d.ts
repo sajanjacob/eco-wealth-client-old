@@ -57,6 +57,7 @@ interface OnboardingState {
 
 interface Project {
 	id: string;
+	user_id: string | null;
 	title: string;
 	name: string;
 	description: string;
@@ -73,8 +74,13 @@ interface Project {
 	funds_requested_per_tree: number;
 	projectType: string;
 	projectId: string;
-	project_coordinator_contact_name: string;
-	project_coordinator_contact_email: string;
+	project_coordinator_contact: {
+		name: string;
+		phone: string;
+	};
+	project_verification_consent_given: boolean;
+	admin_fee_consent: boolean;
+	agree_to_pay_investor: boolean;
 }
 
 type Projects = Project[];
