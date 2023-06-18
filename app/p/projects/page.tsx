@@ -1,26 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import ProjectCard from "@/components/ProjectCard";
 import supabase from "@/utils/supabaseClient";
 import { RootState } from "@/redux/store";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-type ProjectType = {
-	image_url: string;
-	title: string;
-	description: string;
-	status: string;
-	id: string;
-	project_coordinator_contact: string;
-	tree_target: number;
-	funds_requested_per_tree: number;
-	type: string;
-	created_at: Date;
-};
 
-type UserType = {
-	id: string;
-};
 type Props = {};
 function Projects({}: Props) {
 	const dispatch = useAppDispatch();

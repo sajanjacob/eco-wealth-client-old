@@ -4,6 +4,7 @@ const initialState: UserState = {
 	roles: ["investor", "producer"],
 	loggedIn: true,
 	id: "23d2690a-487c-4eca-9cc8-b5303aacbf70",
+	producerId: "23d2690a-487c-4eca-9cc8-b5303aacbf70",
 	activeRole: "producer",
 	currentTheme: "dark",
 	email: "sajanjacob67@gmail.com",
@@ -14,7 +15,7 @@ const initialState: UserState = {
 	userTreeCount: 0,
 	onboardingComplete: true,
 	investorOnboardingComplete: true,
-	producerOnboardingComplete: false,
+	producerOnboardingComplete: true,
 	emailNotification: false,
 	smsNotification: true,
 	pushNotification: true,
@@ -29,6 +30,7 @@ export const userSlice = createSlice({
 			if (userData.roles) state.roles = userData.roles;
 			if (userData.loggedIn !== undefined) state.loggedIn = userData.loggedIn;
 			if (userData.id) state.id = userData.id;
+			if (userData.producerId) state.producerId = userData.producerId;
 			if (userData.activeRole) state.activeRole = userData.activeRole;
 			if (userData.currentTheme) state.currentTheme = userData.currentTheme;
 			if (userData.email) state.email = userData.email;
