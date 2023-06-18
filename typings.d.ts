@@ -20,6 +20,7 @@ interface UserState {
 	loggedIn: boolean;
 	roles: string[];
 	id: string | null;
+	producerId: string | null;
 	activeRole: string | null;
 	currentTheme: string | null;
 	email: string | null;
@@ -57,30 +58,38 @@ interface OnboardingState {
 
 interface Project {
 	id: string;
-	user_id: string | null;
+	userId: string | null;
+	producerId: string | null;
 	title: string;
-	name: string;
 	description: string;
-	created_at: string;
-	updated_at: string;
-	created_by: string;
-	updated_by: string;
-	role: string;
-	tree_target: number;
-	tree_count: number;
-	image_url: string;
+	createdAt: string;
+	updatedAt: string | Number;
+	treeTarget: number;
+	treeCount: number;
+	imageUrl: string;
 	status: string;
 	type: string;
-	funds_requested_per_tree: number;
+	fundsRequestedPerTree: number;
 	projectType: string;
+	treeProjectType: string;
+	energyProjectType: string;
 	projectId: string;
-	project_coordinator_contact: {
+	projectCoordinatorContact: {
 		name: string;
 		phone: string;
 	};
-	project_verification_consent_given: boolean;
-	admin_fee_consent: boolean;
-	agree_to_pay_investor: boolean;
+	totalArea: number;
+	projectVerificationConsentGiven: boolean;
+	adminFeeConsent: boolean;
+	agreedToPayInvestor: boolean;
 }
 
+interface Property {
+	id: string;
+	createdAt: string;
+	producerId: string;
+	address: JSON;
+	updatedAt: string;
+	isVerified: boolean;
+}
 type Projects = Project[];
