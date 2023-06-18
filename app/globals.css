@@ -25,6 +25,9 @@ body {
   .dark body {
     @apply text-white bg-gradient-to-b from-green-950 to-black;
   }
+  .dark input {
+    @apply text-gray-700;
+  }
 }
 
 @layer components{
