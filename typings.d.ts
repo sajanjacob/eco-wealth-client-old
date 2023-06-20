@@ -21,6 +21,7 @@ interface UserState {
 	roles: string[];
 	id: string | null;
 	producerId: string | null;
+	investorId: string | null;
 	activeRole: string | null;
 	currentTheme: string | null;
 	email: string | null;
@@ -82,13 +83,21 @@ interface Project {
 	projectVerificationConsentGiven: boolean;
 	adminFeeConsent: boolean;
 	agreedToPayInvestor: boolean;
+	propertyId: string;
 }
 
 interface Property {
 	id: string;
 	createdAt: string;
 	producerId: string;
-	address: JSON;
+	address: {
+		addressLineOne: string;
+		addressLineTwo: string;
+		city: string;
+		country: string;
+		postalCode: string;
+		stateProvince: string;
+	};
 	updatedAt: string;
 	isVerified: boolean;
 }
