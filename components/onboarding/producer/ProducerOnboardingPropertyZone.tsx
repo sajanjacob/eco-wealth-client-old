@@ -58,7 +58,7 @@ export default function ProducerOnboardingPropertyZone({
 			</h3>
 			<input
 				type='text'
-				placeholder='https://mymaps.google.com/...'
+				placeholder='https://www.google.com/maps/...'
 				className='border-2 border-gray-300 rounded-md p-2 w-full'
 				value={propertyZoneMap}
 				onChange={handlePropertyZoneMapChange}

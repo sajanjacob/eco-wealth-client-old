@@ -52,7 +52,17 @@ const Onboarding: FC = () => {
 			}
 
 			if (role === "producer") {
-				router.push("/p/onboarding");
+				const { data, error } = await supabase.from("producers").insert([
+					{
+						user_id: user.id,
+					},
+				]);
+				if (error) {
+					console.error("Error inserting producer:", error.message);
+				}
+				if (data) {
+					router.push("/p/onboarding");
+				}
 			}
 		}
 	};

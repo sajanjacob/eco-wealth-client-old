@@ -1,11 +1,9 @@
 "use client";
 import React, { useEffect } from "react";
 import withAuth from "@/utils/withAuth";
-import InvestorOnboarding from "@/components/onboarding/investor/InvestorOnboarding";
 import { useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
 import { RootState } from "@/redux/store";
-import ProducerOnboardingSubmit from "@/components/onboarding/producer/ProducerOnboardingSubmit";
 import ProducerOnboarding from "@/components/onboarding/producer/ProducerOnboarding";
 
 function Onboarding() {

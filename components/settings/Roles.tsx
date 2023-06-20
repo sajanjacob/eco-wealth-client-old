@@ -27,9 +27,38 @@ export default function Roles({ user }: Props) {
 
 			if (error) throw error;
 
-			dispatch(setUser({ ...user, roles: newRoles }));
+			if (data) {
+				dispatch(setUser({ ...user, roles: newRoles }));
+				if (role === "investor") {
+					const { data, error } = await supabase.from("investors").insert([
+						{
+							user_id: user.id,
+						},
+					]);
+					if (error) {
+						console.error("Error inserting investor:", error.message);
+					}
+					if (data) {
+						router.push("/i/onboarding");
+					}
+				}
+
+				if (role === "producer") {
+					const { data, error } = await supabase.from("producers").insert([
+						{
+							user_id: user.id,
+						},
+					]);
+					if (error) {
+						console.error("Error inserting producer:", error.message);
+					}
+					if (data) {
+						router.push("/p/onboarding");
+					}
+				}
+			}
+
 			// Redirect the user to the onboarding section for their new role
-			router.push(`/${role.charAt(0)}/onboarding`);
 		} catch (error) {
 			console.error("Error activating role:", error);
 		} finally {

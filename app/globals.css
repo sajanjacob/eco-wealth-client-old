@@ -19,7 +19,7 @@
 }
 
 body {
-  @apply text-gray-700 bg-gradient-to-b from-green-100 to-green-200;
+  @apply text-gray-700 bg-gradient-to-b from-green-100 to-green-200 min-h-[100vh];
 }
 @layer base {
   .dark body {

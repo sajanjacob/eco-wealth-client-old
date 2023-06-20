@@ -70,7 +70,7 @@ export default function ProducerOnboardingGoals({
 
 	// Here we handle the next step button
 	useEffect(() => {
-		if (producerGoal !== "") {
+		if (producerGoal === "") {
 			setDisableNextStep(true);
 		} else {
 			setDisableNextStep(false);
@@ -102,7 +102,7 @@ export default function ProducerOnboardingGoals({
 						id='goals'
 						value={producerGoal}
 						onChange={handleProducerGoalChange}
-						className='rounded-md text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+						className='rounded-md text-lg text-gray-700 p-[4px] outline-green-400 transition-colors w-[500px] min-h-[150px]'
 					/>
 				</label>
 				<legend className='text-xl font-light mb-2'>

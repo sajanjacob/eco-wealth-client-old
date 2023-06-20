@@ -6,7 +6,9 @@ import { RootState } from "@/redux/store";
 import { toast } from "react-toastify";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import convertToCamelCase from "@/utils/convertToCamelCase";
-export default function AddProject() {
+import withAuth from "@/utils/withAuth";
+import { v4 as uuidv4 } from "uuid";
+function AddProject() {
 	const router = useRouter();
 	const user = useAppSelector((state: RootState) => state.user);
 	const dispatch = useAppDispatch();
@@ -27,6 +29,7 @@ export default function AddProject() {
 	const [energyType, setEnergyType] = useState("");
 	const [totalArea, setTotalArea] = useState(0);
 	const [properties, setProperties] = useState<Property[]>([]);
+	const [projectAddressId, setProjectAddressId] = useState("");
 	const [projectBannerUrl, setProjectBannerUrl] = useState("");
 
 	const [energyProductionTarget, setEnergyProductionTarget] = useState(0);
@@ -39,11 +42,15 @@ export default function AddProject() {
 	const [estimatedMaintenanceCost, setEstimatedMaintenanceCost] = useState(0);
 	const [connectWithSolarPartner, setConnectWithSolarPartner] = useState("");
 	const [fundsRequested, setFundsRequested] = useState(0);
+
+	// Here we retrieve the properties the user submitted that are verified so
+	// we can list them as options for the user to select from when adding a project.
 	const fetchProperties = async (producerId: string) => {
 		const { data: propertyData, error: propertyError } = await supabase
 			.from("producer_properties")
 			.select("*")
-			.eq("producer_id", producerId);
+			.eq("producer_id", producerId)
+			.eq("is_verified", true);
 		setProperties(convertToCamelCase(propertyData) as Property[]);
 	};
 
@@ -120,11 +127,13 @@ export default function AddProject() {
 			userId: user.id,
 			treeProjectType: treeType,
 			energyProjectType: energyType,
+			propertyId: projectAddressId,
 		};
 		const { data: project, error } = await supabase
 			.from("projects")
 			.insert([
 				{
+					id: uuidv4(),
 					title: projectData.title,
 					image_url: projectData.imageUrl,
 					project_coordinator_contact: projectData.projectCoordinatorContact,
@@ -137,12 +146,14 @@ export default function AddProject() {
 					admin_fee_consent: projectData.adminFeeConsent,
 					agreed_to_pay_investor: projectData.agreedToPayInvestor,
 					total_area_sqkm: projectData.totalArea,
+					property_address_id: projectData.propertyId,
 				},
 			])
 			.select();
 		if (projectType === "Tree" && project) {
 			const { data, error } = await supabase.from("tree_projects").insert([
 				{
+					id: uuidv4(),
 					project_id: project?.[0].id,
 					tree_target: projectData.treeTarget,
 					funds_requested_per_tree: projectData.fundsRequestedPerTree,
@@ -154,6 +165,7 @@ export default function AddProject() {
 		if (projectType === "Energy" && project) {
 			const { data, error } = await supabase.from("energy_projects").insert([
 				{
+					id: uuidv4(),
 					project_id: project?.[0].id,
 					tree_target: projectData.treeTarget,
 					funds_requested_per_tree: projectData.fundsRequestedPerTree,
@@ -195,6 +207,32 @@ export default function AddProject() {
 				</label>
 				<br />
 				<label className='flex flex-col'>
+					<span className='mb-[4px] mt-2'>Project Location:</span>
+					<select
+						value={projectAddressId}
+						onChange={(event) => setProjectAddressId(event.target.value)}
+						required
+						className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+					>
+						<option value=''>
+							Select the address your project will be operated from
+						</option>
+						{properties.map((property) => (
+							<option
+								key={property.id}
+								value={property.id}
+							>
+								{property.address.addressLineOne},{" "}
+								{property.address.addressLineTwo &&
+									`${property.address.addressLineTwo}, `}{" "}
+								{property.address.city}, {property.address.stateProvince},{" "}
+								{property.address.country}
+							</option>
+						))}
+					</select>
+				</label>
+				<br />
+				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Type:</span>
 					<select
 						value={projectType}
@@ -207,6 +245,7 @@ export default function AddProject() {
 						<option value='Energy'>Renewable Energy</option>
 					</select>
 				</label>
+
 				{projectType === "Tree" && (
 					<label className='flex flex-col mt-[8px]'>
 						<span className='mb-[4px] mt-2'>Tree Project Type:</span>
@@ -595,3 +634,5 @@ export default function AddProject() {
 		</div>
 	);
 }
+
+export default withAuth(AddProject);

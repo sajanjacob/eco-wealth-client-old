@@ -17,6 +17,8 @@ import ProducerOnboardingGoals from "./ProducerOnboardingGoals";
 import ProducerOnboardingCurrentOps from "./ProducerOnboardingCurrentOps";
 import ProducerOnboardingPropertyZone from "./ProducerOnboardingPropertyZone";
 
+import shortid from "shortid";
+
 export default function ProducerOnboarding() {
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state: RootState) => state.user);
@@ -50,15 +52,7 @@ export default function ProducerOnboarding() {
 			.insert([
 				{
 					id: uuidv4(),
-					user_id: user.id,
-					address: {
-						address_line_one: onboarding.addressLineOne,
-						address_line_two: onboarding.addressLineTwo,
-						city: onboarding.city,
-						state_province: onboarding.stateProvince,
-						postal_code: onboarding.postalCode,
-						country: onboarding.country,
-					},
+					producer_id: user.producerId,
 					goals: onboarding.producerGoal,
 					operation_type: onboarding.operationType,
 					current_operations: {
@@ -79,11 +73,53 @@ export default function ProducerOnboarding() {
 		}
 		if (data) {
 			handleUpdateProducerOnboardingStatus(data[0].id);
+			const { data: propertyData, error } = await supabase
+				.from("producer_properties")
+				.insert([
+					{
+						id: uuidv4(),
+						producer_id: user.producerId,
+						address: {
+							address_line_one: onboarding.addressLineOne,
+							address_line_two: onboarding.addressLineTwo,
+							city: onboarding.city,
+							state_province: onboarding.stateProvince,
+							postal_code: onboarding.postalCode,
+							country: onboarding.country,
+						},
+						is_verified: false,
+					},
+				])
+				.select();
+			if (error) {
+				console.error("Error updating producer onboarding data:", error);
+				toast.error(
+					`Error updating producer onboarding data: ${error.message}`
+				);
+			}
+			if (propertyData) {
+				const { data: verificationData, error } = await supabase
+					.from("producer_verification_codes")
+					.insert([
+						{
+							id: uuidv4(),
+							producer_id: user.producerId,
+							property_id: propertyData[0].id,
+							verification_code: shortid.generate(),
+						},
+					]);
+				if (error) {
+					console.error("Error updating producer onboarding data:", error);
+					toast.error(
+						`Error updating producer onboarding data: ${error.message}`
+					);
+				}
+			}
 		}
 	};
 
 	// Here we manage the view of the onboarding steps
-	const [step, setStep] = useState(4);
+	const [step, setStep] = useState(1);
 	const handleNextStep = () => {
 		setStep(step + 1);
 	};

@@ -4,6 +4,7 @@ import ProjectCard from "@/components/ProjectCard";
 import supabase from "@/utils/supabaseClient";
 import { RootState } from "@/redux/store";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import convertToCamelCase from "@/utils/convertToCamelCase";
 
 type Props = {};
 function Projects({}: Props) {
@@ -21,7 +22,7 @@ function Projects({}: Props) {
 		if (error) {
 			console.error("Error fetching projects:", error);
 		} else {
-			setProjects(data as Project[]);
+			setProjects(convertToCamelCase(data) as Project[]);
 		}
 	};
 	useEffect(() => {
@@ -35,30 +36,30 @@ function Projects({}: Props) {
 			<h1>Your Projects</h1>
 			{projects.map(
 				({
-					image_url,
+					imageUrl,
 					title,
 					description,
 					status,
 					id,
-					project_coordinator_contact,
-					tree_target,
-					funds_requested_per_tree,
+					projectCoordinatorContact,
+					treeTarget,
+					fundsRequestedPerTree,
 					type,
-					created_at,
+					createdAt,
 				}) => (
 					<ProjectCard
 						key={id}
-						imageUrl={image_url}
+						imageUrl={imageUrl}
 						title={title}
 						description={description}
 						status={status}
 						projectId={id}
-						projectCoordinatorContactName={project_coordinator_contact.name}
-						projectCoordinatorContactPhone={project_coordinator_contact.phone}
-						treeTarget={tree_target}
-						fundsRequestedPerTree={funds_requested_per_tree}
+						projectCoordinatorContactName={projectCoordinatorContact.name}
+						projectCoordinatorContactPhone={projectCoordinatorContact.phone}
+						treeTarget={treeTarget}
+						fundsRequestedPerTree={fundsRequestedPerTree}
 						projectType={type}
-						createdAt={created_at}
+						createdAt={createdAt}
 						role='owner'
 					/>
 				)
