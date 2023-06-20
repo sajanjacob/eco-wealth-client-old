@@ -42,6 +42,7 @@
   "devDependencies": {
     "@types/react": "^18.2.9",
     "@types/react-dom": "^18.2.4",
+    "@types/shortid": "^0.0.29",
     "@types/uuid": "^9.0.2"
   }
 }
