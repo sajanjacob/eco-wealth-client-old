@@ -21,7 +21,7 @@ function AddProject() {
 	const [numTrees, setNumTrees] = useState(0);
 	const [pricePerTree, setPricePerTree] = useState(0);
 	const [agreements, setAgreements] = useState([false, false, false]);
-	const [imageFile, setImageFile] = useState(null);
+	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [imageUrlInput, setImageUrlInput] = useState("");
 	const [uploadMethod, setUploadMethod] = useState(true);
 	const [treeType, setTreeType] = useState("");
@@ -70,40 +70,20 @@ function AddProject() {
 	const uploadImage = async (file: File) => {
 		const fileExt = file.name.split(".").pop();
 		const fileName = `${Math.random()}.${fileExt}`;
-		const filePath = `projects/${fileName}`;
+		const filePath = `projects/${user.id}/${fileName}`;
 		const { data, error } = await supabase.storage
 			.from("projects")
 			.upload(filePath, file);
 		if (error) {
 			throw error;
 		}
-		return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/projects/${fileName}`;
 	};
+	const producerId = user.producerId;
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-
-		if (!agreements.every((val) => val)) {
-			toast.warning("Please accept all agreements before submitting.");
-			return;
-		}
-
-		const producerId = user.producerId;
-		let projectImageUrl = imageUrlInput;
-
-		if (imageFile) {
-			try {
-				projectImageUrl = await uploadImage(imageFile);
-				setProjectBannerUrl(projectImageUrl);
-			} catch (error) {
-				toast.error(`Error uploading image. ${error}`);
-				return;
-			}
-		}
-
+	const createProject = async (bannerUrl: string) => {
 		const projectData: Project = {
 			title: title,
-			imageUrl: projectBannerUrl,
+			imageUrl: bannerUrl,
 			projectCoordinatorContact: {
 				name: coordinatorName,
 				phone: coordinatorPhone,
@@ -181,13 +161,50 @@ function AddProject() {
 			router.push("/p/projects");
 		}
 	};
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!agreements.every((val) => val)) {
+			toast.warning("Please accept all agreements before submitting.");
+			return;
+		}
+
+		if (imageFile) {
+			try {
+				await uploadImage(imageFile);
+			} catch (error) {
+				toast.error(`Error uploading image. ${error}`);
+				console.log("error uploading image: ", error);
+				return;
+			} finally {
+				toast.loading("Submitting project...");
+				const fileExt = imageFile.name.split(".").pop();
+				const fileName = `${Math.random()}.${fileExt}`;
+				const filePath = `projects/${user.id}/${fileName}`;
+				const { data: publicURL } = supabase.storage
+					.from("projects")
+					.getPublicUrl(filePath);
+				if (!publicURL) {
+					throw new Error("Error uploading image");
+				}
+				if (publicURL.publicUrl) {
+					console.log("publicURL: ", publicURL.publicUrl);
+					createProject(publicURL.publicUrl);
+				}
+
+				toast.dismiss();
+			}
+		} else if (imageUrlInput) {
+			createProject(imageUrlInput);
+		}
+	};
 	const toggleUploadMethod = () => {
 		setUploadMethod(!uploadMethod);
 	};
 
 	const handleSetImage = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files) {
-			setImage(event.target.files[0]);
+			setImageFile(event.target.files[0]);
 		}
 	};
 
@@ -542,7 +559,7 @@ function AddProject() {
 						<input
 							type='file'
 							onChange={handleSetImage}
-							accept='image/*'
+							accept='image/png, image/jpeg'
 							className='border-2 border-gray-300 rounded-md p-2 w-[500px] cursor-pointer'
 						/>
 					) : (
