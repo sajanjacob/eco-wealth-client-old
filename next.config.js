@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	images: {
-		domains: ["storage.googleapis.com", "i.postimg.cc"],
+		domains: [
+			"storage.googleapis.com",
+			"i.postimg.cc",
+			"dxxffxihbcbwpntjdzlk.supabase.co",
+			"via.placeholder.com",
+		],
 	},
 	env: {
 		supabase_public_url: process.env.NEXT_PUBLIC_SUPABASE_URL,

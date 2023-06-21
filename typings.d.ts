@@ -64,7 +64,7 @@ interface Project {
 	title: string;
 	description: string;
 	createdAt: string;
-	updatedAt: string | Number;
+	updatedAt: string;
 	treeTarget: number;
 	treeCount: number;
 	imageUrl: string;
@@ -84,8 +84,51 @@ interface Project {
 	adminFeeConsent: boolean;
 	agreedToPayInvestor: boolean;
 	propertyId: string;
+	fundsCollected: number;
+	producerProperties: {
+		address: {
+			addressLineOne: string;
+			addressLineTwo: string;
+			city: string;
+			country: string;
+			postalCode: string;
+			stateProvince: string;
+		};
+	};
+	investorCount: number;
+	totalAreaSqkm: number;
+	treeProjects: TreeProject[];
+	energyProjects: EnergyProject[];
 }
 
+interface EnergyProject extends Project {
+	totalFundsRequested: number;
+	totalFundsRaised: number;
+	energyProductionTarget: number;
+	actualEnergyProduction: number;
+	energyProductionUnit: string;
+	energyProductionUnitValue: number;
+	averageYearlyProduction: number;
+	targetArrays: number;
+	systemSize: number;
+	systemCapacity: number;
+	labourCost: number;
+	systemCost: number;
+	maintenanceCost: number;
+	installerDetails: {
+		name: string;
+	};
+	installerType: string;
+}
+
+interface TreeProject extends Project {
+	treeTarget: number;
+	treeCount: number;
+	fundsRequestedPerTree: number;
+	treeProjectType: string;
+	projectId: string;
+	type: string;
+}
 interface Property {
 	id: string;
 	createdAt: string;

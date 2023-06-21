@@ -12,12 +12,12 @@ function Projects({}: Props) {
 	const user = useAppSelector((state: RootState) => state.user); // Assuming you have a userContext reducer
 	const [projects, setProjects] = useState<Project[]>([]);
 
-	const fetchProjects = async (userId: string) => {
-		if (userId === "") return;
+	const fetchProjects = async () => {
 		const { data, error } = await supabase
 			.from("projects")
 			.select("*")
-			.eq("user_id", userId);
+			.eq("producer_id", user.producerId)
+			.neq("is_deleted", true);
 
 		if (error) {
 			console.error("Error fetching projects:", error);
@@ -27,8 +27,9 @@ function Projects({}: Props) {
 	};
 	useEffect(() => {
 		if (user) {
-			fetchProjects(user.id || "");
+			fetchProjects();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
 	return (
