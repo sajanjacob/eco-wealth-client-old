@@ -35,36 +35,38 @@ function Projects({}: Props) {
 	return (
 		<div>
 			<h1>Your Projects</h1>
-			{projects.map(
-				({
-					imageUrl,
-					title,
-					description,
-					status,
-					id,
-					projectCoordinatorContact,
-					treeTarget,
-					fundsRequestedPerTree,
-					type,
-					createdAt,
-				}) => (
-					<ProjectCard
-						key={id}
-						imageUrl={imageUrl}
-						title={title}
-						description={description}
-						status={status}
-						projectId={id}
-						projectCoordinatorContactName={projectCoordinatorContact.name}
-						projectCoordinatorContactPhone={projectCoordinatorContact.phone}
-						treeTarget={treeTarget}
-						fundsRequestedPerTree={fundsRequestedPerTree}
-						projectType={type}
-						createdAt={createdAt}
-						role='owner'
-					/>
-				)
-			)}
+			<div className='flex flex-wrap'>
+				{projects.map(
+					({
+						imageUrl,
+						title,
+						description,
+						status,
+						id,
+						projectCoordinatorContact,
+						treeTarget,
+						fundsRequestedPerTree,
+						type,
+						createdAt,
+					}) => (
+						<ProjectCard
+							key={id}
+							imageUrl={imageUrl}
+							title={title}
+							description={description}
+							status={status}
+							projectId={id}
+							projectCoordinatorContactName={projectCoordinatorContact.name}
+							projectCoordinatorContactPhone={projectCoordinatorContact.phone}
+							treeTarget={treeTarget}
+							fundsRequestedPerTree={fundsRequestedPerTree}
+							projectType={type}
+							createdAt={createdAt}
+							role='owner'
+						/>
+					)
+				)}
+			</div>
 		</div>
 	);
 }

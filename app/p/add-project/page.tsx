@@ -44,7 +44,6 @@ interface FormValues {
 function AddProject() {
 	const router = useRouter();
 	const user = useAppSelector((state: RootState) => state.user);
-	const dispatch = useAppDispatch();
 	const {
 		register,
 		handleSubmit,
