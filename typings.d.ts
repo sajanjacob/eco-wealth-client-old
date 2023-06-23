@@ -86,6 +86,7 @@ interface Project {
 	propertyId: string;
 	fundsCollected: number;
 	producerProperties: {
+		id: string;
 		address: {
 			addressLineOne: string;
 			addressLineTwo: string;
@@ -99,6 +100,19 @@ interface Project {
 	totalAreaSqkm: number;
 	treeProjects: TreeProject[];
 	energyProjects: EnergyProject[];
+	projectMilestones: ProjectMilestone[];
+}
+
+interface ProjectMilestone {
+	id: string;
+	projectId: string;
+	title: string;
+	description: string;
+	createdAt: string;
+	updatedAt: string;
+	body: string;
+	isDeleted: boolean;
+	deletedAt: string;
 }
 
 interface EnergyProject extends Project {
