@@ -208,7 +208,7 @@ const ProjectCard = ({
 	if (role === "investor" && status === "verified") return null;
 	if (role === "investor" && status === "verified_published")
 		return (
-			<div className='w-72 bg-white rounded-2xl shadow-md relative mx-8 my-16 max-h-full'>
+			<div className='w-72 bg-white rounded-2xl shadow-md relative mx-8 my-16 max-h-full z-10'>
 				<a className='block text-inherit no-underline'>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img

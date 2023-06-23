@@ -163,7 +163,7 @@ const Header = ({}: Props) => {
 	const handleSettingsClick = () => router.push("/settings");
 
 	return (
-		<div className='flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
+		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
 			<div
 				className='text-xl cursor-pointer text-black font-semibold dark:text-white'
 				onClick={handleReturnHome}
