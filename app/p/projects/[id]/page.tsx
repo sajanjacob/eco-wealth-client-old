@@ -19,7 +19,9 @@ export default async function Projects({}: Props) {
 	const fetchProject = async () => {
 		const { data, error } = await supabase
 			.from("projects")
-			.select(`*, tree_projects(*), energy_projects(*), producer_properties(*)`)
+			.select(
+				`*, tree_projects(*), energy_projects(*), producer_properties(*), project_milestones(*)`
+			)
 			.eq("id", id)
 			.neq("is_deleted", true);
 		if (error) {
@@ -38,8 +40,11 @@ export default async function Projects({}: Props) {
 	}, []);
 
 	return (
-		<div className='p-4 w-[50%] mx-auto'>
-			<Project project={project} />
+		<div className='p-4 w-[50%] mx-auto max-[960px]:w-[80%]'>
+			<Project
+				project={project}
+				fetchProject={fetchProject}
+			/>
 		</div>
 	);
 }
