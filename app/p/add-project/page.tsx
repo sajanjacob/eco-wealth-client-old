@@ -8,50 +8,107 @@ import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import withAuth from "@/utils/withAuth";
 import { v4 as uuidv4 } from "uuid";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useForm } from "react-hook-form";
+interface FormValues {
+	title: string;
+	image: File | null;
+	coordinatorName: string;
+	coordinatorPhone: string;
+	description: string;
+	numTrees: number;
+	pricePerTree: number;
+	projectType: string;
+	agreements: boolean[];
+	imageFile: FileList | null;
+	imageUrlInput: string;
+	uploadMethod: boolean;
+	treeType: string;
+	energyType: string;
+	totalArea: number;
+	properties: Property[]; // Replace 'Property' with the actual type
+	projectAddressId: string;
+	projectBannerUrl: string;
+	energyProductionTarget: number;
+	numOfArrays: number;
+	installationTeam: string;
+	installedSystemSize: number;
+	photovoltaicCapacity: number;
+	estimatedInstallationCost: number;
+	estimatedSystemCost: number;
+	estimatedMaintenanceCost: number;
+	connectWithSolarPartner: string;
+	fundsRequested: number;
+}
+
 function AddProject() {
 	const router = useRouter();
 	const user = useAppSelector((state: RootState) => state.user);
 	const dispatch = useAppDispatch();
-
-	const [title, setTitle] = useState("");
-	const [image, setImage] = useState<File | null>(null);
-	const [coordinatorName, setCoordinatorName] = useState("");
-	const [coordinatorPhone, setCoordinatorPhone] = useState("");
-	const [description, setDescription] = useState("");
-	const [numTrees, setNumTrees] = useState(0);
-	const [pricePerTree, setPricePerTree] = useState(0);
-	const [agreements, setAgreements] = useState([false, false, false]);
-	const [imageFile, setImageFile] = useState<File | null>(null);
-	const [imageUrlInput, setImageUrlInput] = useState("");
-	const [uploadMethod, setUploadMethod] = useState(true);
-	const [treeType, setTreeType] = useState("");
-	const [projectType, setProjectType] = useState("");
-	const [energyType, setEnergyType] = useState("");
-	const [totalArea, setTotalArea] = useState(0);
-	const [properties, setProperties] = useState<Property[]>([]);
-	const [projectAddressId, setProjectAddressId] = useState("");
-	const [projectBannerUrl, setProjectBannerUrl] = useState("");
-
-	const [energyProductionTarget, setEnergyProductionTarget] = useState(0);
-	const [numOfArrays, setNumOfArrays] = useState(0);
-	const [installationTeam, setInstallationTeam] = useState("");
-	const [installedSystemSize, setInstalledSystemSize] = useState(0);
-	const [photovoltaicCapacity, setPhotovoltaicCapacity] = useState(0);
-	const [estimatedInstallationCost, setEstimatedInstallationCost] = useState(0);
-	const [estimatedSystemCost, setEstimatedSystemCost] = useState(0);
-	const [estimatedMaintenanceCost, setEstimatedMaintenanceCost] = useState(0);
-	const [connectWithSolarPartner, setConnectWithSolarPartner] = useState("");
-	const [fundsRequested, setFundsRequested] = useState(0);
-
+	const {
+		register,
+		handleSubmit,
+		watch,
+		setValue,
+		getValues,
+		formState: { errors },
+	} = useForm<FormValues>({
+		defaultValues: {
+			title: "",
+			image: null,
+			coordinatorName: "",
+			coordinatorPhone: "",
+			description: "",
+			numTrees: 0,
+			pricePerTree: 0,
+			projectType: "",
+			agreements: [false, false, false],
+			imageFile: null,
+			imageUrlInput: "",
+			uploadMethod: true,
+			treeType: "",
+			energyType: "",
+			totalArea: 0,
+			properties: [],
+			projectAddressId: "",
+			projectBannerUrl: "",
+			energyProductionTarget: 0,
+			numOfArrays: 0,
+			installationTeam: "",
+			installedSystemSize: 0,
+			photovoltaicCapacity: 0,
+			estimatedInstallationCost: 0,
+			estimatedSystemCost: 0,
+			estimatedMaintenanceCost: 0,
+			connectWithSolarPartner: "",
+			fundsRequested: 0,
+		},
+	});
+	const formValues = getValues();
+	const [loading, setLoading] = useState({ loading: false, message: "" });
+	const projectType = watch("projectType");
+	const uploadMethod = watch("uploadMethod");
+	const energyType = watch("energyType");
+	const installationTeam = watch("installationTeam");
+	const properties = watch("properties");
 	// Here we retrieve the properties the user submitted that are verified so
 	// we can list them as options for the user to select from when adding a project.
 	const fetchProperties = async (producerId: string) => {
+		setLoading({ loading: true, message: "Fetching properties..." });
 		const { data: propertyData, error: propertyError } = await supabase
 			.from("producer_properties")
 			.select("*")
 			.eq("producer_id", producerId)
 			.eq("is_verified", true);
-		setProperties(convertToCamelCase(propertyData) as Property[]);
+		if (propertyError) {
+			toast.error(`Error fetching properties. ${propertyError.message}`);
+			console.log("error fetching properties: ", propertyError);
+			setLoading({ loading: false, message: "" });
+		}
+		if (propertyData) {
+			setValue("properties", convertToCamelCase(propertyData) as Property[]);
+			setLoading({ loading: false, message: "" });
+		}
 	};
 
 	useEffect(() => {
@@ -60,16 +117,11 @@ function AddProject() {
 		}
 	}, [user]);
 
-	const handleAgreementChange = (index: number) => {
-		const newAgreements = [...agreements];
-		newAgreements[index] = !newAgreements[index];
-		setAgreements(newAgreements);
-	};
-
+	let fileName = "";
 	// TODO: TEST THIS -> Generated from Co-Pilot
 	const uploadImage = async (file: File) => {
 		const fileExt = file.name.split(".").pop();
-		const fileName = `${Math.random()}.${fileExt}`;
+		fileName = `${Math.random()}.${fileExt}`;
 		const filePath = `projects/${user.id}/${fileName}`;
 		const { data, error } = await supabase.storage
 			.from("projects")
@@ -82,32 +134,49 @@ function AddProject() {
 
 	const createProject = async (bannerUrl: string) => {
 		const projectData: Project = {
-			title: title,
+			title: formValues.title,
 			imageUrl: bannerUrl,
 			projectCoordinatorContact: {
-				name: coordinatorName,
-				phone: coordinatorPhone,
+				name: formValues.coordinatorName,
+				phone: formValues.coordinatorPhone,
 			},
-			description: description,
-			treeTarget: numTrees,
-			fundsRequestedPerTree: pricePerTree,
+			description: formValues.description,
+			treeTarget: formValues.numTrees,
+			fundsRequestedPerTree: formValues.pricePerTree,
 			producerId: producerId,
 			status: "pending_verification",
-			type: treeType,
+			type: formValues.treeType,
 			projectVerificationConsentGiven: true,
 			adminFeeConsent: true,
 			agreedToPayInvestor: true,
 			createdAt: Date.now().toString(),
 			updatedAt: Date.now().toString(),
 			treeCount: 0,
-			projectType: projectType,
+			projectType: formValues.projectType,
 			projectId: "",
-			totalArea: totalArea,
+			totalArea: formValues.totalArea,
 			id: "",
 			userId: user.id,
-			treeProjectType: treeType,
+			treeProjectType: formValues.treeType,
 			energyProjectType: energyType,
-			propertyId: projectAddressId,
+			propertyId: formValues.projectAddressId,
+			fundsCollected: 0,
+			producerProperties: {
+				id: "",
+				address: {
+					addressLineOne: "",
+					addressLineTwo: "",
+					city: "",
+					country: "",
+					postalCode: "",
+					stateProvince: "",
+				},
+			},
+			investorCount: 0,
+			totalAreaSqkm: 0,
+			treeProjects: [],
+			energyProjects: [],
+			projectMilestones: [],
 		};
 		const { data: project, error } = await supabase
 			.from("projects")
@@ -156,30 +225,39 @@ function AddProject() {
 		}
 		if (error) {
 			toast.error(`Error submitting project. ${error.message}`);
+			setLoading({ loading: false, message: "" });
 		} else {
 			toast.success("Project submitted successfully!");
+			setLoading({ loading: false, message: "" });
 			router.push("/p/projects");
 		}
 	};
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const onSubmit = async () => {
+		setLoading({ loading: true, message: "Uploading project..." });
+		const formValues = getValues();
 
-		if (!agreements.every((val) => val)) {
+		if (!formValues.agreements.every((val) => val)) {
 			toast.warning("Please accept all agreements before submitting.");
+			setLoading({ loading: false, message: "" });
 			return;
 		}
 
-		if (imageFile) {
+		if ((formValues.imageFile as FileList).length > 0) {
 			try {
-				await uploadImage(imageFile);
+				await uploadImage((formValues.imageFile as FileList)[0]);
 			} catch (error) {
 				toast.error(`Error uploading image. ${error}`);
 				console.log("error uploading image: ", error);
+
+				setLoading({ loading: false, message: "" });
 				return;
 			} finally {
-				toast.loading("Submitting project...");
-				const fileExt = imageFile.name.split(".").pop();
-				const fileName = `${Math.random()}.${fileExt}`;
+				const fileExt = (formValues.imageFile as FileList)[0].name
+					.split(".")
+					.pop();
+				if (fileName === "") {
+					fileName = `${Math.random()}.${fileExt}`;
+				}
 				const filePath = `projects/${user.id}/${fileName}`;
 				const { data: publicURL } = supabase.storage
 					.from("projects")
@@ -191,70 +269,130 @@ function AddProject() {
 					console.log("publicURL: ", publicURL.publicUrl);
 					createProject(publicURL.publicUrl);
 				}
-
-				toast.dismiss();
 			}
-		} else if (imageUrlInput) {
-			createProject(imageUrlInput);
+		} else if (formValues.imageUrlInput) {
+			createProject(formValues.imageUrlInput);
 		}
 	};
 	const toggleUploadMethod = () => {
-		setUploadMethod(!uploadMethod);
+		setValue("uploadMethod", !getValues("uploadMethod"));
 	};
 
-	const handleSetImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-		if (event.target.files) {
-			setImageFile(event.target.files[0]);
-		}
-	};
+	if (loading.loading)
+		return (
+			<div className='container mx-auto py-6 px-4 min-h-[100vh]'>
+				<h1 className='text-2xl font-semibold mb-6'>Add Project</h1>
+				<div className='flex justify-center items-center flex-col'>
+					<CircularProgress
+						className='mb-8'
+						color='success'
+					/>
+					<p>{loading.message}</p>
+				</div>
+			</div>
+		);
 
 	return (
 		<div className='container mx-auto py-6 px-4 min-h-[100vh]'>
 			<h1 className='text-2xl font-semibold mb-6'>Add Project</h1>
-			<form onSubmit={handleSubmit}>
+			<form onSubmit={handleSubmit(onSubmit)}>
 				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Title:</span>
 					<input
 						type='text'
 						className='text-gray-700 border-2 border-gray-300 rounded-md p-2 w-[500px]'
-						value={title}
-						onChange={(e) => setTitle(e.target.value)}
-						required
+						{...register("title", { required: true })}
 					/>
 				</label>
 				<br />
 				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Location:</span>
 					<select
-						value={projectAddressId}
-						onChange={(event) => setProjectAddressId(event.target.value)}
-						required
+						{...register("projectAddressId", { required: true })}
 						className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 					>
 						<option value=''>
 							Select the address your project will be operated from
 						</option>
-						{properties.map((property) => (
-							<option
-								key={property.id}
-								value={property.id}
-							>
-								{property.address.addressLineOne},{" "}
-								{property.address.addressLineTwo &&
-									`${property.address.addressLineTwo}, `}{" "}
-								{property.address.city}, {property.address.stateProvince},{" "}
-								{property.address.country}
-							</option>
-						))}
+						{properties &&
+							properties.map(
+								(property: {
+									id: React.Key | null | undefined;
+									address: {
+										addressLineOne:
+											| string
+											| number
+											| boolean
+											| React.ReactElement<
+													any,
+													string | React.JSXElementConstructor<any>
+											  >
+											| React.ReactFragment
+											| React.ReactPortal
+											| React.PromiseLikeOfReactNode
+											| null
+											| undefined;
+										addressLineTwo: any;
+										city:
+											| string
+											| number
+											| boolean
+											| React.ReactElement<
+													any,
+													string | React.JSXElementConstructor<any>
+											  >
+											| React.ReactFragment
+											| React.ReactPortal
+											| React.PromiseLikeOfReactNode
+											| null
+											| undefined;
+										stateProvince:
+											| string
+											| number
+											| boolean
+											| React.ReactElement<
+													any,
+													string | React.JSXElementConstructor<any>
+											  >
+											| React.ReactFragment
+											| React.ReactPortal
+											| React.PromiseLikeOfReactNode
+											| null
+											| undefined;
+										country:
+											| string
+											| number
+											| boolean
+											| React.ReactElement<
+													any,
+													string | React.JSXElementConstructor<any>
+											  >
+											| React.ReactFragment
+											| React.ReactPortal
+											| React.PromiseLikeOfReactNode
+											| null
+											| undefined;
+									};
+								}) => (
+									<option
+										key={property.id}
+										value={property.id ? property.id.toString() : undefined}
+									>
+										{property.address.addressLineOne},{" "}
+										{property.address.addressLineTwo &&
+											`${property.address.addressLineTwo}, `}{" "}
+										{property.address.city}, {property.address.stateProvince},{" "}
+										{property.address.country}
+									</option>
+								)
+							)}
 					</select>
 				</label>
 				<br />
 				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Type:</span>
 					<select
-						value={projectType}
-						onChange={(event) => setProjectType(event.target.value)}
-						required
+						{...register("projectType", { required: true })}
 						className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 					>
 						<option value=''>Select a project type</option>
@@ -267,9 +405,7 @@ function AddProject() {
 					<label className='flex flex-col mt-[8px]'>
 						<span className='mb-[4px] mt-2'>Tree Project Type:</span>
 						<select
-							value={treeType}
-							onChange={(event) => setTreeType(event.target.value)}
-							required
+							{...register("treeType", { required: true })}
 							className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 						>
 							<option value=''>Select a tree project type</option>
@@ -290,9 +426,7 @@ function AddProject() {
 					<span className='mb-[4px] mt-2'>Total Project Area (km²)</span>
 					<input
 						type='number'
-						value={totalArea}
-						onChange={(e) => setTotalArea(e.target.valueAsNumber)}
-						required
+						{...register("totalArea", { required: true })}
 						className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
 					/>
 				</label>
@@ -304,9 +438,7 @@ function AddProject() {
 							</span>
 							<input
 								type='number'
-								value={numTrees}
-								onChange={(e) => setNumTrees(e.target.valueAsNumber)}
-								required
+								{...register("numTrees", { required: true })}
 								className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
 							/>
 						</label>
@@ -318,9 +450,7 @@ function AddProject() {
 							<input
 								type='number'
 								step='1'
-								value={pricePerTree}
-								onChange={(e) => setPricePerTree(e.target.valueAsNumber)}
-								required
+								{...register("pricePerTree", { required: true })}
 								className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
 							/>
 						</label>
@@ -333,9 +463,7 @@ function AddProject() {
 								Renewable Energy Project Type:
 							</span>
 							<select
-								value={energyType}
-								onChange={(event) => setEnergyType(event.target.value)}
-								required
+								{...register("energyType", { required: true })}
 								className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 							>
 								<option value=''>Select a renewable energy project type</option>
@@ -350,47 +478,30 @@ function AddProject() {
 										(kWh)?
 									</span>
 									<input
+										{...register("energyProductionTarget", { required: true })}
 										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 										type='number'
-										required
-										value={energyProductionTarget}
-										onChange={(event) =>
-											setEnergyProductionTarget(event.target.valueAsNumber)
-										}
 									/>
 								</label>
-								<label
-									className='flex flex-col mt-[8px]'
-									htmlFor=''
-								>
+								<label className='flex flex-col mt-[8px]'>
 									<span className='mb-[4px] mt-2'>
 										How many arrays will be setup?
 									</span>
 									<input
+										{...register("numOfArrays", { required: true })}
 										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 										type='text'
-										required
-										value={numOfArrays}
-										onChange={(event) =>
-											setNumOfArrays(event.target.valueAsNumber)
-										}
 									/>
 								</label>
-								<label
-									className='flex flex-col mt-[8px]'
-									htmlFor=''
-								>
+								<label className='flex flex-col mt-[8px]'>
 									<span className='mb-[4px] mt-2'>
 										Are you contracting a company to install the system, doing
 										this with your own team of installers, or are you still
 										looking for an installation team?
 									</span>
 									<select
+										{...register("installationTeam", { required: true })}
 										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
-										value={installationTeam}
-										onChange={(event) =>
-											setInstallationTeam(event.target.value)
-										}
 									>
 										<option value=''>Select one</option>
 										<option value='Has company'>
@@ -405,111 +516,71 @@ function AddProject() {
 								</label>
 								{installationTeam === ("Has company" || "Has team") ? (
 									<>
-										<label
-											className='flex flex-col mt-[8px]'
-											htmlFor=''
-										>
+										<label className='flex flex-col mt-[8px]'>
 											<span className='mb-[4px] mt-2'>
 												What will the size of the installed system be? (in kW)
 											</span>
 											<input
+												{...register("installedSystemSize")}
 												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 												type='number'
-												value={installedSystemSize}
-												onChange={(event) =>
-													setInstalledSystemSize(event.target.valueAsNumber)
-												}
 											/>
 										</label>
-										<label
-											className='flex flex-col mt-[8px]'
-											htmlFor=''
-										>
-											<span className='mb-[4px] mt-2'>
-												If known, what is the photovoltiac capacity of the
+										<label className='flex flex-col mt-[8px]'>
+											<span className='mb-4px] mt-2'>
+												If known, what is the photovoltaic capacity of the
 												system?
 											</span>
 											<input
+												{...register("photovoltaicCapacity")}
 												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 												type='number'
-												value={photovoltaicCapacity}
-												onChange={(event) =>
-													setPhotovoltaicCapacity(event.target.valueAsNumber)
-												}
 											/>
 										</label>
-										<label
-											className='flex flex-col mt-[8px]'
-											htmlFor=''
-										>
+										<label className='flex flex-col mt-[8px]'>
 											<span className='mb-[4px] mt-2'>
 												What is the estimated cost of the system installation?
 											</span>
 											$
 											<input
+												{...register("estimatedInstallationCost")}
 												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 												type='number'
-												value={estimatedInstallationCost}
-												onChange={(event) =>
-													setEstimatedInstallationCost(
-														event.target.valueAsNumber
-													)
-												}
 											/>
 										</label>
-										<label
-											className='flex flex-col mt-[8px]'
-											htmlFor=''
-										>
+										<label className='flex flex-col mt-[8px]'>
 											<span className='mb-[4px] mt-2'>
 												What is the total cost of the system minus the labour?
 											</span>
 											<input
+												{...register("estimatedSystemCost")}
 												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 												type='number'
-												value={estimatedSystemCost}
-												onChange={(event) =>
-													setEstimatedSystemCost(event.target.valueAsNumber)
-												}
 											/>
 										</label>
-										<label
-											className='flex flex-col mt-[8px]'
-											htmlFor=''
-										>
+										<label className='flex flex-col mt-[8px]'>
 											<span className='mb-[4px] mt-2'>
 												If discussed, what are the estimated maintenance costs
 												for the system?
 											</span>
 											<input
+												{...register("estimatedMaintenanceCost")}
 												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 												type='number'
-												value={estimatedMaintenanceCost}
-												onChange={(event) =>
-													setEstimatedMaintenanceCost(
-														event.target.valueAsNumber
-													)
-												}
 											/>
 										</label>
 									</>
 								) : installationTeam === "Needs team" ? (
 									<>
-										<label
-											className='flex flex-col mt-[8px]'
-											htmlFor=''
-										>
+										<label className='flex flex-col mt-[8px]'>
 											<span className='mb-[4px] mt-2'>
 												Do you want us to connect you with a trusted solar
 												installation partner in your area to handle the
 												installation for this project?
 											</span>
 											<select
+												{...register("connectWithSolarPartner")}
 												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
-												value={connectWithSolarPartner}
-												onChange={(event) =>
-													setConnectWithSolarPartner(event.target.value)
-												}
 											>
 												<option value=''>Select one</option>
 												<option value='Connect with partner'>
@@ -523,20 +594,14 @@ function AddProject() {
 										</label>
 									</>
 								) : null}
-								<label
-									className='flex flex-col mt-[8px]'
-									htmlFor=''
-								>
+								<label className='flex flex-col mt-[8px]'>
 									<span className='mb-[4px] mt-2'>
 										How much do you want to raise for this project?
 									</span>
 									<input
+										{...register("fundsRequested")}
 										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 										type='number'
-										value={fundsRequested}
-										onChange={(event) =>
-											setFundsRequested(event.target.valueAsNumber)
-										}
 									/>
 								</label>
 							</>
@@ -557,8 +622,8 @@ function AddProject() {
 					<br />
 					{uploadMethod ? (
 						<input
+							{...register("imageFile")}
 							type='file'
-							onChange={handleSetImage}
 							accept='image/png, image/jpeg'
 							className='border-2 border-gray-300 rounded-md p-2 w-[500px] cursor-pointer'
 						/>
@@ -566,46 +631,38 @@ function AddProject() {
 						<label className='flex flex-col'>
 							<span className='mb-[4px] mt-2'>Paste direct image URL:</span>
 							<input
+								{...register("imageUrlInput")}
 								type='text'
 								className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
-								value={imageUrlInput}
-								onChange={(event) => setImageUrlInput(event.target.value)}
 							/>
 						</label>
 					)}
 				</label>
 				<br />
 
-				<br />
 				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Coordinator Name:</span>
 					<input
+						{...register("coordinatorName", { required: true })}
 						type='text'
 						className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
-						value={coordinatorName}
-						onChange={(event) => setCoordinatorName(event.target.value)}
-						required
 					/>
 				</label>
 
 				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Coordinator Phone:</span>
 					<input
+						{...register("coordinatorPhone", { required: true })}
 						type='tel'
 						className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
-						value={coordinatorPhone}
-						onChange={(event) => setCoordinatorPhone(event.target.value)}
-						required
 					/>
 				</label>
 				<br />
 				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Description:</span>
 					<textarea
+						{...register("description", { required: true })}
 						className='text-gray-700 border-2 border-gray-300 rounded-md p-2 h-[150px] w-[500px]'
-						value={description}
-						onChange={(e) => setDescription(e.target.value)}
-						required
 					/>
 				</label>
 				<br />
@@ -613,30 +670,27 @@ function AddProject() {
 				<h3>Agreements:</h3>
 				<label>
 					<input
+						{...register("agreements.0")}
 						type='checkbox'
 						className='mr-2'
-						checked={agreements[0]}
-						onChange={() => handleAgreementChange(0)}
 					/>
 					Agreement 1
 				</label>
 				<br />
 				<label>
 					<input
+						{...register("agreements.1")}
 						type='checkbox'
 						className='mr-2'
-						checked={agreements[1]}
-						onChange={() => handleAgreementChange(1)}
 					/>
 					Agreement 2
 				</label>
 				<br />
 				<label>
 					<input
+						{...register("agreements.2")}
 						type='checkbox'
 						className='mr-2'
-						checked={agreements[2]}
-						onChange={() => handleAgreementChange(2)}
 					/>
 					Agreement 3
 				</label>
