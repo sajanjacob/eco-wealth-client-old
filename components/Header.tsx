@@ -163,7 +163,8 @@ const Header = ({}: Props) => {
 		router.push("/learn");
 	};
 
-	const handleSettingsClick = () => router.push("/settings");
+	const handleSettingsClick = () =>
+		router.push("/settings?tab=personal-details");
 
 	return (
 		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>

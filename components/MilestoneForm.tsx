@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.bubble.css";
+import dynamic from "next/dynamic";
 type Props = {
 	handleCreateMilestone: () => void | undefined;
 	handleUpdateMilestone: () => void | undefined;
@@ -13,7 +14,10 @@ type Props = {
 	editingMilestone: boolean;
 	initialData?: any;
 };
-
+const DynamicComponent = dynamic(
+	() => import("react-quill"),
+	{ ssr: false } // This line
+);
 export default function MilestoneForm({
 	handleCreateMilestone,
 	handleUpdateMilestone,
@@ -58,7 +62,7 @@ export default function MilestoneForm({
 			/>
 			<p className='text-right text-xs'>{shortDescription?.length}/280</p>
 			<label htmlFor='title'>Body</label>
-			<ReactQuill
+			<DynamicComponent
 				theme='bubble'
 				value={body}
 				onChange={(value) => setBody(value)}
