@@ -83,19 +83,9 @@ interface Project {
 	projectVerificationConsentGiven: boolean;
 	adminFeeConsent: boolean;
 	agreedToPayInvestor: boolean;
-	propertyId: string;
+	propertyAddressId: string;
 	fundsCollected: number;
-	producerProperties: {
-		id: string;
-		address: {
-			addressLineOne: string;
-			addressLineTwo: string;
-			city: string;
-			country: string;
-			postalCode: string;
-			stateProvince: string;
-		};
-	};
+	producerProperties: Property;
 	investorCount: number;
 	totalAreaSqkm: number;
 	treeProjects: TreeProject[];
@@ -133,6 +123,7 @@ interface EnergyProject extends Project {
 		name: string;
 	};
 	installerType: string;
+	connectWithSolarPartner: string;
 }
 
 interface TreeProject extends Project {

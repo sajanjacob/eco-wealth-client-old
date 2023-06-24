@@ -1,15 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import supabase from "@/utils/supabaseClient";
 import { RootState } from "@/redux/store";
 import { toast } from "react-toastify";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import withAuth from "@/utils/withAuth";
-import { v4 as uuidv4 } from "uuid";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useForm } from "react-hook-form";
+import Image from "next/image";
 interface FormValues {
 	title: string;
 	image: File | null;
@@ -44,6 +44,9 @@ interface FormValues {
 function Edit() {
 	const router = useRouter();
 	const user = useAppSelector((state: RootState) => state.user);
+	const [project, setProject] = useState<Project | null>(null);
+	const path = useParams();
+	const { id } = path;
 	const {
 		register,
 		handleSubmit,
@@ -83,13 +86,106 @@ function Edit() {
 			fundsRequested: 0,
 		},
 	});
+	const fetchProject = async () => {
+		const { data, error } = await supabase
+			.from("projects")
+			.select(
+				`*, tree_projects(*), energy_projects(*), producer_properties(*), project_milestones(*)`
+			)
+			.eq("id", id)
+			.neq("is_deleted", true);
+		if (error) {
+			console.error("Error fetching projects:", error);
+			toast.error(error.message);
+		}
+		if (data) {
+			setProject(
+				convertToCamelCase(data[0]) as Project | TreeProject | EnergyProject
+			);
+			console.log("project details >>> ", data[0] as Project);
+		}
+	};
+	useEffect(() => {
+		fetchProject();
+	}, []);
+	useEffect(() => {
+		if (project) {
+			setValue("title", project.title);
+			setValue("description", project.description);
+			setValue("numTrees", project.treeTarget);
+			setValue("imageUrlInput", project.imageUrl);
+			setValue("pricePerTree", project.fundsRequestedPerTree);
+			setValue("projectType", project.type);
+
+			setValue("energyType", project.energyProjectType);
+			setValue("coordinatorName", project.projectCoordinatorContact.name);
+			setValue("coordinatorPhone", project.projectCoordinatorContact.phone);
+			setValue("projectAddressId", project.propertyAddressId);
+			setValue("properties", [project.producerProperties]);
+			setValue("totalArea", project.totalAreaSqkm);
+			if (project.energyProjects[0]) {
+				setValue(
+					"energyProductionTarget",
+					project.energyProjects[0].energyProductionTarget
+				);
+				setValue("numOfArrays", project.energyProjects[0].targetArrays);
+				setValue("installationTeam", project.energyProjects[0].installerType);
+				setValue("installedSystemSize", project.energyProjects[0].systemSize);
+				setValue(
+					"photovoltaicCapacity",
+					project.energyProjects[0].systemCapacity
+				);
+				setValue(
+					"estimatedInstallationCost",
+					project.energyProjects[0].labourCost
+				);
+				setValue("estimatedSystemCost", project.energyProjects[0].systemCost);
+				setValue(
+					"estimatedMaintenanceCost",
+					project.energyProjects[0].maintenanceCost
+				);
+				setValue(
+					"connectWithSolarPartner",
+					project.energyProjects[0].connectWithSolarPartner
+				);
+				setValue(
+					"fundsRequested",
+					project.energyProjects[0].totalFundsRequested
+				);
+			}
+			if (project.treeProjects) {
+				setValue("numTrees", project.treeProjects[0].treeTarget);
+				setValue("pricePerTree", project.treeProjects[0].fundsRequestedPerTree);
+				setValue("treeType", project.treeProjects[0].type);
+			}
+		}
+	}, [project, setValue]);
+
 	const formValues = getValues();
 	const [loading, setLoading] = useState({ loading: false, message: "" });
 	const projectType = watch("projectType");
 	const uploadMethod = watch("uploadMethod");
 	const energyType = watch("energyType");
-	const installationTeam = watch("installationTeam");
 	const properties = watch("properties");
+	const title = watch("title");
+	const coordinatorName = watch("coordinatorName");
+	const coordinatorPhone = watch("coordinatorPhone");
+	const description = watch("description");
+	const totalArea = watch("totalArea");
+	const projectAddressId = watch("projectAddressId");
+	const treeTarget = watch("numTrees");
+	const fundsRequestedPerTree = watch("pricePerTree");
+	const treeType = watch("treeType");
+	const fundsRequested = watch("fundsRequested");
+	const energyProductionTarget = watch("energyProductionTarget");
+	const numOfArrays = watch("numOfArrays");
+	const installedSystemSize = watch("installedSystemSize");
+	const photovoltaicCapacity = watch("photovoltaicCapacity");
+	const estimatedInstallationCost = watch("estimatedInstallationCost");
+	const estimatedSystemCost = watch("estimatedSystemCost");
+	const estimatedMaintenanceCost = watch("estimatedMaintenanceCost");
+	const installationTeam = watch("installationTeam");
+	const connectWithSolarPartner = watch("connectWithSolarPartner");
 	// Here we retrieve the properties the user submitted that are verified so
 	// we can list them as options for the user to select from when adding a project.
 	const fetchProperties = async (producerId: string) => {
@@ -131,117 +227,69 @@ function Edit() {
 	};
 	const producerId = user.producerId;
 
-	const createProject = async (bannerUrl: string) => {
-		const projectData: Project = {
-			title: formValues.title,
-			imageUrl: bannerUrl,
-			projectCoordinatorContact: {
-				name: formValues.coordinatorName,
-				phone: formValues.coordinatorPhone,
-			},
-			description: formValues.description,
-			treeTarget: formValues.numTrees,
-			fundsRequestedPerTree: formValues.pricePerTree,
-			producerId: producerId,
-			status: "pending_verification",
-			type: formValues.treeType,
-			projectVerificationConsentGiven: true,
-			adminFeeConsent: true,
-			agreedToPayInvestor: true,
-			createdAt: Date.now().toString(),
-			updatedAt: Date.now().toString(),
-			treeCount: 0,
-			projectType: formValues.projectType,
-			projectId: "",
-			totalArea: formValues.totalArea,
-			id: "",
-			userId: user.id,
-			treeProjectType: formValues.treeType,
-			energyProjectType: energyType,
-			propertyId: formValues.projectAddressId,
-			fundsCollected: 0,
-			producerProperties: {
-				id: "",
-				address: {
-					addressLineOne: "",
-					addressLineTwo: "",
-					city: "",
-					country: "",
-					postalCode: "",
-					stateProvince: "",
-				},
-			},
-			investorCount: 0,
-			totalAreaSqkm: 0,
-			treeProjects: [],
-			energyProjects: [],
-			projectMilestones: [],
-		};
-		const { data: project, error } = await supabase
+	const updateProject = async (bannerUrl: string) => {
+		const status = "pending_update_review";
+		const { data, error } = await supabase
 			.from("projects")
-			.insert([
-				{
-					id: uuidv4(),
-					title: projectData.title,
-					image_url: projectData.imageUrl,
-					project_coordinator_contact: projectData.projectCoordinatorContact,
-					description: projectData.description,
-					producer_id: projectData.producerId,
-					status: projectData.status,
-					type: projectData.projectType,
-					project_verification_consent_given:
-						projectData.projectVerificationConsentGiven,
-					admin_fee_consent: projectData.adminFeeConsent,
-					agreed_to_pay_investor: projectData.agreedToPayInvestor,
-					total_area_sqkm: projectData.totalArea,
-					property_address_id: projectData.propertyId,
+			.update({
+				title: title,
+				updated_at: new Date().toISOString(),
+				image_url: bannerUrl,
+				project_coordinator_contact: {
+					name: coordinatorName,
+					phone: coordinatorPhone,
 				},
-			])
-			.select();
-		if (projectType === "Tree" && project) {
-			const { data, error } = await supabase.from("tree_projects").insert([
-				{
-					id: uuidv4(),
-					project_id: project?.[0].id,
-					tree_target: projectData.treeTarget,
-					funds_requested_per_tree: projectData.fundsRequestedPerTree,
-					type: projectData.treeProjectType,
-					tree_count: 0,
-				},
-			]);
+				description: description,
+				status: status,
+				type: projectType,
+				total_area_sqkm: totalArea,
+				property_address_id: projectAddressId,
+			})
+			.eq("id", id);
+		if (projectType === "Tree" && data) {
+			const { data, error } = await supabase
+				.from("tree_projects")
+				.update({
+					tree_target: treeTarget,
+					funds_requested_per_tree: fundsRequestedPerTree,
+					type: treeType,
+				})
+				.eq("id", project?.treeProjects[0].id);
+			console.log("tree projects data: ", data);
 		}
-		if (projectType === "Energy" && project) {
-			const { data, error } = await supabase.from("energy_projects").insert([
-				{
-					id: uuidv4(),
-					project_id: project?.[0].id,
-					tree_target: projectData.treeTarget,
-					funds_requested_per_tree: projectData.fundsRequestedPerTree,
-					type: projectData.treeProjectType,
-					tree_count: 0,
-				},
-			]);
+		if (projectType === "Energy" && data) {
+			const { data, error } = await supabase
+				.from("energy_projects")
+				.update({
+					funds_requested: fundsRequested,
+					energy_production_target: energyProductionTarget,
+					num_of_arrays: numOfArrays,
+					system_size_in_kw: installedSystemSize,
+					system_capacity: photovoltaicCapacity,
+					labour_cost: estimatedInstallationCost,
+					estimated_system_cost: estimatedSystemCost,
+					maintenance_cost: estimatedMaintenanceCost,
+					type: "Solar",
+					installation_team: installationTeam,
+					connect_with_solar_partner: connectWithSolarPartner,
+				})
+				.eq("id", project?.energyProjects[0].id);
+			console.log("energy projects data: ", data);
 		}
 		if (error) {
-			toast.error(`Error submitting project. ${error.message}`);
+			toast.error(`Error updating project. ${error.message}`);
 			setLoading({ loading: false, message: "" });
 		} else {
-			toast.success("Project submitted successfully!");
+			toast.success("Project updated successfully!");
 			setLoading({ loading: false, message: "" });
-			router.push("/p/projects");
 		}
+		console.log("data: ", data);
 	};
 	const onSubmit = async () => {
 		setLoading({ loading: true, message: "Uploading project..." });
 		const formValues = getValues();
 
-		if (!formValues.agreements.every((val) => val)) {
-			toast.warning("Please accept all agreements before submitting.");
-			setLoading({ loading: false, message: "" });
-			return;
-		}
-
-		if ((formValues.imageFile as FileList).length > 0) {
+		if (formValues.imageFile && (formValues.imageFile as FileList).length > 0) {
 			try {
 				await uploadImage((formValues.imageFile as FileList)[0]);
 			} catch (error) {
@@ -266,15 +314,19 @@ function Edit() {
 				}
 				if (publicURL.publicUrl) {
 					console.log("publicURL: ", publicURL.publicUrl);
-					createProject(publicURL.publicUrl);
+					updateProject(publicURL.publicUrl);
 				}
 			}
 		} else if (formValues.imageUrlInput) {
-			createProject(formValues.imageUrlInput);
+			updateProject(formValues.imageUrlInput);
 		}
 	};
 	const toggleUploadMethod = () => {
 		setValue("uploadMethod", !getValues("uploadMethod"));
+	};
+
+	const handleGoBack = () => {
+		router.back();
 	};
 
 	if (loading.loading)
@@ -290,10 +342,11 @@ function Edit() {
 				</div>
 			</div>
 		);
-
+	console.log("project details >>> ", project);
 	return (
 		<div className='container mx-auto py-6 px-4 min-h-[100vh]'>
-			<h1 className='text-2xl font-semibold mb-6'>Add Project</h1>
+			<p onClick={handleGoBack}>← Back project page</p>
+			<h1 className='text-2xl font-semibold mb-6'>Update Project</h1>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Title:</span>
@@ -306,6 +359,7 @@ function Edit() {
 				<br />
 				<label className='flex flex-col'>
 					<span className='mb-[4px] mt-2'>Project Location:</span>
+
 					<select
 						{...register("projectAddressId", { required: true })}
 						className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
@@ -610,6 +664,13 @@ function Edit() {
 				<br />
 				<label>
 					<span className='mt-2'>Project Banner Image:</span>
+					<Image
+						alt=''
+						src={formValues.imageUrlInput}
+						width={150}
+						height={150}
+						className='mt-2 rounded'
+					/>
 					<br />
 					<button
 						type='button'
@@ -663,35 +724,6 @@ function Edit() {
 						{...register("description", { required: true })}
 						className='text-gray-700 border-2 border-gray-300 rounded-md p-2 h-[150px] w-[500px]'
 					/>
-				</label>
-				<br />
-
-				<h3>Agreements:</h3>
-				<label>
-					<input
-						{...register("agreements.0")}
-						type='checkbox'
-						className='mr-2'
-					/>
-					Agreement 1
-				</label>
-				<br />
-				<label>
-					<input
-						{...register("agreements.1")}
-						type='checkbox'
-						className='mr-2'
-					/>
-					Agreement 2
-				</label>
-				<br />
-				<label>
-					<input
-						{...register("agreements.2")}
-						type='checkbox'
-						className='mr-2'
-					/>
-					Agreement 3
 				</label>
 				<br />
 				<button

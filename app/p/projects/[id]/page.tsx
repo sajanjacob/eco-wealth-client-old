@@ -3,8 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import supabase from "@/utils/supabaseClient";
 import { toast } from "react-toastify";
-import { useAppSelector } from "@/redux/hooks";
-import { RootState } from "@/redux/store";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import Project from "@/components/producer/projects/Project";
 type Props = {};
@@ -15,7 +13,6 @@ export default async function Projects({}: Props) {
 	const [project, setProject] = useState<
 		Project | TreeProject | EnergyProject | null
 	>(null);
-	const user = useAppSelector((state: RootState) => state.user);
 	const fetchProject = async () => {
 		const { data, error } = await supabase
 			.from("projects")

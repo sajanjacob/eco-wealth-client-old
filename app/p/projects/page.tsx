@@ -3,12 +3,11 @@ import { useEffect, useState } from "react";
 import ProjectCard from "@/components/ProjectCard";
 import supabase from "@/utils/supabaseClient";
 import { RootState } from "@/redux/store";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppSelector } from "@/redux/hooks";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 
 type Props = {};
 function Projects({}: Props) {
-	const dispatch = useAppDispatch();
 	const user = useAppSelector((state: RootState) => state.user); // Assuming you have a userContext reducer
 	const [projects, setProjects] = useState<Project[]>([]);
 

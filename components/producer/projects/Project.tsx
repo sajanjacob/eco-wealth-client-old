@@ -87,7 +87,8 @@ export default function Project({ project, fetchProject }: Props) {
 					{project?.title} - {project?.type} Project
 				</h2>
 				<h4 className='text-sm px-6 py-2 border-white rounded border-[1px]'>
-					{project?.status === ("verified_draft" || "verified_public") ? (
+					{project?.status === "verified_draft" ||
+					project?.status === "verified_public" ? (
 						<>
 							<div
 								className='cursor-pointer'
@@ -135,7 +136,8 @@ export default function Project({ project, fetchProject }: Props) {
 								</MenuItem>
 							</Menu>
 						</>
-					) : project?.status === "pending_verification" ? (
+					) : project?.status === "pending_verification" ||
+					  project?.status === "pending_update_review" ? (
 						removeUnderscores(project?.status)
 					) : null}
 				</h4>
@@ -158,6 +160,10 @@ export default function Project({ project, fetchProject }: Props) {
 					</p>
 					<p>Address: {project?.producerProperties.address.addressLineOne}</p>
 					<p>Area: {project?.totalAreaSqkm} sq ft</p>
+					<p>
+						Description: <br />
+						{project?.description}
+					</p>
 					{/* <p>Funds collected: ${project?.fundsCollected}</p> */}
 					{/* <p>Investors: {project?.investorCount}</p> */}
 				</div>

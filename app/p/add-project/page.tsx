@@ -158,7 +158,7 @@ function AddProject() {
 			userId: user.id,
 			treeProjectType: formValues.treeType,
 			energyProjectType: energyType,
-			propertyId: formValues.projectAddressId,
+			propertyAddressId: formValues.projectAddressId,
 			fundsCollected: 0,
 			producerProperties: {
 				id: "",
@@ -170,6 +170,10 @@ function AddProject() {
 					postalCode: "",
 					stateProvince: "",
 				},
+				createdAt: "",
+				producerId: "",
+				updatedAt: "",
+				isVerified: false,
 			},
 			investorCount: 0,
 			totalAreaSqkm: 0,
@@ -194,7 +198,7 @@ function AddProject() {
 					admin_fee_consent: projectData.adminFeeConsent,
 					agreed_to_pay_investor: projectData.agreedToPayInvestor,
 					total_area_sqkm: projectData.totalArea,
-					property_address_id: projectData.propertyId,
+					property_address_id: projectData.propertyAddressId,
 				},
 			])
 			.select();
@@ -215,10 +219,17 @@ function AddProject() {
 				{
 					id: uuidv4(),
 					project_id: project?.[0].id,
-					tree_target: projectData.treeTarget,
-					funds_requested_per_tree: projectData.fundsRequestedPerTree,
-					type: projectData.treeProjectType,
-					tree_count: 0,
+					funds_requested: formValues.fundsRequested,
+					energy_production_target: formValues.energyProductionTarget,
+					num_of_arrays: formValues.numOfArrays,
+					system_size_in_kw: formValues.installedSystemSize,
+					system_capacity: formValues.photovoltaicCapacity,
+					labour_cost: formValues.estimatedInstallationCost,
+					estimated_system_cost: formValues.estimatedSystemCost,
+					maintenance_cost: formValues.estimatedMaintenanceCost,
+					type: "Solar",
+					installation_team: formValues.installationTeam,
+					connect_with_solar_partner: formValues.connectWithSolarPartner,
 				},
 			]);
 		}
