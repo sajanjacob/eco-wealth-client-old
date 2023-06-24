@@ -8,13 +8,18 @@ type Props = {
 };
 const ProfileMenu = ({ isOpen, close, children }: Props) => {
 	useEffect(() => {
-		document.addEventListener("click", close);
-		return () => document.removeEventListener("click", close);
+		if (typeof window !== "undefined") {
+			window.document.addEventListener("click", close);
+		}
+		if (typeof window !== "undefined") {
+			return () => window.document.removeEventListener("click", close);
+		}
 	}, [close]);
-
-	return isOpen
-		? ReactDOM.createPortal(<div>{children}</div>, document.body)
-		: null;
+	if (typeof window !== "undefined") {
+		return isOpen
+			? ReactDOM.createPortal(<div>{children}</div>, window.document.body)
+			: null;
+	}
 };
 
 export default ProfileMenu;

@@ -1,24 +1,27 @@
-import supabase from "@/utils/supabaseClient";
-import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 type Props = {
-	project: TreeProject | null | undefined;
+	project: Project | null | undefined;
 	treeInvestments: [] | null | undefined;
+	treeProject: TreeProject | null | undefined;
 };
 
-export default function TreeProject({ project, treeInvestments }: Props) {
+export default function TreeProject({
+	project,
+	treeProject,
+	treeInvestments,
+}: Props) {
 	return (
 		<div>
-			<p>Tree Project Type: {project?.type}</p>
-			<p>Target Trees: {project?.treeTarget?.toLocaleString()}</p>
-			<p>Planted Trees: {project?.treeCount?.toLocaleString()}</p>
-			<p>Funds requested per tree: ${project?.fundsRequestedPerTree}</p>
+			<p>Tree Project Type: {treeProject?.type}</p>
+			<p>Target Trees: {treeProject?.treeTarget?.toLocaleString()}</p>
+			<p>Planted Trees: {treeProject?.treeCount?.toLocaleString()}</p>
+			<p>Funds requested per tree: ${treeProject?.fundsRequestedPerTree}</p>
 			<p>
 				Total funds requested: $
-				{project &&
+				{treeProject &&
 					(
-						project?.treeTarget * project?.fundsRequestedPerTree
+						treeProject?.treeTarget * treeProject?.fundsRequestedPerTree
 					).toLocaleString()}
 			</p>
 			<p>

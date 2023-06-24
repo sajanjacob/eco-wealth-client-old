@@ -111,9 +111,11 @@ const Header = ({}: Props) => {
 
 			// Apply or remove the 'dark' class to the root HTML element
 			if (theme === "light") {
-				document.documentElement.classList.add("dark");
+				if (typeof window !== "undefined")
+					document.documentElement.classList.add("dark");
 			} else {
-				document.documentElement.classList.remove("dark");
+				if (typeof window !== "undefined")
+					window.document.documentElement.classList.remove("dark");
 			}
 
 			return newTheme;
@@ -124,7 +126,8 @@ const Header = ({}: Props) => {
 	// by removing 'dark' from the root html element.  Else, we leave the element alone.
 	useEffect(() => {
 		if (currentTheme === "light") {
-			document.documentElement.classList.remove("dark");
+			if (typeof window !== "undefined")
+				document.documentElement.classList.remove("dark");
 		}
 	}, [currentTheme]);
 

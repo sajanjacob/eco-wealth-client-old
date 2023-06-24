@@ -296,14 +296,18 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 				</div>
 				{project?.type === "Tree" ? (
 					<TreeProject
-						project={project?.treeProjects[0]}
+						treeProject={project?.treeProjects[0]}
+						project={project}
 						treeInvestments={project?.treeInvestments}
 					/>
 				) : (
 					<EnergyProject project={project?.energyProjects[0]} />
 				)}
 			</div>
-			<Milestones project={project} />
+			<Milestones
+				project={project}
+				adminMode={true}
+			/>
 		</div>
 	);
 }

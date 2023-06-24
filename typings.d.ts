@@ -101,7 +101,7 @@ interface ProjectMilestone {
 	id: string;
 	projectId: string;
 	title: string;
-	description: string;
+	shortDescription: string;
 	createdAt: string;
 	updatedAt: string;
 	body: string;
