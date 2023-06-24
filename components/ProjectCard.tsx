@@ -193,7 +193,11 @@ const ProjectCard = ({
 		toast.info("Publishing Project...");
 	};
 
-	const handleViewProjectClick = () => router.push(`/i/projects/${projectId}`);
+	const handleViewProjectClick = () => {
+		if (role === "investor") router.push(`/i/projects/${projectId}`);
+		if (role === "owner") router.push(`/p/projects/${projectId}`);
+	};
+
 	const handleLearnMoreClick = () => router.push(`/i/projects/${projectId}`);
 	const handleInvestClick = () =>
 		router.push(`/i/projects/${projectId}/invest`);
@@ -208,7 +212,7 @@ const ProjectCard = ({
 	if (role === "investor" && status === "verified") return null;
 	if (role === "investor" && status === "verified_published")
 		return (
-			<div className='w-72 bg-white rounded-2xl shadow-md relative mx-8 my-16 max-h-full z-10'>
+			<div className='w-72 dark:bg-green-950 bg-white rounded-2xl shadow-md relative mx-8 my-16 max-h-full z-10'>
 				<a className='block text-inherit no-underline'>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
@@ -216,7 +220,7 @@ const ProjectCard = ({
 						src={imageUrl}
 						alt={title}
 					/>
-					<button className='bg-transparent absolute top-2 right-1 border-none cursor-pointer text-red-500 text-right mr-2 text-5xl'>
+					{/* <button className='bg-transparent absolute top-2 right-1 border-none cursor-pointer text-red-500 text-right mr-2 text-5xl'>
 						{isFavorited || isFavIconHovered ? (
 							<AiFillHeart
 								style={{ opacity: isFavorited || isFavIconHovered ? 1 : 0 }}
@@ -226,10 +230,10 @@ const ProjectCard = ({
 								style={{ opacity: isFavorited || isFavIconHovered ? 0 : 1 }}
 							/>
 						)}
-					</button>
-					<p className='text-white absolute top-6 right-6 font-bold text-lg text-shadow-md'>
+					</button> */}
+					{/* <p className='text-white absolute top-6 right-6 font-bold text-lg text-shadow-md'>
 						{favoriteCount}
-					</p>
+					</p> */}
 					<div className='p-4'>
 						<p className='border border-gray-300 inline-block px-2 py-1 rounded-md'>
 							{projectType}
@@ -276,46 +280,46 @@ const ProjectCard = ({
 
 	if (role === "owner")
 		return (
-			<div className='w-72 bg-white rounded-2xl shadow-md relative m-8'>
+			<div className='w-72 dark:bg-green-800 bg-white rounded-2xl shadow-md relative m-8'>
+				<div>
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src={imageUrl}
+						alt={title}
+						className='w-full h-48 object-cover'
+					/>
+					<div className='flex justify-end w-full items-center'>
+						<p className='bg-transparent border-none cursor-pointer text-red-400 text-right mr-2 mt-1'>
+							{status}
+						</p>
+						<button
+							className='cursor-pointer text-2xl mt-2'
+							onClick={handleClick}
+						>
+							<BsThreeDotsVertical />
+						</button>
+					</div>
+					<Menu
+						id='basic-menu'
+						anchorEl={anchorEl}
+						open={open}
+						onClose={handleClose}
+						MenuListProps={{
+							"aria-labelledby": "basic-button",
+						}}
+					>
+						<MenuItem onClick={handleViewProjectClick}>View</MenuItem>
+						{status === "verified" && (
+							<MenuItem onClick={handlePublish}>Publish</MenuItem>
+						)}
+						<MenuItem onClick={handleEdit}>Edit</MenuItem>
+						<MenuItem onClick={handleDelete}>Delete</MenuItem>
+					</Menu>
+				</div>
 				<a
 					href={`/p/projects/${projectId}`}
-					className='text-black no-underline'
+					className='no-underline'
 				>
-					<div>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
-							src={imageUrl}
-							alt={title}
-							className='w-full h-48 object-cover'
-						/>
-						<div className='flex justify-end w-full items-center'>
-							<p className='bg-transparent border-none cursor-pointer text-red-500 text-right mr-2 mt-1'>
-								{status}
-							</p>
-							<button
-								className='cursor-pointer text-2xl mt-2 text-gray-700'
-								onClick={handleClick}
-							>
-								<BsThreeDotsVertical />
-							</button>
-						</div>
-						<Menu
-							id='basic-menu'
-							anchorEl={anchorEl}
-							open={open}
-							onClose={handleClose}
-							MenuListProps={{
-								"aria-labelledby": "basic-button",
-							}}
-						>
-							<MenuItem onClick={handleViewProjectClick}>View</MenuItem>
-							{status === "verified" && (
-								<MenuItem onClick={handlePublish}>Publish</MenuItem>
-							)}
-							<MenuItem onClick={handleEdit}>Edit</MenuItem>
-							<MenuItem onClick={handleDelete}>Delete</MenuItem>
-						</Menu>
-					</div>
 					<div className='p-4'>
 						<h3 className='mb-2'>{title}</h3>
 						<p className='line-clamp-5 overflow-hidden overflow-ellipsis'>

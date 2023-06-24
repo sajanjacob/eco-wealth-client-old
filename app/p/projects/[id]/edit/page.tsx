@@ -342,10 +342,14 @@ function Edit() {
 				</div>
 			</div>
 		);
-	console.log("project details >>> ", project);
 	return (
 		<div className='container mx-auto py-6 px-4 min-h-[100vh]'>
-			<p onClick={handleGoBack}>← Back project page</p>
+			<p
+				onClick={handleGoBack}
+				className='cursor-pointer '
+			>
+				← Back to project page
+			</p>
 			<h1 className='text-2xl font-semibold mb-6'>Update Project</h1>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<label className='flex flex-col'>

@@ -5,9 +5,8 @@ import supabase from "@/utils/supabaseClient";
 import { toast } from "react-toastify";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import Project from "@/components/producer/projects/Project";
-type Props = {};
 
-export default async function Projects({}: Props) {
+export default async function Projects() {
 	const path = useParams();
 	const { id } = path;
 	const [project, setProject] = useState<
@@ -17,7 +16,7 @@ export default async function Projects({}: Props) {
 		const { data, error } = await supabase
 			.from("projects")
 			.select(
-				`*, tree_projects(*), energy_projects(*), producer_properties(*), project_milestones(*)`
+				`*, tree_projects(*), energy_projects(*), producer_properties(*), project_milestones(*), tree_investments(*), energy_investments(*)`
 			)
 			.eq("id", id)
 			.neq("is_deleted", true);
@@ -41,6 +40,7 @@ export default async function Projects({}: Props) {
 			<Project
 				project={project}
 				fetchProject={fetchProject}
+				adminMode={true}
 			/>
 		</div>
 	);

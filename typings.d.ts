@@ -91,6 +91,10 @@ interface Project {
 	treeProjects: TreeProject[];
 	energyProjects: EnergyProject[];
 	projectMilestones: ProjectMilestone[];
+	treeInvestments: [];
+	energyInvestments: [];
+	totalNumberOfInvestors: number;
+	totalAmountRaised: number;
 }
 
 interface ProjectMilestone {

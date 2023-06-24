@@ -180,6 +180,10 @@ function AddProject() {
 			treeProjects: [],
 			energyProjects: [],
 			projectMilestones: [],
+			treeInvestments: [],
+			energyInvestments: [],
+			totalNumberOfInvestors: 0,
+			totalAmountRaised: 0,
 		};
 		const { data: project, error } = await supabase
 			.from("projects")

@@ -1,6 +1,7 @@
+"use client";
 import moment from "moment";
 import Image from "next/image";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import TreeProject from "./TreeProject";
 import EnergyProject from "./EnergyProject";
 import { toast } from "react-toastify";
@@ -11,13 +12,16 @@ import { useAppSelector } from "@/redux/hooks";
 import { BiPencil, BiTrashAlt } from "react-icons/bi";
 import Milestones from "./Milestones";
 import { useRouter } from "next/navigation";
-
+import Modal from "@mui/material/Modal";
+import { Box } from "@mui/material";
+import { RootState } from "@/redux/store";
 type Props = {
 	project: Project | null | undefined;
 	fetchProject: () => void;
+	adminMode: boolean;
 };
 
-export default function Project({ project, fetchProject }: Props) {
+export default function Project({ project, fetchProject, adminMode }: Props) {
 	// Visibility Menu
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
@@ -28,6 +32,24 @@ export default function Project({ project, fetchProject }: Props) {
 	const handleClose = () => {
 		setAnchorEl(null);
 	};
+
+	const theme = useAppSelector((state: RootState) => state.user?.currentTheme);
+	const [openModal, setOpenModal] = useState(false);
+	const handleOpenModal = () => setOpenModal(true);
+	const handleCloseModal = () => setOpenModal(false);
+
+	const style = {
+		position: "absolute" as "absolute",
+		top: "50%",
+		left: "50%",
+		transform: "translate(-50%, -50%)",
+		width: 400,
+		background: `${theme === "dark" ? "rgb(12 33 0 / 90%)" : "white"}`,
+		border: "2px solid #000",
+		boxShadow: 24,
+		p: 4,
+	};
+
 	function removeUnderscores(str: string) {
 		let newStr = str.replace(/_/g, " ");
 		return newStr;
@@ -52,24 +74,129 @@ export default function Project({ project, fetchProject }: Props) {
 			fetchProject();
 		}
 	};
-	const theme = useAppSelector((state) => state.user?.currentTheme);
 	const handleEdit = () => {
 		router.push(`/p/projects/${project?.id}/edit`);
 	};
+	const handleDelete = async () => {
+		if (!checkIfProjectIsDeletable()) return;
+		const deletedAt = new Date();
+		const { data, error } = await supabase
+			.from("projects")
+			.update({ is_deleted: true, status: "deleted", deleted_at: deletedAt })
+			.eq("id", project?.id);
+		if (error) {
+			console.error("Error deleting project:", error);
+			toast.error(error.message);
+		}
+		if (data) {
+			toast.success("Project deleted");
+			fetchProject();
+		}
+		if (project?.type === "Tree") {
+			const { data, error } = await supabase
+				.from("tree_projects")
+				.update({ is_deleted: true, status: "deleted", deleted_at: deletedAt })
+				.eq("project_id", project?.id);
+		}
 
+		if (project?.type === "Energy") {
+			const { data, error } = await supabase
+				.from("energy_projects")
+				.update({ is_deleted: true, status: "deleted", deleted_at: deletedAt })
+				.eq("project_id", project?.id);
+		}
+	};
+	const checkIfProjectIsDeletable = () => {
+		if (
+			(project?.energyInvestments.length === 0 ||
+				project?.treeInvestments.length === 0) &&
+			(project?.status === "verified_draft" ||
+				project?.status === "pending_verification" ||
+				project?.status === "pending_update_review" ||
+				project?.status === "verified_public")
+		) {
+			return true;
+		} else {
+			toast.error(
+				"Project cannot be deleted, please make sure it is private or all investors have withdrawn their investments. Contact support if you need further assistance."
+			);
+			return false;
+		}
+	};
+	const [deleteConfirm, setDeleteConfirm] = useState("");
+	const [deleteButtonDisabled, setDeleteButtonDisabled] = useState(true);
+	const handleDeleteConfirm = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setDeleteConfirm(e.target.value);
+	};
+	// Here we have a use effect that checks if deleteConfirm is equal to the project title, if it is, then the delete button is enabled, otherwise it is disabled.
+	useEffect(() => {
+		if (deleteConfirm === project?.title) {
+			setDeleteButtonDisabled(false);
+		} else {
+			setDeleteButtonDisabled(true);
+		}
+	}, [deleteConfirm, project?.title]);
+
+	const handleGoBack = () => {
+		router.back();
+	};
 	return (
 		<div className=''>
-			<div className='flex justify-end mb-2'>
-				<button
-					onClick={handleEdit}
-					className='p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600'
-				>
-					<BiPencil className='text-2xl' />
-				</button>
-				<button className='p-2 rounded bg-red-700 text-white font-bold transition-all hover:bg-red-600 ml-2'>
-					<BiTrashAlt className='text-2xl' />
-				</button>
-			</div>
+			<p
+				onClick={handleGoBack}
+				className='cursor-pointer '
+			>
+				← Back to my projects
+			</p>
+			{adminMode && (
+				<div className='flex justify-end mb-2'>
+					<button
+						onClick={handleEdit}
+						className='p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600'
+					>
+						<BiPencil className='text-2xl' />
+					</button>
+					<button
+						onClick={handleOpenModal}
+						className='p-2 rounded bg-red-700 text-white font-bold transition-all hover:bg-red-600 ml-2'
+					>
+						<BiTrashAlt className='text-2xl' />
+					</button>
+					<Modal
+						open={openModal}
+						onClose={handleCloseModal}
+						aria-labelledby='modal-modal-title'
+						aria-describedby='modal-modal-description'
+					>
+						<Box sx={style}>
+							<p>Are you sure you want to delete this project?</p>
+							<p>
+								Note: Any project investments made by investors must be returned
+								to the original investor before deleting.
+							</p>
+							<div className='flex flex-col mt-4'>
+								<p>Type &quot;{project?.title}&quot; to delete this project.</p>
+								<input
+									value={deleteConfirm}
+									onChange={handleDeleteConfirm}
+									className='border-2 border-gray-300 rounded-md p-2 w-auto my-2'
+								/>
+								<button
+									disabled={deleteButtonDisabled}
+									className={
+										deleteButtonDisabled
+											? "text-sm p-2 rounded bg-gray-400 text-white font-bold transition-all cursor-default"
+											: "text-sm p-2 rounded bg-red-700 text-white font-bold transition-all hover:bg-red-600"
+									}
+									onClick={handleDelete}
+								>
+									Delete project
+								</button>
+							</div>
+						</Box>
+					</Modal>
+				</div>
+			)}
 			<Image
 				className='w-full h-64 object-cover object-top mb-4'
 				src={
@@ -168,7 +295,10 @@ export default function Project({ project, fetchProject }: Props) {
 					{/* <p>Investors: {project?.investorCount}</p> */}
 				</div>
 				{project?.type === "Tree" ? (
-					<TreeProject project={project?.treeProjects[0]} />
+					<TreeProject
+						project={project?.treeProjects[0]}
+						treeInvestments={project?.treeInvestments}
+					/>
 				) : (
 					<EnergyProject project={project?.energyProjects[0]} />
 				)}
