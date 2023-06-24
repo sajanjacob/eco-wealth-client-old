@@ -33,7 +33,7 @@ function Projects({}: Props) {
 
 	return (
 		<div>
-			<h1>Your Projects</h1>
+			<h1 className='font-bold text-3xl mx-8 mt-6'>Your Projects</h1>
 			<div className='flex flex-wrap'>
 				{projects.map(
 					({

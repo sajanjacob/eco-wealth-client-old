@@ -126,40 +126,6 @@ const ProjectCard = ({
 		router.push(`/p/projects/${projectId}/edit`);
 	};
 
-	// Deletes the project with the given ID
-	const deleteProject = async (projectId: string) => {
-		const confirmation = window.confirm(
-			"Are you sure you want to delete this project?"
-		);
-
-		if (confirmation) {
-			try {
-				const { error } = await supabase
-					.from("projects")
-					.delete()
-					.eq("id", projectId);
-
-				if (error) {
-					throw error;
-				}
-
-				// Show a success message or refresh the data on the page
-				toast.success("Project deleted successfully");
-			} catch (error: any) {
-				// Handle the error appropriately
-				console.error("Error deleting project:", error.message);
-				toast.error("Failed to delete the project");
-			}
-		}
-	};
-
-	// Initiates the delete project flow
-	const handleDelete = async () => {
-		// Delete the project and close the menu
-		await deleteProject(projectId);
-		setMenuOpen(false);
-	};
-
 	const userName = user?.name;
 	// Publishes the project with the given ID
 	const publishProject = async (projectId: string) => {
@@ -197,6 +163,8 @@ const ProjectCard = ({
 		if (role === "investor") router.push(`/i/projects/${projectId}`);
 		if (role === "owner") router.push(`/p/projects/${projectId}`);
 	};
+
+	const theme = useAppSelector((state) => state.user?.currentTheme);
 
 	const handleLearnMoreClick = () => router.push(`/i/projects/${projectId}`);
 	const handleInvestClick = () =>
@@ -307,13 +275,28 @@ const ProjectCard = ({
 						MenuListProps={{
 							"aria-labelledby": "basic-button",
 						}}
+						sx={
+							theme === "dark"
+								? {
+										"& .MuiPaper-root": {
+											backgroundColor: "rgb(22 163 74/ 95%)",
+											borderColor: "rgb(20 83 45 / 90%)",
+											borderWidth: "2px",
+											color: "white",
+										},
+								  }
+								: {
+										"& .MuiPaper-root": {
+											backgroundColor: "",
+										},
+								  }
+						}
 					>
 						<MenuItem onClick={handleViewProjectClick}>View</MenuItem>
 						{status === "verified" && (
 							<MenuItem onClick={handlePublish}>Publish</MenuItem>
 						)}
 						<MenuItem onClick={handleEdit}>Edit</MenuItem>
-						<MenuItem onClick={handleDelete}>Delete</MenuItem>
 					</Menu>
 				</div>
 				<a
