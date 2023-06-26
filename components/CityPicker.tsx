@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Country, City, State } from "country-state-city";
 import Select from "react-select";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import { setOnboarding } from "@/redux/features/onboardingSlice";
+import { set } from "react-hook-form";
 
 type option = {
 	value: {
@@ -50,8 +51,27 @@ const options = countries.map((country) => {
 
 type Props = {
 	setCountryCode: React.Dispatch<React.SetStateAction<string>>;
+	city?: string;
+	country?: string;
+	stateProvince?: string;
+	setAddress?: any;
+	address?: {
+		addressLineOne: string;
+		addressLineTwo: string;
+		city: string;
+		country: string;
+		postalCode: string;
+		stateProvince: string;
+	};
 };
-export default function CityPicker({ setCountryCode }: Props) {
+export default function CityPicker({
+	setCountryCode,
+	city,
+	country,
+	stateProvince,
+	setAddress,
+	address,
+}: Props) {
 	const [selectedCountry, setSelectedCountry] = useState<option>(null);
 	const [selectedState, setSelectedState] = useState<stateOption>(null);
 	const [selectedCity, setSelectedCity] = useState<cityOption>(null);
@@ -65,17 +85,70 @@ export default function CityPicker({ setCountryCode }: Props) {
 			setCountryCode(option?.value?.isoCode);
 		}
 		dispatch(setOnboarding({ ...onboarding, country: option?.label }));
+		if (setAddress) setAddress({ ...address, country: option?.label });
 	};
 	const onboarding = useAppSelector((state: RootState) => state.onboarding);
 	const handleSelectedState = (option: stateOption) => {
 		setSelectedState(option);
 		setSelectedCity(null);
 		dispatch(setOnboarding({ ...onboarding, stateProvince: option?.label }));
+		if (setAddress) setAddress({ ...address, stateProvince: option?.label });
 	};
 	const handleSelectedCity = (option: cityOption) => {
 		setSelectedCity(option);
 		dispatch(setOnboarding({ ...onboarding, city: option?.label }));
+		if (setAddress) setAddress({ ...address, city: option?.label });
 	};
+	useEffect(() => {
+		if (country) {
+			let foundCountry =
+				options.find((option) => option?.label === country) || null;
+			console.log("found country >>> ", foundCountry);
+			setSelectedCountry(foundCountry);
+			setCountryCode(foundCountry?.value.isoCode!);
+		}
+	}, [country]);
+	useEffect(() => {
+		if (stateProvince && selectedCountry) {
+			let foundStateProvince =
+				State.getStatesOfCountry(selectedCountry?.value.isoCode)?.find(
+					(option) => option?.name === stateProvince
+				) || null;
+			setSelectedState({
+				value: {
+					latitude: foundStateProvince?.latitude!,
+					longitude: foundStateProvince?.longitude!,
+					countryCode: foundStateProvince?.countryCode!,
+					name: foundStateProvince?.name!,
+					isoCode: foundStateProvince?.isoCode!,
+				},
+				label: foundStateProvince?.name!,
+			});
+			console.log("found stateProvince >>> ", foundStateProvince);
+		}
+	}, [stateProvince, selectedCountry]);
+
+	useEffect(() => {
+		if (city && selectedState) {
+			let foundCity =
+				City.getCitiesOfState(
+					selectedState?.value.countryCode,
+					selectedState?.value.isoCode
+				)?.find((option) => option?.name === city) || null;
+			setSelectedCity({
+				value: {
+					latitude: foundCity?.latitude!,
+					longitude: foundCity?.longitude!,
+					countryCode: foundCity?.countryCode!,
+					name: foundCity?.name!,
+					stateCode: foundCity?.stateCode!,
+				},
+				label: foundCity?.name!,
+			});
+			console.log("found city >>> ", foundCity);
+		}
+	}, [city, selectedState]);
+
 	return (
 		<div className='space-y-4 mt-3'>
 			<div className='space-y-2'>

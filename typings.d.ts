@@ -71,7 +71,7 @@ interface Project {
 	status: string;
 	type: string;
 	fundsRequestedPerTree: number;
-	projectType: string;
+	projectType?: string;
 	treeProjectType: string;
 	energyProjectType: string;
 	projectId: string;
@@ -95,6 +95,7 @@ interface Project {
 	energyInvestments: [];
 	totalNumberOfInvestors: number;
 	totalAmountRaised: number;
+	isVerified: boolean;
 }
 
 interface ProjectMilestone {

@@ -10,7 +10,8 @@ import MilestoneForm from "@/components/MilestoneForm";
 import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import { BiPencil, BiTrash } from "react-icons/bi";
-
+import axios from "axios";
+import getBasePath from "@/lib/getBasePath";
 type Props = {
 	project: Project | null | undefined;
 	adminMode: boolean;
@@ -92,78 +93,59 @@ export default function Milestones({ project, adminMode }: Props) {
 	}, [project]);
 
 	const createMilestone = async (projectId: string) => {
-		const { data, error } = await supabase
-			.from("project_milestones")
-			.insert([
-				{
-					id: uuidv4(),
-					project_id: projectId,
-					title: title,
-					short_description: shortDescription,
-					body: DOMPurify.sanitize(body),
-				},
-			])
-			.select();
-		if (error) {
-			console.error("Error creating milestone:", error);
-			toast.error(error.message);
-		}
-		if (data) {
-			toast.success("Milestone created!");
-			return data[0] as ProjectMilestone;
-		}
+		const cleanBody = DOMPurify.sanitize(body);
+		await axios
+			.post(`${getBasePath()}/api/milestones/create`, {
+				projectId,
+				title,
+				shortDescription,
+				cleanBody,
+			})
+			.then((res) => {
+				if (res.data) {
+					toast.success("Milestone created!");
+					setMilestones([...milestones, res.data[0]]);
+					return res.data[0] as ProjectMilestone;
+				}
+			})
+			.catch((err) => {
+				console.log("Error creating milestone: ", err);
+				toast.error(err.message);
+			});
 	};
 
 	const handleCreateMilestone = () => {
-		// Replace createMilestone with your function name.
 		if (project?.id) {
-			createMilestone(project?.id)
-				.then((newMilestone) => {
-					if (milestones && newMilestone) {
-						setMilestones([...milestones, newMilestone]);
-					}
-				})
-				.catch((error) => {
-					console.log(`Failed to create milestone: ${error}`);
-				});
+			createMilestone(project?.id);
 		}
 	};
+
 	const updateMilestone = async (milestoneId: string) => {
-		const { data, error } = await supabase
-			.from("project_milestones")
-			.update({
-				title: title,
-				short_description: shortDescription,
-				body: DOMPurify.sanitize(body),
+		await axios
+			.put(`/api/milestones/update/${milestoneId}`, {
+				title,
+				shortDescription,
+				body,
 			})
-			.eq("id", milestoneId)
-			.select();
-		if (error) {
-			console.error("Error updating milestone:", error);
-			toast.error(error.message);
-		}
-		if (data) {
-			setOpenCreateModal(false);
-			toast.success("Milestone updated!");
-			return data[0] as ProjectMilestone;
-		}
-	};
-	const handleUpdateMilestone = () => {
-		// Replace updateMilestone with your function name.
-		updateMilestone(selectedMilestone.id)
-			.then((updatedMilestone) => {
-				if (milestones && updatedMilestone)
+			.then((res) => {
+				if (res.data) {
+					toast.success("Milestone updated!");
 					setMilestones(
 						milestones.map((milestone) =>
-							milestone.id === updatedMilestone.id
-								? updatedMilestone
-								: milestone
+							milestone.id === res.data[0].id ? res.data[0] : milestone
 						)
 					);
+				}
 			})
-			.catch((error) => {
-				console.log(`Failed to update milestone: ${error}`);
+			.catch((err) => {
+				console.log("Error updating milestone: ", err);
+				toast.error(err.message);
 			});
+	};
+
+	const handleUpdateMilestone = () => {
+		// Replace updateMilestone with your function name.
+		updateMilestone(selectedMilestone.id);
 	};
 
 	const deleteMilestone = async (milestoneId: string) => {

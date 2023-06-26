@@ -10,6 +10,8 @@ import withAuth from "@/utils/withAuth";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
+import axios from "axios";
+import getBasePath from "@/lib/getBasePath";
 interface FormValues {
 	title: string;
 	image: File | null;
@@ -229,62 +231,44 @@ function Edit() {
 
 	const updateProject = async (bannerUrl: string) => {
 		const status = "pending_update_review";
-		const { data, error } = await supabase
-			.from("projects")
-			.update({
+		await axios
+			.post(`${getBasePath()}/api/projects/update`, {
 				title: title,
-				updated_at: new Date().toISOString(),
-				image_url: bannerUrl,
-				project_coordinator_contact: {
-					name: coordinatorName,
-					phone: coordinatorPhone,
-				},
+				bannerUrl: bannerUrl,
+				coordinatorName: coordinatorName,
+				coordinatorPhone: coordinatorPhone,
 				description: description,
 				status: status,
 				type: projectType,
-				total_area_sqkm: totalArea,
-				property_address_id: projectAddressId,
+				totalArea: totalArea,
+				projectAddressId: projectAddressId,
+				treeTarget: treeTarget,
+				fundsRequestedPerTree: fundsRequestedPerTree,
+				treeType: treeType,
+				fundsRequested: fundsRequested,
+				energyProductionTarget: energyProductionTarget,
+				numOfArrays: numOfArrays,
+				installedSystemSize: installedSystemSize,
+				photovoltaicCapacity: photovoltaicCapacity,
+				estimatedInstallationCost: estimatedInstallationCost,
+				estimatedSystemCost: estimatedSystemCost,
+				estimatedMaintenanceCost: estimatedMaintenanceCost,
+				energyType: energyType,
+				installationTeam: installationTeam,
+				connectWithSolarPartner: connectWithSolarPartner,
 			})
-			.eq("id", id);
-		if (projectType === "Tree" && data) {
-			const { data, error } = await supabase
-				.from("tree_projects")
-				.update({
-					tree_target: treeTarget,
-					funds_requested_per_tree: fundsRequestedPerTree,
-					type: treeType,
-				})
-				.eq("id", project?.treeProjects[0].id);
-			console.log("tree projects data: ", data);
-		}
-		if (projectType === "Energy" && data) {
-			const { data, error } = await supabase
-				.from("energy_projects")
-				.update({
-					funds_requested: fundsRequested,
-					energy_production_target: energyProductionTarget,
-					num_of_arrays: numOfArrays,
-					system_size_in_kw: installedSystemSize,
-					system_capacity: photovoltaicCapacity,
-					labour_cost: estimatedInstallationCost,
-					estimated_system_cost: estimatedSystemCost,
-					maintenance_cost: estimatedMaintenanceCost,
-					type: "Solar",
-					installation_team: installationTeam,
-					connect_with_solar_partner: connectWithSolarPartner,
-				})
-				.eq("id", project?.energyProjects[0].id);
-			console.log("energy projects data: ", data);
-		}
-		if (error) {
-			toast.error(`Error updating project. ${error.message}`);
-			setLoading({ loading: false, message: "" });
-		} else {
-			toast.success("Project updated successfully!");
-			setLoading({ loading: false, message: "" });
-		}
-		console.log("data: ", data);
+			.then((res) => {
+				if (res.data) {
+					toast.success("Project updated!");
+					setLoading({ loading: false, message: "" });
+				}
+			})
+			.catch((err) => {
+				console.log("Error updating project: ", err);
+				toast.error(err);
+			});
 	};
+
 	const onSubmit = async () => {
 		setLoading({ loading: true, message: "Uploading project..." });
 		const formValues = getValues();

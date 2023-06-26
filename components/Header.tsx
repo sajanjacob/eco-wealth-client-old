@@ -17,8 +17,9 @@ import { RxAvatar } from "react-icons/rx";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { FiPower } from "react-icons/fi";
-import { MdSettings } from "react-icons/md";
+import { MdComment, MdSettings } from "react-icons/md";
 import { AiOutlineUserSwitch } from "react-icons/ai";
+import Link from "next/link";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -165,7 +166,7 @@ const Header = ({}: Props) => {
 
 	const handleSettingsClick = () =>
 		router.push("/settings?tab=personal-details");
-
+	const handleFeedbackClick = () => router.push("https://eco-wealth.canny.io/");
 	return (
 		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
 			<div
@@ -292,6 +293,14 @@ const Header = ({}: Props) => {
 							>
 								<MdSettings className='mr-2' /> Account Settings
 							</MenuItem>
+							<Link
+								href='https://eco-wealth.canny.io/'
+								target='_blank'
+							>
+								<MenuItem className='menu-link'>
+									<MdComment className='mr-2' /> Give Feedback
+								</MenuItem>
+							</Link>
 							<MenuItem
 								className='menu-link'
 								onClick={handleLogoutClick}

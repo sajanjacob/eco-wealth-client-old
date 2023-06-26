@@ -47,6 +47,7 @@ function Projects({}: Props) {
 						fundsRequestedPerTree,
 						type,
 						createdAt,
+						isVerified,
 					}) => (
 						<ProjectCard
 							key={id}
@@ -61,6 +62,7 @@ function Projects({}: Props) {
 							fundsRequestedPerTree={fundsRequestedPerTree}
 							projectType={type}
 							createdAt={createdAt}
+							isVerified={isVerified}
 							role='owner'
 						/>
 					)

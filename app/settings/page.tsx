@@ -8,12 +8,12 @@ import PasswordAndSecurity from "@/components/settings/PasswordAndSecurity";
 import Billing from "@/components/settings/Billing";
 import Roles from "@/components/settings/Roles";
 import Notifications from "@/components/settings/Notifications";
+import ProducerAddresses from "@/components/settings/ProducerAddresses";
 
 type Props = {};
 
 export default function Settings({}: Props) {
 	const router = useRouter();
-	const pathName = usePathname();
 	const searchParams = useSearchParams();
 	const navigateTo = (path: string) => {
 		router.push(path);
@@ -26,6 +26,7 @@ export default function Settings({}: Props) {
 		"password-and-security",
 		"billing",
 		"roles",
+		`${user?.roles.includes("producer") ? "addresses" : null}`,
 	];
 
 	useEffect(() => {
@@ -47,6 +48,8 @@ export default function Settings({}: Props) {
 				return <Billing user={user} />;
 			case "roles":
 				return <Roles user={user} />;
+			case "addresses":
+				return <ProducerAddresses user={user} />;
 			default:
 				return null;
 		}

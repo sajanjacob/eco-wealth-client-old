@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProjectCard from "@/components/ProjectCard";
 import withAuth from "@/utils/withAuth";
+import convertToCamelCase from "@/utils/convertToCamelCase";
 
 function Discover() {
 	const filters = [
@@ -32,7 +33,7 @@ function Discover() {
 				.then((res) => res.json())
 				.catch((err) => console.log(err));
 			if (res) {
-				setProjects(res);
+				setProjects(convertToCamelCase(res));
 			}
 		};
 
@@ -76,33 +77,34 @@ function Discover() {
 						(
 							{
 								id,
-								created_at,
+								createdAt,
 								title,
 								description,
 								type,
-								image_url,
-								tree_target,
-								funds_requested_per_tree,
+								imageUrl,
+								treeTarget,
+								fundsRequestedPerTree,
 								status,
-								project_coordinator_contact_name,
-								project_coordinator_contact_email,
+								projectCoordinatorContact,
+								isVerified,
 							},
 							index
 						) => (
 							<ProjectCard
 								key={index}
-								imageUrl={image_url}
+								imageUrl={imageUrl}
 								title={title}
 								description={description}
 								projectId={id}
-								createdAt={created_at}
+								createdAt={createdAt}
 								projectType={type}
-								treeTarget={tree_target}
-								fundsRequestedPerTree={funds_requested_per_tree}
+								treeTarget={treeTarget}
+								fundsRequestedPerTree={fundsRequestedPerTree}
 								status={status}
 								role={"investor"}
-								projectCoordinatorContactName={""}
-								projectCoordinatorContactPhone={""}
+								projectCoordinatorContactName={projectCoordinatorContact.name}
+								projectCoordinatorContactPhone={projectCoordinatorContact.phone}
+								isVerified={isVerified}
 							/>
 						)
 					)

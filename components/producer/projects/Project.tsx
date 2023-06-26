@@ -55,14 +55,11 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 		return newStr;
 	}
 	const toggleProjectVisibility = async () => {
+		if (!project?.isVerified) return;
 		const { data, error } = await supabase
 			.from("projects")
 			.update({
-				status: `${
-					project?.status === "verified_draft"
-						? "verified_public"
-						: "verified_draft"
-				}`,
+				status: `${project?.status === "draft" ? "published" : "draft"}`,
 			})
 			.eq("id", project?.id);
 		if (error) {
@@ -110,10 +107,11 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 		if (
 			(project?.energyInvestments.length === 0 ||
 				project?.treeInvestments.length === 0) &&
-			(project?.status === "verified_draft" ||
+			(project?.status === "draft" ||
 				project?.status === "pending_verification" ||
 				project?.status === "pending_update_review" ||
-				project?.status === "verified_public")
+				project?.status === "published" ||
+				project?.status === "not_approved")
 		) {
 			return true;
 		} else {
@@ -214,8 +212,8 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 					{project?.title} - {project?.type} Project
 				</h2>
 				<h4 className='text-sm px-6 py-2 border-white rounded border-[1px]'>
-					{project?.status === "verified_draft" ||
-					project?.status === "verified_public" ? (
+					{(project?.status === "draft" || project?.status === "public") &&
+					project?.isVerified ? (
 						<>
 							<div
 								className='cursor-pointer'
@@ -257,9 +255,7 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 									className='menu-link'
 									onClick={toggleProjectVisibility}
 								>
-									{project?.status === "verified_draft"
-										? "Make Public"
-										: "Make Private"}
+									{project?.status === "draft" ? "Make Public" : "Make Private"}
 								</MenuItem>
 							</Menu>
 						</>

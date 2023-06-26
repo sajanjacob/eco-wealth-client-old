@@ -25,6 +25,7 @@ type Props = {
 	fundsRequestedPerTree: number;
 	projectType: string;
 	createdAt: string;
+	isVerified: boolean;
 };
 const ProjectCard = ({
 	imageUrl,
@@ -39,6 +40,7 @@ const ProjectCard = ({
 	fundsRequestedPerTree,
 	projectType,
 	createdAt,
+	isVerified,
 }: Props) => {
 	const [isFavorited, setIsFavorited] = useState(false);
 	const [isFavIconHovered, setIsFavIconHovered] = useState(false);
@@ -129,6 +131,7 @@ const ProjectCard = ({
 	const userName = user?.name;
 	// Publishes the project with the given ID
 	const publishProject = async (projectId: string) => {
+		if (!isVerified) return;
 		try {
 			const { data, error } = await supabase
 				.from("projects")
@@ -174,11 +177,12 @@ const ProjectCard = ({
 	const handleReport = async () => {};
 	const handleOnMouseEnter = () => setIsFavIconHovered(true);
 	const handleOnMouseLeave = () => setIsFavIconHovered(false);
-	if (role === "investor" && status === "draft") return null;
-	if (role === "investor" && status === "pending") return null;
+	if (role === "investor" && status === "pending_verification") return null;
+	if (role === "investor" && status === "pending_update_review") return null;
 	if (role === "investor" && status === "not_approved") return null;
-	if (role === "investor" && status === "verified") return null;
-	if (role === "investor" && status === "verified_published")
+	if (role === "investor" && status === "draft") return null;
+	if (role === "investor" && !isVerified) return null;
+	if (role === "investor" && status === "published")
 		return (
 			<div className='w-72 dark:bg-green-950 bg-white rounded-2xl shadow-md relative mx-8 my-16 max-h-full z-10'>
 				<a className='block text-inherit no-underline'>

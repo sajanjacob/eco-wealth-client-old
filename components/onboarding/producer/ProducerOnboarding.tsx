@@ -18,6 +18,8 @@ import ProducerOnboardingCurrentOps from "./ProducerOnboardingCurrentOps";
 import ProducerOnboardingPropertyZone from "./ProducerOnboardingPropertyZone";
 
 import shortid from "shortid";
+import axios from "axios";
+import getBasePath from "@/lib/getBasePath";
 
 export default function ProducerOnboarding() {
 	const dispatch = useAppDispatch();
@@ -73,48 +75,26 @@ export default function ProducerOnboarding() {
 		}
 		if (data) {
 			handleUpdateProducerOnboardingStatus(data[0].id);
-			const { data: propertyData, error } = await supabase
-				.from("producer_properties")
-				.insert([
-					{
-						id: uuidv4(),
-						producer_id: user.producerId,
-						address: {
-							address_line_one: onboarding.addressLineOne,
-							address_line_two: onboarding.addressLineTwo,
-							city: onboarding.city,
-							state_province: onboarding.stateProvince,
-							postal_code: onboarding.postalCode,
-							country: onboarding.country,
-						},
-						is_verified: false,
-					},
-				])
-				.select();
-			if (error) {
-				console.error("Error updating producer onboarding data:", error);
-				toast.error(
-					`Error updating producer onboarding data: ${error.message}`
-				);
-			}
-			if (propertyData) {
-				const { data: verificationData, error } = await supabase
-					.from("producer_verification_codes")
-					.insert([
-						{
-							id: uuidv4(),
-							producer_id: user.producerId,
-							property_id: propertyData[0].id,
-							verification_code: shortid.generate(),
-						},
-					]);
-				if (error) {
-					console.error("Error updating producer onboarding data:", error);
-					toast.error(
-						`Error updating producer onboarding data: ${error.message}`
-					);
-				}
-			}
+			const address = {
+				addressLineOne: onboarding.addressLineOne,
+				addressLineTwo: onboarding.addressLineTwo,
+				city: onboarding.city,
+				stateProvince: onboarding.stateProvince,
+				postalCode: onboarding.postalCode,
+				country: onboarding.country,
+			};
+
+			await axios
+				.post(`${getBasePath()}/api/properties/create`, {
+					producerId: user.producerId,
+					address: address,
+				})
+				.then((res) => {
+					console.log("Property created: ", res.data);
+				})
+				.catch((err) => {
+					console.log("Error creating property: ", err);
+				});
 		}
 	};
 

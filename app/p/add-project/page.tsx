@@ -10,6 +10,7 @@ import withAuth from "@/utils/withAuth";
 import { v4 as uuidv4 } from "uuid";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 interface FormValues {
 	title: string;
 	image: File | null;
@@ -117,7 +118,6 @@ function AddProject() {
 	}, [user]);
 
 	let fileName = "";
-	// TODO: TEST THIS -> Generated from Co-Pilot
 	const uploadImage = async (file: File) => {
 		const fileExt = file.name.split(".").pop();
 		fileName = `${Math.random()}.${fileExt}`;
@@ -129,10 +129,12 @@ function AddProject() {
 			throw error;
 		}
 	};
+
 	const producerId = user.producerId;
 
+	// Note to future me - Might need to update everything to 'watch' for react-hook-form
 	const createProject = async (bannerUrl: string) => {
-		const projectData: Project = {
+		const projectData: Project | EnergyProject | TreeProject = {
 			title: formValues.title,
 			imageUrl: bannerUrl,
 			projectCoordinatorContact: {
@@ -140,14 +142,31 @@ function AddProject() {
 				phone: formValues.coordinatorPhone,
 			},
 			description: formValues.description,
-			treeTarget: formValues.numTrees,
-			fundsRequestedPerTree: formValues.pricePerTree,
 			producerId: producerId,
 			status: "pending_verification",
-			type: formValues.treeType,
+			type: formValues.projectType,
 			projectVerificationConsentGiven: true,
 			adminFeeConsent: true,
 			agreedToPayInvestor: true,
+			totalAreaSqkm: formValues.totalArea,
+			propertyAddressId: formValues.projectAddressId,
+
+			treeTarget: formValues.numTrees,
+			fundsRequestedPerTree: formValues.pricePerTree,
+			treeProjectType: formValues.treeType,
+
+			totalFundsRequested: formValues.fundsRequested,
+			energyProductionTarget: formValues.energyProductionTarget,
+			targetArrays: formValues.numOfArrays,
+			installerType: formValues.installationTeam,
+			systemSize: formValues.installedSystemSize,
+			systemCapacity: formValues.photovoltaicCapacity,
+			labourCost: formValues.estimatedInstallationCost,
+			maintenanceCost: formValues.estimatedMaintenanceCost,
+			energyProjectType: energyType,
+			connectWithSolarPartner: formValues.connectWithSolarPartner,
+			systemCost: formValues.estimatedSystemCost,
+
 			createdAt: Date.now().toString(),
 			updatedAt: Date.now().toString(),
 			treeCount: 0,
@@ -156,9 +175,6 @@ function AddProject() {
 			totalArea: formValues.totalArea,
 			id: "",
 			userId: user.id,
-			treeProjectType: formValues.treeType,
-			energyProjectType: energyType,
-			propertyAddressId: formValues.projectAddressId,
 			fundsCollected: 0,
 			producerProperties: {
 				id: "",
@@ -176,7 +192,6 @@ function AddProject() {
 				isVerified: false,
 			},
 			investorCount: 0,
-			totalAreaSqkm: 0,
 			treeProjects: [],
 			energyProjects: [],
 			projectMilestones: [],
@@ -184,68 +199,22 @@ function AddProject() {
 			energyInvestments: [],
 			totalNumberOfInvestors: 0,
 			totalAmountRaised: 0,
+			isVerified: false,
 		};
-		const { data: project, error } = await supabase
-			.from("projects")
-			.insert([
-				{
-					id: uuidv4(),
-					title: projectData.title,
-					image_url: projectData.imageUrl,
-					project_coordinator_contact: projectData.projectCoordinatorContact,
-					description: projectData.description,
-					producer_id: projectData.producerId,
-					status: projectData.status,
-					type: projectData.projectType,
-					project_verification_consent_given:
-						projectData.projectVerificationConsentGiven,
-					admin_fee_consent: projectData.adminFeeConsent,
-					agreed_to_pay_investor: projectData.agreedToPayInvestor,
-					total_area_sqkm: projectData.totalArea,
-					property_address_id: projectData.propertyAddressId,
-				},
-			])
-			.select();
-		if (projectType === "Tree" && project) {
-			const { data, error } = await supabase.from("tree_projects").insert([
-				{
-					id: uuidv4(),
-					project_id: project?.[0].id,
-					tree_target: projectData.treeTarget,
-					funds_requested_per_tree: projectData.fundsRequestedPerTree,
-					type: projectData.treeProjectType,
-					tree_count: 0,
-				},
-			]);
-		}
-		if (projectType === "Energy" && project) {
-			const { data, error } = await supabase.from("energy_projects").insert([
-				{
-					id: uuidv4(),
-					project_id: project?.[0].id,
-					funds_requested: formValues.fundsRequested,
-					energy_production_target: formValues.energyProductionTarget,
-					num_of_arrays: formValues.numOfArrays,
-					system_size_in_kw: formValues.installedSystemSize,
-					system_capacity: formValues.photovoltaicCapacity,
-					labour_cost: formValues.estimatedInstallationCost,
-					estimated_system_cost: formValues.estimatedSystemCost,
-					maintenance_cost: formValues.estimatedMaintenanceCost,
-					type: "Solar",
-					installation_team: formValues.installationTeam,
-					connect_with_solar_partner: formValues.connectWithSolarPartner,
-				},
-			]);
-		}
-		if (error) {
-			toast.error(`Error submitting project. ${error.message}`);
-			setLoading({ loading: false, message: "" });
-		} else {
-			toast.success("Project submitted successfully!");
-			setLoading({ loading: false, message: "" });
-			router.push("/p/projects");
-		}
+
+		await axios
+			.post("/api/projects/create", projectData)
+			.then((response) => {
+				console.log("Project Created: ", response.data);
+				toast.success("Project created successfully!");
+				router.push("/p/projects");
+			})
+			.catch((error) => {
+				console.log("Error creating project:", error);
+				toast.error(`Error creating project. ${error}`);
+			});
 	};
+
 	const onSubmit = async () => {
 		setLoading({ loading: true, message: "Uploading project..." });
 		const formValues = getValues();
