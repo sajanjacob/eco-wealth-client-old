@@ -11,6 +11,7 @@ import { ListenerEffect } from "@reduxjs/toolkit";
 import { useAppSelector } from "@/redux/hooks";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Image from "next/image";
 
 type Props = {
 	imageUrl: string;
@@ -26,6 +27,8 @@ type Props = {
 	projectType: string;
 	createdAt: string;
 	isVerified: boolean;
+	treeProjects?: TreeProject[];
+	energyProjects?: EnergyProject[];
 };
 const ProjectCard = ({
 	imageUrl,
@@ -41,6 +44,8 @@ const ProjectCard = ({
 	projectType,
 	createdAt,
 	isVerified,
+	treeProjects,
+	energyProjects,
 }: Props) => {
 	const [isFavorited, setIsFavorited] = useState(false);
 	const [isFavIconHovered, setIsFavIconHovered] = useState(false);
@@ -48,7 +53,7 @@ const ProjectCard = ({
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
-	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
 	};
 	const handleClose = () => {
@@ -184,11 +189,13 @@ const ProjectCard = ({
 	if (role === "investor" && !isVerified) return null;
 	if (role === "investor" && status === "published")
 		return (
-			<div className='w-72 dark:bg-green-950 bg-white rounded-2xl shadow-md relative mx-8 my-16 max-h-full z-10'>
+			<div className='w-72 dark:bg-green-950 bg-white rounded-2xl shadow-md relative mx-8 my-16 z-10 h-fit pb-2 border-[1px] border-green-950 hover:border-green-800 transition-colors'>
 				<a className='block text-inherit no-underline'>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						className='w-full h-48 object-cover'
+					<Image
+						width={288}
+						height={150}
+						className='w-full h-48 object-cover rounded-t-2xl'
 						src={imageUrl}
 						alt={title}
 					/>
@@ -206,43 +213,95 @@ const ProjectCard = ({
 					{/* <p className='text-white absolute top-6 right-6 font-bold text-lg text-shadow-md'>
 						{favoriteCount}
 					</p> */}
-					<div className='p-4'>
-						<p className='border border-gray-300 inline-block px-2 py-1 rounded-md'>
-							{projectType}
-						</p>
-						<div className='flex justify-between w-full items-center'>
+
+					<div className='p-6'>
+						<div className='flex justify-between items-center mb-2'>
+							<p className='text-2xl'>
+								{projectType === "Tree"
+									? "🌳"
+									: projectType === "Energy"
+									? "☀️"
+									: null}
+							</p>
+							<div
+								onClick={handleClick}
+								className='cursor-pointer text-2xl dark:text-white text-gray-800 mr-[-12px] '
+							>
+								<BsThreeDotsVertical />
+							</div>
+							<Menu
+								id='basic-menu'
+								className=''
+								anchorEl={anchorEl}
+								open={open}
+								onClose={handleClose}
+								MenuListProps={{
+									"aria-labelledby": "basic-button",
+								}}
+								disableScrollLock={true}
+								sx={
+									theme === "dark"
+										? {
+												"& .MuiPaper-root": {
+													backgroundColor: "rgb(5 46 22 / 98%)",
+													borderColor: "rgb(20 83 45 / 90%)",
+													borderWidth: "2px",
+												},
+										  }
+										: {
+												"& .MuiPaper-root": {
+													backgroundColor: "",
+												},
+										  }
+								}
+							>
+								<MenuItem
+									className='menu-link'
+									onClick={() => router.push(`/i/projects/${projectId}`)}
+								>
+									View
+								</MenuItem>
+								{/* <MenuItem
+								className='menu-link'
+								onClick={() => router.push(`/i/projects/${projectId}/report`)}
+							>
+								Report
+							</MenuItem> */}
+							</Menu>
+						</div>
+						<div className='flex flex-col pb-4'>
 							<Link
 								href={`/i/projects/${projectId}`}
 								passHref
 							>
-								<h3 className='mb-2'>{title}</h3>
+								<h3 className='font-light text-xl overflow-hidden overflow-ellipsis'>
+									{title}
+								</h3>
 							</Link>
-							<div className='cursor-pointer text-2xl mt-2 text-gray-800'>
-								<BsThreeDotsVertical />
-							</div>
+							<p className='text-xs'>
+								{treeProjects && treeProjects.length > 0
+									? `${treeProjects[0].type}`
+									: null}
+								{energyProjects && energyProjects.length > 0
+									? `${energyProjects[0].type}`
+									: null}
+							</p>
 						</div>
-						{menuOpen && (
-							<div className='fixed top-0 left-0 bg-white border border-gray-300 rounded-md p-2 flex flex-col gap-2 z-50'>
-								<button className='bg-transparent border-none text-gray-800 text-sm cursor-pointer text-left'>
-									View
-								</button>
-								<button className='bg-transparent border-none text-gray-800 text-sm cursor-pointer text-left'>
-									Report
-								</button>
-							</div>
-						)}
+
 						<Link
 							href={`/i/projects/${projectId}`}
 							passHref
 						>
-							<p className='overflow-hidden overflow-ellipsis'>{description}</p>
+							<p className='overflow-hidden overflow-ellipsis mb-4'>
+								{description}
+							</p>
 						</Link>
 						<div className='flex justify-between'>
-							<button className='w-1/2 p-2 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'>
-								Learn More
+							<button className='w-1/2 p-2 mr-4 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'>
+								Know more
 							</button>
 							<button className='w-1/2 p-2 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'>
-								Invest
+								Invest now
 							</button>
 						</div>
 					</div>

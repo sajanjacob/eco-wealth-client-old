@@ -83,6 +83,7 @@ function Discover() {
 		}
 	};
 
+	console.log("projects: ", projects);
 	return (
 		<div className='w-3/4 mx-auto py-8 h-[100%]'>
 			<h1 className='text-2xl font-bold'>Discover Projects</h1>
@@ -137,6 +138,8 @@ function Discover() {
 									status,
 									projectCoordinatorContact,
 									isVerified,
+									treeProjects,
+									energyProjects,
 								},
 								index
 							) => (
@@ -157,6 +160,8 @@ function Discover() {
 										projectCoordinatorContact.phone
 									}
 									isVerified={isVerified}
+									treeProjects={treeProjects}
+									energyProjects={energyProjects}
 								/>
 							)
 						)
