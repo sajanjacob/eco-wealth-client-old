@@ -96,6 +96,8 @@ interface Project {
 	totalNumberOfInvestors: number;
 	totalAmountRaised: number;
 	isVerified: boolean;
+	currentSoilOrganicContentPercentage: number;
+	targetSoilOrganicContentPercentage: number;
 }
 
 interface ProjectMilestone {

@@ -11,6 +11,7 @@ export default function TreeProject({
 	treeProject,
 	treeInvestments,
 }: Props) {
+	console.log("project", project);
 	return (
 		<div>
 			<p>Tree Project Type: {treeProject?.type}</p>

@@ -4,11 +4,12 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import supabase from "./supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
+import { RootState } from "@/redux/store";
 
 export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 	return function WithAuthComponent(props: any) {
 		const router = useRouter();
-		const user = useAppSelector((state) => state.user);
+		const user = useAppSelector((state: RootState) => state.user);
 		const pathname = usePathname();
 		const dispatch = useAppDispatch();
 
@@ -47,7 +48,8 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 				console.log("(withAuth) → user is logged in, ", data);
 
 				// Here we check for the user's active role from supabase and then push them to their
-				// respective onboarding page if they haven't completed it yet.
+				// respective onboarding page if they haven't completed it yet or we push them to their
+				// respective dashboard pages if they have completed their onboarding.
 				if (
 					data.active_role === "investor" &&
 					!data.investor_onboarding_complete
@@ -58,6 +60,13 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 					!data.producer_onboarding_complete
 				) {
 					router.push("/p/onboarding/");
+				} else {
+					if (data.active_role === "investor") {
+						router.push("/i/dashboard");
+					}
+					if (data.active_role === "producer") {
+						router.push("/p/dashboard");
+					}
 				}
 			} catch (err) {
 				console.error("Unexpected error fetching user data:", err);
@@ -72,31 +81,34 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 			if (user) {
 				fetchUserData(user.id);
 			} else {
-				router.push(`/login?next=${encodeURIComponent(pathname)}`);
+				if (pathname)
+					router.push(`/login?next=${encodeURIComponent(pathname)}`);
+				else router.push(`/login`);
 			}
 		};
 
 		useEffect(() => {
 			if (user.loggedIn) {
-				// Here we check for the user's active role in redux and then push them to their
-				// respective onboarding page if they haven't completed it yet.
-				if (
-					user.activeRole === "investor" &&
-					!user.investorOnboardingComplete
-				) {
-					router.push("/i/onboarding/");
-				} else if (
-					user.activeRole === "producer" &&
-					!user.producerOnboardingComplete
-				) {
-					router.push("/p/onboarding/");
+				let role = null;
+				if (pathname?.includes("/i/")) {
+					role = "investor";
+				} else if (pathname?.includes("/p/")) {
+					role = "producer";
 				}
-			} else {
-				checkUserLoggedInStatus();
-			}
 
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [user, pathname]);
+				if (role) {
+					if (user.roles.includes(role)) {
+						if (user.activeRole !== role) {
+							// Switch role
+							dispatch(setUser({ ...user, activeRole: role }));
+						}
+					} else {
+						// Redirect to dashboard if user doesn't have role
+						router.push(`/${user.activeRole?.charAt(0)}/dashboard`);
+					}
+				}
+			}
+		}, [user, pathname, dispatch, router]);
 
 		return <WrappedComponent {...props} />;
 	};

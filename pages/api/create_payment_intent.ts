@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 
 const stripe = new Stripe(`${process.env.STRIPE_SECRET_KEY}`, {
-	apiVersion: '2022-11-15'
+	apiVersion: "2022-11-15",
 });
 
 const CreatePaymentIntent = async (req: any, res: any) => {
@@ -11,6 +11,9 @@ const CreatePaymentIntent = async (req: any, res: any) => {
 			const paymentIntent = await stripe.paymentIntents.create({
 				amount: Math.round(amount * 100),
 				currency: "cad",
+				automatic_payment_methods: {
+					enabled: true,
+				},
 			});
 
 			res.status(200).json({ clientSecret: paymentIntent.client_secret });

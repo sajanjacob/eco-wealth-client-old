@@ -7,7 +7,7 @@ import convertToCamelCase from "@/utils/convertToCamelCase";
 import Project from "@/components/producer/projects/Project";
 
 export default async function Projects() {
-	const path = useParams();
+	const path: any = useParams();
 	const { id } = path;
 	const [project, setProject] = useState<
 		Project | TreeProject | EnergyProject | null

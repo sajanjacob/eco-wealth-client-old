@@ -17,7 +17,7 @@ import { Box } from "@mui/material";
 import { RootState } from "@/redux/store";
 type Props = {
 	project: Project | null | undefined;
-	fetchProject: () => void;
+	fetchProject?: () => void;
 	adminMode: boolean;
 };
 
@@ -33,6 +33,7 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 		setAnchorEl(null);
 	};
 
+	const role = useAppSelector((state: RootState) => state.user?.activeRole);
 	const theme = useAppSelector((state: RootState) => state.user?.currentTheme);
 	const [openModal, setOpenModal] = useState(false);
 	const handleOpenModal = () => setOpenModal(true);
@@ -56,6 +57,7 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 	}
 	const toggleProjectVisibility = async () => {
 		if (!project?.isVerified) return;
+		if (!fetchProject) return;
 		const { data, error } = await supabase
 			.from("projects")
 			.update({
@@ -76,6 +78,7 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 	};
 	const handleDelete = async () => {
 		if (!checkIfProjectIsDeletable()) return;
+		if (!fetchProject) return;
 		const deletedAt = new Date();
 		const { data, error } = await supabase
 			.from("projects")
@@ -142,9 +145,13 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 		<div className=''>
 			<p
 				onClick={handleGoBack}
-				className='cursor-pointer '
+				className='cursor-pointer mb-4 text-sm font-semibold transition-all hover:text-green-700'
 			>
-				← Back to my projects
+				{role === "investor"
+					? `← Back to projects`
+					: role === "producer"
+					? `← Back to my projects`
+					: `← Back`}
 			</p>
 			{adminMode && (
 				<div className='flex justify-end mb-2'>
@@ -211,59 +218,63 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 				<h2 className='text-2xl font-bold mb-2'>
 					{project?.title} - {project?.type} Project
 				</h2>
-				<h4 className='text-sm px-6 py-2 border-white rounded border-[1px]'>
-					{(project?.status === "draft" || project?.status === "public") &&
-					project?.isVerified ? (
-						<>
-							<div
-								className='cursor-pointer'
-								id='basic-button'
-								aria-controls={open ? "basic-menu" : undefined}
-								aria-haspopup='true'
-								aria-expanded={open ? "true" : undefined}
-								onClick={handleClick}
-							>
-								{removeUnderscores(project?.status)}
-							</div>
-							<Menu
-								id='basic-menu'
-								className=''
-								anchorEl={anchorEl}
-								open={open}
-								onClose={handleClose}
-								MenuListProps={{
-									"aria-labelledby": "basic-button",
-								}}
-								disableScrollLock={true}
-								sx={
-									theme === "dark"
-										? {
-												"& .MuiPaper-root": {
-													backgroundColor: "rgb(12 33 0 / 90%)",
-													borderColor: "rgb(20 83 45 / 90%)",
-													borderWidth: "2px",
-												},
-										  }
-										: {
-												"& .MuiPaper-root": {
-													backgroundColor: "",
-												},
-										  }
-								}
-							>
-								<MenuItem
-									className='menu-link'
-									onClick={toggleProjectVisibility}
+				{adminMode && (
+					<h4 className='text-sm px-6 py-2 border-white rounded border-[1px]'>
+						{(project?.status === "draft" || project?.status === "published") &&
+						project?.isVerified ? (
+							<>
+								<div
+									className='cursor-pointer'
+									id='basic-button'
+									aria-controls={open ? "basic-menu" : undefined}
+									aria-haspopup='true'
+									aria-expanded={open ? "true" : undefined}
+									onClick={handleClick}
 								>
-									{project?.status === "draft" ? "Make Public" : "Make Private"}
-								</MenuItem>
-							</Menu>
-						</>
-					) : project?.status === "pending_verification" ||
-					  project?.status === "pending_update_review" ? (
-						removeUnderscores(project?.status)
-					) : null}
-				</h4>
+									{removeUnderscores(project?.status)}
+								</div>
+								<Menu
+									id='basic-menu'
+									className=''
+									anchorEl={anchorEl}
+									open={open}
+									onClose={handleClose}
+									MenuListProps={{
+										"aria-labelledby": "basic-button",
+									}}
+									disableScrollLock={true}
+									sx={
+										theme === "dark"
+											? {
+													"& .MuiPaper-root": {
+														backgroundColor: "rgb(12 33 0 / 90%)",
+														borderColor: "rgb(20 83 45 / 90%)",
+														borderWidth: "2px",
+													},
+											  }
+											: {
+													"& .MuiPaper-root": {
+														backgroundColor: "",
+													},
+											  }
+									}
+								>
+									<MenuItem
+										className='menu-link'
+										onClick={toggleProjectVisibility}
+									>
+										{project?.status === "draft"
+											? "Make Public"
+											: "Make Private"}
+									</MenuItem>
+								</Menu>
+							</>
+						) : project?.status === "pending_verification" ||
+						  project?.status === "pending_update_review" ? (
+							removeUnderscores(project?.status)
+						) : null}
+					</h4>
+				)}
 			</div>
 			<hr className='dark:border-green-800 my-4' />
 			<div className='flex justify-between'>
@@ -278,10 +289,10 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 							: moment(project?.createdAt).format("MMMM DD, yyyy LT")}
 					</p>
 					<p>
-						Coordinator: {project?.projectCoordinatorContact.name},{" "}
-						{project?.projectCoordinatorContact.phone}
+						Coordinator: {project?.projectCoordinatorContact?.name},{" "}
+						{project?.projectCoordinatorContact?.phone}
 					</p>
-					<p>Address: {project?.producerProperties.address.addressLineOne}</p>
+					<p>Address: {project?.producerProperties?.address?.addressLineOne}</p>
 					<p>Area: {project?.totalAreaSqkm} sq ft</p>
 					<p>
 						Description: <br />
@@ -296,13 +307,13 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 						project={project}
 						treeInvestments={project?.treeInvestments}
 					/>
-				) : (
+				) : project?.type === "Energy" ? (
 					<EnergyProject project={project?.energyProjects[0]} />
-				)}
+				) : null}
 			</div>
 			<Milestones
 				project={project}
-				adminMode={true}
+				adminMode={adminMode}
 			/>
 		</div>
 	);

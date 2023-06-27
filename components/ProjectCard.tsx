@@ -174,7 +174,7 @@ const ProjectCard = ({
 
 	const theme = useAppSelector((state) => state.user?.currentTheme);
 
-	const handleLearnMoreClick = () => router.push(`/i/projects/${projectId}`);
+	const handleKnowMoreClick = () => router.push(`/i/projects/${projectId}`);
 	const handleInvestClick = () =>
 		router.push(`/i/projects/${projectId}/invest`);
 
@@ -257,7 +257,7 @@ const ProjectCard = ({
 							>
 								<MenuItem
 									className='menu-link'
-									onClick={() => router.push(`/i/projects/${projectId}`)}
+									onClick={handleKnowMoreClick}
 								>
 									View
 								</MenuItem>
@@ -297,10 +297,16 @@ const ProjectCard = ({
 							</p>
 						</Link>
 						<div className='flex justify-between'>
-							<button className='w-1/2 p-2 mr-4 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'>
+							<button
+								onClick={handleKnowMoreClick}
+								className='w-1/2 p-2 mr-4 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'
+							>
 								Know more
 							</button>
-							<button className='w-1/2 p-2 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'>
+							<button
+								onClick={handleInvestClick}
+								className='w-1/2 p-2 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'
+							>
 								Invest now
 							</button>
 						</div>

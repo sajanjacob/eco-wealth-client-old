@@ -7,12 +7,19 @@ import {
 	useStripe,
 	useElements,
 } from "@stripe/react-stripe-js";
-import styled from "styled-components";
 // Set up Stripe.js
 const stripePromise = loadStripe(`${process.env.stripe_publishable_key}`);
 
+type Props = {
+	calculateInvestmentTotalAmount: number;
+	onInvestmentSuccess: () => void;
+};
+
 // The main component
-function InvestPopup({ calculateInvestmentTotalAmount, onInvestmentSuccess }) {
+function InvestPopup({
+	calculateInvestmentTotalAmount,
+	onInvestmentSuccess,
+}: Props) {
 	const [showModal, setShowModal] = useState(false);
 
 	const openModal = () => {
@@ -36,11 +43,16 @@ function InvestPopup({ calculateInvestmentTotalAmount, onInvestmentSuccess }) {
 	const [modalStep, setModalStep] = useState(0);
 	return (
 		<>
-			<InvestNowButton onClick={openModal}>Invest Now</InvestNowButton>
+			<button
+				className='w-full my-4 p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
+				onClick={openModal}
+			>
+				Invest Now
+			</button>
 
 			{showModal && (
-				<Modal className='modal'>
-					<ModalContent className='modal-content'>
+				<div className='modal'>
+					<div className='modal-content'>
 						{modalStep === 0 && (
 							<>
 								<h2>Investment Disclaimer</h2>
@@ -71,8 +83,8 @@ function InvestPopup({ calculateInvestmentTotalAmount, onInvestmentSuccess }) {
 								<button onClick={closeModal}>Close</button>
 							</>
 						)}
-					</ModalContent>
-				</Modal>
+					</div>
+				</div>
 			)}
 		</>
 	);
@@ -130,7 +142,10 @@ function CheckoutForm({ amount, onSuccess, onCancel }) {
 		<form onSubmit={handleSubmit}>
 			<CardElement />
 			<p>Total amount: {amount}</p>
-			<button type='submit' disabled={!stripe}>
+			<button
+				type='submit'
+				disabled={!stripe}
+			>
 				Pay Now
 			</button>
 		</form>
@@ -138,36 +153,3 @@ function CheckoutForm({ amount, onSuccess, onCancel }) {
 }
 
 export default InvestPopup;
-
-const Modal = styled.div`
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
-	display: flex;
-	justify-content: center;
-	align-items: center;
-`;
-const ModalContent = styled.div`
-	background-color: white;
-	padding: 2rem;
-	border-radius: 8px;
-	width: 80%;
-	max-width: 600px;
-`;
-const InvestNowButton = styled.button`
-	background-color: forestgreen;
-	color: white;
-	border: none;
-	border-radius: 4px;
-	padding: 8px 64px;
-	font-size: 1rem;
-	font-weight: bold;
-	cursor: pointer;
-	transition: 0.333s ease;
-	&:hover {
-		background-color: darkgreen;
-	}
-`;
