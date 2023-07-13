@@ -91,9 +91,11 @@ function AddProject() {
 	const energyType = watch("energyType");
 	const installationTeam = watch("installationTeam");
 	const properties = watch("properties");
+	const [foundProperties, setFoundProperties] = useState<Property[]>([]);
 	// Here we retrieve the properties the user submitted that are verified so
 	// we can list them as options for the user to select from when adding a project.
-	const fetchProperties = async (producerId: string) => {
+	const fetchProperties = async (producerId: string | null) => {
+		if (!producerId) return;
 		setLoading({ loading: true, message: "Fetching properties..." });
 		const { data: propertyData, error: propertyError } = await supabase
 			.from("producer_properties")
@@ -101,19 +103,24 @@ function AddProject() {
 			.eq("producer_id", producerId)
 			.eq("is_verified", true);
 		if (propertyError) {
-			toast.error(`Error fetching properties. ${propertyError.message}`);
 			console.log("error fetching properties: ", propertyError);
 			setLoading({ loading: false, message: "" });
 		}
 		if (propertyData) {
-			setValue("properties", convertToCamelCase(propertyData) as Property[]);
+			setFoundProperties(convertToCamelCase(propertyData) as Property[]);
 			setLoading({ loading: false, message: "" });
 		}
 	};
 
 	useEffect(() => {
+		if (foundProperties.length > 0) {
+			setValue("properties", foundProperties);
+		}
+	}, [foundProperties]);
+
+	useEffect(() => {
 		if (user) {
-			fetchProperties(user.producerId || "");
+			fetchProperties(user.producerId);
 		}
 	}, [user]);
 
@@ -289,87 +296,90 @@ function AddProject() {
 				</label>
 				<br />
 				<label className='flex flex-col'>
-					<span className='mb-[4px] mt-2'>Project Location:</span>
-					<select
-						{...register("projectAddressId", { required: true })}
-						className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
-					>
-						<option value=''>
-							Select the address your project will be operated from
-						</option>
-						{properties &&
-							properties.map(
-								(property: {
-									id: React.Key | null | undefined;
-									address: {
-										addressLineOne:
-											| string
-											| number
-											| boolean
-											| React.ReactElement<
-													any,
-													string | React.JSXElementConstructor<any>
-											  >
-											| React.ReactFragment
-											| React.ReactPortal
-											| React.PromiseLikeOfReactNode
-											| null
-											| undefined;
-										addressLineTwo: any;
-										city:
-											| string
-											| number
-											| boolean
-											| React.ReactElement<
-													any,
-													string | React.JSXElementConstructor<any>
-											  >
-											| React.ReactFragment
-											| React.ReactPortal
-											| React.PromiseLikeOfReactNode
-											| null
-											| undefined;
-										stateProvince:
-											| string
-											| number
-											| boolean
-											| React.ReactElement<
-													any,
-													string | React.JSXElementConstructor<any>
-											  >
-											| React.ReactFragment
-											| React.ReactPortal
-											| React.PromiseLikeOfReactNode
-											| null
-											| undefined;
-										country:
-											| string
-											| number
-											| boolean
-											| React.ReactElement<
-													any,
-													string | React.JSXElementConstructor<any>
-											  >
-											| React.ReactFragment
-											| React.ReactPortal
-											| React.PromiseLikeOfReactNode
-											| null
-											| undefined;
-									};
-								}) => (
-									<option
-										key={property.id}
-										value={property.id ? property.id.toString() : undefined}
-									>
-										{property.address.addressLineOne},{" "}
-										{property.address.addressLineTwo &&
-											`${property.address.addressLineTwo}, `}{" "}
-										{property.address.city}, {property.address.stateProvince},{" "}
-										{property.address.country}
-									</option>
-								)
-							)}
-					</select>
+					{properties.length > 0 && (
+						<>
+							<span className='mb-[4px] mt-2'>Project Location:</span>
+							<select
+								{...register("projectAddressId", { required: true })}
+								className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+							>
+								<option value=''>
+									Select the address your project will be operated from
+								</option>
+								{properties.map(
+									(property: {
+										id: React.Key | null | undefined;
+										address: {
+											addressLineOne:
+												| string
+												| number
+												| boolean
+												| React.ReactElement<
+														any,
+														string | React.JSXElementConstructor<any>
+												  >
+												| React.ReactFragment
+												| React.ReactPortal
+												| React.PromiseLikeOfReactNode
+												| null
+												| undefined;
+											addressLineTwo: any;
+											city:
+												| string
+												| number
+												| boolean
+												| React.ReactElement<
+														any,
+														string | React.JSXElementConstructor<any>
+												  >
+												| React.ReactFragment
+												| React.ReactPortal
+												| React.PromiseLikeOfReactNode
+												| null
+												| undefined;
+											stateProvince:
+												| string
+												| number
+												| boolean
+												| React.ReactElement<
+														any,
+														string | React.JSXElementConstructor<any>
+												  >
+												| React.ReactFragment
+												| React.ReactPortal
+												| React.PromiseLikeOfReactNode
+												| null
+												| undefined;
+											country:
+												| string
+												| number
+												| boolean
+												| React.ReactElement<
+														any,
+														string | React.JSXElementConstructor<any>
+												  >
+												| React.ReactFragment
+												| React.ReactPortal
+												| React.PromiseLikeOfReactNode
+												| null
+												| undefined;
+										};
+									}) => (
+										<option
+											key={property.id}
+											value={property.id ? property.id.toString() : undefined}
+										>
+											{property.address.addressLineOne},{" "}
+											{property.address.addressLineTwo &&
+												`${property.address.addressLineTwo}, `}{" "}
+											{property.address.city}, {property.address.stateProvince},{" "}
+											{property.address.country}
+										</option>
+									)
+								)}
+							</select>
+						</>
+					)}
 				</label>
 				<br />
 				<label className='flex flex-col'>

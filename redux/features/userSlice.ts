@@ -32,6 +32,7 @@ export const userSlice = createSlice({
 			if (userData.loggedIn !== undefined) state.loggedIn = userData.loggedIn;
 			if (userData.id) state.id = userData.id;
 			if (userData.producerId) state.producerId = userData.producerId;
+			if (userData.investorId) state.investorId = userData.investorId;
 			if (userData.activeRole) state.activeRole = userData.activeRole;
 			if (userData.currentTheme) state.currentTheme = userData.currentTheme;
 			if (userData.email) state.email = userData.email;

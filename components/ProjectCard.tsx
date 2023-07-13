@@ -323,7 +323,7 @@ const ProjectCard = ({
 					<img
 						src={imageUrl}
 						alt={title}
-						className='w-full h-48 object-cover'
+						className='w-full h-48 object-cover rounded-t-2xl'
 					/>
 					<div className='flex justify-end w-full items-center'>
 						<p className='bg-transparent border-none cursor-pointer text-red-400 text-right mr-2 mt-1'>

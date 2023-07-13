@@ -3,7 +3,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
-import InvestPopup from "@/components/investor/projects/InvestPopup";
+import InvestPopup from "@/components/investor/projects/ProceedToCheckoutButton";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ type Props = {
 	project: Project;
 };
 
-export default function EnergyInvestmentForm({ project }: Props) {
+export default function EnergyInvestment({ project }: Props) {
 	const router = useRouter();
 	const [numberOfTrees, setNumberOfTrees] = useState(1);
 	const [amountPerTree, setAmountPerTree] = useState(1);

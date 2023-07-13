@@ -5,8 +5,8 @@ import withAuth from "@/utils/withAuth";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import supabase from "@/utils/supabaseClient";
-import TreeInvestmentForm from "@/components/investor/projects/TreeInvestmentForm";
-import EnergyInvestmentForm from "@/components/investor/projects/EnergyInvestmentForm";
+import TreeInvestment from "@/components/investor/projects/TreeInvestment";
+import EnergyInvestment from "@/components/investor/projects/EnergyInvestment";
 function Invest() {
 	const path: any = useParams();
 	const { id } = path;
@@ -31,9 +31,9 @@ function Invest() {
 	return (
 		<div className='flex p-8'>
 			{project?.type === "Tree" ? (
-				<TreeInvestmentForm project={project} />
+				<TreeInvestment project={project} />
 			) : project?.type === "Energy" ? (
-				<EnergyInvestmentForm project={project} />
+				<EnergyInvestment project={project} />
 			) : null}
 		</div>
 	);

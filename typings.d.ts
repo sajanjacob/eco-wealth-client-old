@@ -96,8 +96,8 @@ interface Project {
 	totalNumberOfInvestors: number;
 	totalAmountRaised: number;
 	isVerified: boolean;
-	currentSoilOrganicContentPercentage: number;
-	targetSoilOrganicContentPercentage: number;
+	currentSoilOrganicContentPercentage?: number;
+	targetSoilOrganicContentPercentage?: number;
 }
 
 interface ProjectMilestone {
@@ -114,19 +114,19 @@ interface ProjectMilestone {
 
 interface EnergyProject extends Project {
 	totalFundsRequested: number;
-	totalFundsRaised: number;
+	totalFundsRaised?: number;
 	energyProductionTarget: number;
-	actualEnergyProduction: number;
-	energyProductionUnit: string;
-	energyProductionUnitValue: number;
-	averageYearlyProduction: number;
+	actualEnergyProduction?: number;
+	energyProductionUnit?: string;
+	energyProductionUnitValue?: number;
+	averageYearlyProduction?: number;
 	targetArrays: number;
 	systemSize: number;
 	systemCapacity: number;
 	labourCost: number;
 	systemCost: number;
 	maintenanceCost: number;
-	installerDetails: {
+	installerDetails?: {
 		name: string;
 	};
 	installerType: string;

@@ -1,11 +1,11 @@
+"use client";
+import withAuth from "@/utils/withAuth";
 import React from "react";
-import styled from "styled-components";
-function portfolio(props) {
-	return (
-		<Container>
-			<h1>My Portfolio</h1>
-		</Container>
-	);
+
+type Props = {};
+
+function Portfolio({}: Props) {
+	return <div>Your Portfolio</div>;
 }
-export default portfolio;
-const Container = styled.div``;
+
+export default withAuth(Portfolio);

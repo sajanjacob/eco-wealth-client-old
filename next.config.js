@@ -14,6 +14,8 @@ const nextConfig = {
 		stripe_publishable_key: process.env.NEXT_STRIPE_PUBLISHABLE_KEY,
 		stripe_secret_key: process.env.STRIPE_SECRET_KEY,
 		VERCEL_URL: process.env.VERCEL_URL,
+		admin_fee_id: process.env.ADMIN_FEES_PRICE_ID,
+		stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
 	},
 };
 
