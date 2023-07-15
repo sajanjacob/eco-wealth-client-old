@@ -28,6 +28,21 @@ body {
   .dark input, textarea {
     @apply text-gray-700;
   }
+ 
+ 
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: bg-green-950;
+  border-radius: 20px;
+  border: 3px solid transparent;
 }
 
 @layer components{
@@ -37,9 +52,18 @@ body {
   .avatar-menu-link {
     @apply transition-colors text-gray-800 hover:text-green-300 dark:hover:text-green-400 cursor-pointer dark:text-gray-300;
   }
-}
-
-@layer components {
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1;
+  }
+   .custom-scrollbar::-webkit-scrollbar-track 
+  {
+    @apply bg-green-800;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb  {
+    @apply bg-green-950 rounded-full;
+  }
+ 
+ 
   .toggle__dot {
     top: -0.25rem;
     left: -0.25rem;

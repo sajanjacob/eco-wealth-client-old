@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Link from "next/link";
@@ -7,7 +7,6 @@ import moment from "moment";
 import supabase from "@/utils/supabaseClient";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { ListenerEffect } from "@reduxjs/toolkit";
 import { useAppSelector } from "@/redux/hooks";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";

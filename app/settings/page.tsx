@@ -9,10 +9,11 @@ import Billing from "@/components/settings/Billing";
 import Roles from "@/components/settings/Roles";
 import Notifications from "@/components/settings/Notifications";
 import ProducerAddresses from "@/components/settings/ProducerAddresses";
+import withAuth from "@/utils/withAuth";
 
 type Props = {};
 
-export default function Settings({}: Props) {
+function Settings({}: Props) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const navigateTo = (path: string) => {
@@ -30,7 +31,7 @@ export default function Settings({}: Props) {
 	];
 
 	useEffect(() => {
-		if (searchParams.get("tab") === null) {
+		if (searchParams?.get("tab") === null) {
 			navigateTo(`/settings/?tab=personal-details`);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,7 +67,7 @@ export default function Settings({}: Props) {
 					<button
 						key={link}
 						className={`mb-4 w-full p-2 rounded ${
-							searchParams.get("tab") === link
+							searchParams?.get("tab") === link
 								? "text-white bg-green-700 cursor-default"
 								: "text-white bg-gray-800 hover:bg-gray-700 transition-colors"
 						}`}
@@ -81,8 +82,10 @@ export default function Settings({}: Props) {
 			</div>
 
 			<div className='w-3/4 p-4'>
-				{renderTabContent(searchParams.get("tab") as string)}
+				{renderTabContent(searchParams?.get("tab") as string)}
 			</div>
 		</div>
 	);
 }
+
+export default withAuth(Settings);

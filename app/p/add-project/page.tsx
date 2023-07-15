@@ -11,6 +11,9 @@ import { v4 as uuidv4 } from "uuid";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import Agreement from "@/components/producer/projects/Agreement";
 interface FormValues {
 	title: string;
 	image: File | null;
@@ -41,10 +44,25 @@ interface FormValues {
 	connectWithSolarPartner: string;
 	fundsRequested: number;
 }
-
+const style = {
+	position: "absolute" as "absolute",
+	top: "50%",
+	left: "50%",
+	transform: "translate(-50%, -50%)",
+	width: "50vw",
+	height: "70vh",
+	bgcolor: "rgb(20 83 45 / 100%)",
+	border: "2px solid #000",
+	boxShadow: 24,
+	p: 4,
+};
 function AddProject() {
 	const router = useRouter();
 	const user = useAppSelector((state: RootState) => state.user);
+	const [open, setOpen] = React.useState(false);
+	const handleOpen = () => setOpen(true);
+	const handleClose = () => setOpen(false);
+
 	const {
 		register,
 		handleSubmit,
@@ -92,6 +110,7 @@ function AddProject() {
 	const installationTeam = watch("installationTeam");
 	const properties = watch("properties");
 	const [foundProperties, setFoundProperties] = useState<Property[]>([]);
+	const [agreements, setAgreements] = useState<boolean>(false);
 	// Here we retrieve the properties the user submitted that are verified so
 	// we can list them as options for the user to select from when adding a project.
 	const fetchProperties = async (producerId: string | null) => {
@@ -226,8 +245,8 @@ function AddProject() {
 		setLoading({ loading: true, message: "Uploading project..." });
 		const formValues = getValues();
 
-		if (!formValues.agreements.every((val) => val)) {
-			toast.warning("Please accept all agreements before submitting.");
+		if (!agreements) {
+			toast.warning("Please accept the agreements before submitting.");
 			setLoading({ loading: false, message: "" });
 			return;
 		}
@@ -266,6 +285,11 @@ function AddProject() {
 	};
 	const toggleUploadMethod = () => {
 		setValue("uploadMethod", !getValues("uploadMethod"));
+	};
+
+	const handleAgreementButtonClick = () => {
+		handleClose();
+		setAgreements(true);
 	};
 
 	if (loading.loading)
@@ -660,40 +684,42 @@ function AddProject() {
 				</label>
 				<br />
 
-				<h3>Agreements:</h3>
-				<label>
-					<input
-						{...register("agreements.0")}
-						type='checkbox'
-						className='mr-2'
-					/>
-					Agreement 1
-				</label>
+				{!agreements ? (
+					<>
+						<h3>Agreements:</h3>{" "}
+						<button
+							onClick={handleOpen}
+							className='my-2 text-left w-fit bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
+						>
+							View agreement
+						</button>
+						<Modal
+							open={open}
+							onClose={handleClose}
+							aria-labelledby='modal-modal-title'
+							aria-describedby='modal-modal-description'
+						>
+							<Box sx={style}>
+								<Agreement
+									handleAgreementButtonClick={handleAgreementButtonClick}
+								/>
+							</Box>
+						</Modal>
+					</>
+				) : (
+					<>
+						<h3>✅ Agreements</h3>
+					</>
+				)}
 				<br />
-				<label>
-					<input
-						{...register("agreements.1")}
-						type='checkbox'
-						className='mr-2'
-					/>
-					Agreement 2
-				</label>
-				<br />
-				<label>
-					<input
-						{...register("agreements.2")}
-						type='checkbox'
-						className='mr-2'
-					/>
-					Agreement 3
-				</label>
-				<br />
-				<button
-					type='submit'
-					className='mt-[16px] bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
-				>
-					Submit Project
-				</button>
+				<div className='flex justify-end'>
+					<button
+						type='submit'
+						className='mt-[16px] bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
+					>
+						Submit Project
+					</button>
+				</div>
 			</form>
 		</div>
 	);

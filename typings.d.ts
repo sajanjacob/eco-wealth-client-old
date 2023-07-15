@@ -69,7 +69,7 @@ interface Project {
 	treeCount: number;
 	imageUrl: string;
 	status: string;
-	type: string;
+
 	fundsRequestedPerTree: number;
 	projectType?: string;
 	treeProjectType: string;
@@ -98,6 +98,10 @@ interface Project {
 	isVerified: boolean;
 	currentSoilOrganicContentPercentage?: number;
 	targetSoilOrganicContentPercentage?: number;
+	requestedAmountTotal?: number;
+	unitsContributed?: number;
+	averageROI?: number;
+	percentFunded?: number;
 }
 
 interface ProjectMilestone {
