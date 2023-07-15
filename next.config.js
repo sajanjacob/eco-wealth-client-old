@@ -6,6 +6,8 @@ const nextConfig = {
 			"i.postimg.cc",
 			"dxxffxihbcbwpntjdzlk.supabase.co",
 			"via.placeholder.com",
+			"th.bing.com",
+			"www.investopedia.com",
 		],
 	},
 	env: {
