@@ -8,7 +8,6 @@ import React, {
 	Ref,
 } from "react";
 import { useRouter } from "next/navigation";
-import { lightTheme, darkTheme } from "@/styles/themes";
 import { BsFillMoonFill, BsFillSunFill } from "react-icons/bs";
 import supabase from "@/utils/supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
@@ -17,7 +16,12 @@ import { RxAvatar } from "react-icons/rx";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { FiPower } from "react-icons/fi";
-import { MdComment, MdSettings } from "react-icons/md";
+import {
+	MdComment,
+	MdSettings,
+	MdContactSupport,
+	MdBugReport,
+} from "react-icons/md";
 import { AiOutlineUserSwitch } from "react-icons/ai";
 import Link from "next/link";
 type Props = {};
@@ -161,12 +165,12 @@ const Header = ({}: Props) => {
 	};
 
 	const handleEducationCenterClick = () => {
-		router.push("/learn");
+		router.push("/educationcenter");
 	};
 
 	const handleSettingsClick = () =>
 		router.push("/settings?tab=personal-details");
-	const handleFeedbackClick = () => router.push("https://eco-wealth.canny.io/");
+	const handleSupportClick = () => router.push("mailto:support@ecowealth.app");
 	return (
 		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
 			<div
@@ -260,6 +264,50 @@ const Header = ({}: Props) => {
 						>
 							<MenuItem
 								className='menu-link'
+								onClick={handleSettingsClick}
+							>
+								<MdSettings className='mr-2' /> Account Settings
+							</MenuItem>
+
+							{user?.roles?.length > 1 ? (
+								<>
+									<MenuItem
+										className='menu-link'
+										onClick={handleToggleRole}
+									>
+										<AiOutlineUserSwitch className='mr-2' />
+										Switch to{" "}
+										{activeRole === "investor" ? "Producer" : "Investor"}
+									</MenuItem>
+								</>
+							) : null}
+
+							<Link
+								href='https://eco-wealth.canny.io/'
+								target='_blank'
+							>
+								<MenuItem className='menu-link'>
+									<MdComment className='mr-2' /> Give Feedback
+								</MenuItem>
+							</Link>
+							<Link
+								href='mailto:support@ecowealth.app'
+								target='_blank'
+							>
+								<MenuItem className='menu-link'>
+									<MdContactSupport className='mr-2' /> Get Support
+								</MenuItem>
+							</Link>
+							<Link
+								href='mailto:support@ecowealth.app'
+								target='_blank'
+							>
+								<MenuItem className='menu-link'>
+									<MdBugReport className='mr-2' /> Report a Bug
+								</MenuItem>
+							</Link>
+							<MenuItem
+								className='menu-link'
 								onClick={handleToggleTheme}
 							>
 								{theme === "light" ? (
@@ -274,33 +322,6 @@ const Header = ({}: Props) => {
 									</>
 								)}
 							</MenuItem>
-							{user?.roles?.length > 1 ? (
-								<>
-									<MenuItem
-										className='menu-link'
-										onClick={handleToggleRole}
-									>
-										<AiOutlineUserSwitch className='mr-2' />
-										Switch to{" "}
-										{activeRole === "investor" ? "Producer" : "Investor"}
-									</MenuItem>
-								</>
-							) : null}
-
-							<MenuItem
-								className='menu-link'
-								onClick={handleSettingsClick}
-							>
-								<MdSettings className='mr-2' /> Account Settings
-							</MenuItem>
-							<Link
-								href='https://eco-wealth.canny.io/'
-								target='_blank'
-							>
-								<MenuItem className='menu-link'>
-									<MdComment className='mr-2' /> Give Feedback
-								</MenuItem>
-							</Link>
 							<MenuItem
 								className='menu-link'
 								onClick={handleLogoutClick}
