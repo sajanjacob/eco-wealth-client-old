@@ -89,6 +89,7 @@ interface Project {
 	totalAreaSqkm: number;
 	treeProjects: TreeProject[];
 	energyProjects: EnergyProject[];
+	solarProjects: SolarProject[];
 	projectMilestones: ProjectMilestone[];
 	treeInvestments: [];
 	energyInvestments: [];
@@ -119,12 +120,12 @@ interface EnergyProject extends Project {
 	totalFundsRequested: number;
 	totalFundsRaised?: number;
 	energyProductionTarget: number;
-	actualEnergyProduction?: number;
+	energyProduced?: number;
 	energyProductionUnit?: string;
 	energyProductionUnitValue?: number;
-	averageYearlyProduction?: number;
+	avgYearlyProduction?: number;
 	targetArrays: number;
-	systemSize: number;
+	systemSizeInKw: number;
 	systemCapacity: number;
 	labourCost: number;
 	systemCost: number;
@@ -132,8 +133,13 @@ interface EnergyProject extends Project {
 	installerDetails?: {
 		name: string;
 	};
-	installerType: string;
+	installationTeam: string;
 	connectWithSolarPartner: string;
+}
+
+interface SolarProject extends EnergyProject {
+	systemSizeInKw: number;
+	numOfArrays: number;
 	locationType: string;
 }
 

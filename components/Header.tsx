@@ -175,10 +175,10 @@ const Header = ({}: Props) => {
 	return (
 		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
 			<Image
-				src='/logo_transparent_background.png'
+				src='/white_logo_transparent_background.png'
 				alt='EcoWealth logo'
-				width={184}
-				height={120}
+				width={148}
+				height={60}
 			/>
 			<div className='flex space-x-4 items-center'>
 				{isLoggedIn ? (

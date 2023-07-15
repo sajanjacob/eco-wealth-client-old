@@ -15,6 +15,7 @@ import getBasePath from "@/lib/getBasePath";
 import axios from "axios";
 
 type Props = {
+	project: Project;
 	imageUrl: string;
 	title: string;
 	description: string;
@@ -30,24 +31,29 @@ type Props = {
 	isVerified: boolean;
 	treeProjects?: TreeProject[];
 	energyProjects?: EnergyProject[];
+	solarProjects?: SolarProject[];
 };
 const ProjectCard = ({
-	imageUrl,
-	title,
-	description,
-	projectId,
-	status,
 	role,
 	projectCoordinatorContactName,
 	projectCoordinatorContactPhone,
-	treeTarget,
-	fundsRequestedPerTree,
-	projectType,
-	createdAt,
-	isVerified,
+	project,
 	treeProjects,
 	energyProjects,
+	solarProjects,
 }: Props) => {
+	const {
+		title,
+		description,
+		imageUrl,
+
+		projectId,
+		status,
+		projectType,
+		createdAt,
+		isVerified,
+	} = project;
+
 	const [isFavorited, setIsFavorited] = useState(false);
 	const [isFavIconHovered, setIsFavIconHovered] = useState(false);
 
@@ -139,7 +145,7 @@ const ProjectCard = ({
 	const publishProject = async (projectId: string) => {
 		if (!isVerified) return;
 		try {
-			axios.put(`${getBasePath()}/api/projects/${projectId}/publish`, {
+			axios.put(`${getBasePath()}/api/projects/publish`, {
 				status,
 				projectId,
 			});
@@ -272,8 +278,11 @@ const ProjectCard = ({
 								{treeProjects && treeProjects.length > 0
 									? `${treeProjects[0].type}`
 									: null}
-								{energyProjects && energyProjects.length > 0
-									? `${energyProjects[0].locationType}`
+								{energyProjects &&
+								energyProjects.length > 0 &&
+								solarProjects &&
+								solarProjects.length > 0
+									? `${solarProjects[0].locationType}`
 									: null}
 							</p>
 						</div>
@@ -307,7 +316,7 @@ const ProjectCard = ({
 
 	if (role === "owner")
 		return (
-			<div className='w-72 dark:bg-green-800 bg-white rounded-2xl shadow-md relative m-8'>
+			<div className='w-72 dark:bg-green-900 bg-white rounded-2xl shadow-md relative m-8'>
 				<div>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
@@ -359,11 +368,22 @@ const ProjectCard = ({
 					</Menu>
 				</div>
 				<a
-					href={`/p/projects/${projectId}`}
+					href={`/p/projects/${project.id}`}
 					className='no-underline'
 				>
 					<div className='p-4'>
 						<h3 className='mb-2'>{title}</h3>
+						<p className='text-xs'>
+							{treeProjects && treeProjects.length > 0
+								? `${treeProjects[0].type}`
+								: null}
+							{energyProjects &&
+							energyProjects.length > 0 &&
+							solarProjects &&
+							solarProjects.length > 0
+								? `${solarProjects[0].locationType}`
+								: null}
+						</p>
 						<p className='line-clamp-5 overflow-hidden overflow-ellipsis'>
 							{description.substring(0, 300)}
 						</p>
@@ -372,8 +392,19 @@ const ProjectCard = ({
 						<p>{projectCoordinatorContactPhone}</p>
 						<br />
 						<p>Project Type: {projectType}</p>
-						<p>Target: {Number(treeTarget).toLocaleString("en-US")} Trees</p>
-						<p>Funds Requested: ${fundsRequestedPerTree}/Tree</p>
+						{treeProjects && treeProjects.length > 0 && (
+							<>
+								<p>
+									Target:{" "}
+									{Number(treeProjects[0].treeTarget).toLocaleString("en-US")}{" "}
+									Trees
+								</p>
+								<p>
+									Funds Requested: ${treeProjects[0].fundsRequestedPerTree}/Tree
+								</p>
+							</>
+						)}
+						<p>Amount raised: ${project.totalAmountRaised}</p>
 						<br />
 						Created on:
 						<p>{moment(createdAt).format("dddd, MMMM Do YYYY, hh:mm:ss")}</p>

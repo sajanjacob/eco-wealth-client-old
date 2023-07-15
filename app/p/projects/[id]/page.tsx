@@ -16,7 +16,7 @@ export default async function Projects() {
 		const { data, error } = await supabase
 			.from("projects")
 			.select(
-				`*, tree_projects(*), energy_projects(*), producer_properties(*), project_milestones(*), tree_investments(*), energy_investments(*)`
+				`*, tree_projects(*), energy_projects(*), solar_projects(*), producer_properties(*), project_milestones(*), tree_investments(*), energy_investments(*)`
 			)
 			.eq("id", id)
 			.neq("is_deleted", true);

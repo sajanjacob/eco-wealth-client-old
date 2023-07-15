@@ -14,13 +14,16 @@ function Projects({}: Props) {
 	const fetchProjects = async () => {
 		const { data, error } = await supabase
 			.from("projects")
-			.select("*")
+			.select(
+				"*, project_milestones(*), tree_projects(*), energy_projects(*), solar_projects(*)"
+			)
 			.eq("producer_id", user.producerId)
 			.neq("is_deleted", true);
 
 		if (error) {
 			console.error("Error fetching projects:", error);
 		} else {
+			console.log("projects >>> ", data);
 			setProjects(convertToCamelCase(data) as Project[]);
 		}
 	};
@@ -35,8 +38,8 @@ function Projects({}: Props) {
 		<div>
 			<h1 className='font-bold text-3xl mx-8 mt-6'>Your Projects</h1>
 			<div className='flex flex-wrap'>
-				{projects.map(
-					({
+				{projects.map((project) => {
+					const {
 						imageUrl,
 						title,
 						description,
@@ -48,7 +51,11 @@ function Projects({}: Props) {
 						type,
 						createdAt,
 						isVerified,
-					}) => (
+						treeProjects,
+						energyProjects,
+						solarProjects,
+					} = project;
+					return (
 						<ProjectCard
 							key={id}
 							imageUrl={imageUrl}
@@ -64,9 +71,13 @@ function Projects({}: Props) {
 							createdAt={createdAt}
 							isVerified={isVerified}
 							role='owner'
+							project={project}
+							treeProjects={treeProjects}
+							energyProjects={energyProjects}
+							solarProjects={solarProjects}
 						/>
-					)
-				)}
+					);
+				})}
 			</div>
 		</div>
 	);

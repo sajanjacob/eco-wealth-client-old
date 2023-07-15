@@ -3,7 +3,10 @@ export default async function handler(req: any, res: any) {
 	if (req.method === "PUT") {
 		const id = req.query.id; // Get project ID from URL
 		const { status, projectId } = req.body;
-
+		if (status === "verified_published")
+			return res.status(504).json({
+				message: "Project is already public!",
+			});
 		const { data: project, error: projectError } = await supabase
 			.from("projects")
 			.select("*")
@@ -15,6 +18,7 @@ export default async function handler(req: any, res: any) {
 		}
 		if (project && project.is_verified === true) {
 			// Update the project in the 'projects' table
+
 			const { data, error } = await supabase
 				.from("projects")
 				.update({ status: "verified_published" })

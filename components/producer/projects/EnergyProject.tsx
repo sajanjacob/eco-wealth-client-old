@@ -1,29 +1,36 @@
 import React from "react";
 
 type Props = {
-	project: EnergyProject | null | undefined;
+	project: Project;
 };
 
 export default function EnergyProject({ project }: Props) {
+	const { energyProjects, solarProjects } = project;
+
 	return (
 		<div>
-			{/* <p>Total funds requested: ${project.totalFundsRequested}</p>
-			<p>Energy production target: {project.energyProductionTarget} kWh</p>
-			<p>Actual energy production: {project.actualEnergyProduction} kWh</p>
-			<p>Average yearly production: {project.averageYearlyProduction} kWh</p>
-			<p>Target number of arrays: {project.targetArrays}</p>
-			<p>System size: {project.systemSize} kWh</p>
-			<p>System capacity: {project.systemCapacity} kWh</p>
-			<p>Labour cost: ${project.labourCost}</p>
-			<p>System cost: ${project.systemCost}</p>
-			<p>Maintenance cost: ${project.maintenanceCost}</p>
-			<p>Installer details: {project.installerDetails.name}</p> */}
-			{/* <p>
+			<p>Project type: {solarProjects[0].locationType}</p>
+			<p>Total funds requested: ${project.requestedAmountTotal}</p>
+			<p>
+				Energy production target: {energyProjects[0].energyProductionTarget} kWh
+			</p>
+			<p>Actual energy production: {energyProjects[0].energyProduced} kWh</p>
+			<p>
+				Average yearly production: {energyProjects[0].avgYearlyProduction} kWh
+			</p>
+			<p>Target number of arrays: {solarProjects[0].numOfArrays}</p>
+			<p>System size: {solarProjects[0].systemSizeInKw} kWh</p>
+			<p>System capacity: {solarProjects[0].systemCapacity} kWh</p>
+			<p>Labour cost: ${solarProjects[0].labourCost}</p>
+			<p>System cost: ${solarProjects[0].systemCost}</p>
+			<p>Maintenance cost: ${solarProjects[0].maintenanceCost}</p>
+			{/* <p>Installer details: {project.installerDetails.name}</p>  */}
+			<p>
 				Installer type:{" "}
-				{project.installerType === "thirdParty"
+				{energyProjects[0].installationTeam === "thirdParty"
 					? "Third Party"
 					: "Eco Wealth Partner"}
-			</p> */}
+			</p>
 		</div>
 	);
 }

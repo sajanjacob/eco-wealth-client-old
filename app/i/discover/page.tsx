@@ -124,27 +124,26 @@ function Discover() {
 			) : (
 				<div className='flex flex-wrap w-full min-h-screen'>
 					{projects.length > 0 ? (
-						projects.map(
-							(
-								{
-									id,
-									createdAt,
-									title,
-									description,
-									type,
-									imageUrl,
-									treeTarget,
-									fundsRequestedPerTree,
-									status,
-									projectCoordinatorContact,
-									isVerified,
-									treeProjects,
-									energyProjects,
-								},
-								index
-							) => (
+						projects.map((project) => {
+							const {
+								id,
+								createdAt,
+								title,
+								description,
+								type,
+								imageUrl,
+								treeTarget,
+								fundsRequestedPerTree,
+								status,
+								projectCoordinatorContact,
+								isVerified,
+								treeProjects,
+								energyProjects,
+							} = project;
+							return (
 								<ProjectCard
-									key={index}
+									key={id}
+									project={project}
 									imageUrl={imageUrl}
 									title={title}
 									description={description}
@@ -163,8 +162,8 @@ function Discover() {
 									treeProjects={treeProjects}
 									energyProjects={energyProjects}
 								/>
-							)
-						)
+							);
+						})
 					) : (
 						<div className='mx-auto flex flex-col items-center text-center mt-48'>
 							<h3 className='mb-4'>

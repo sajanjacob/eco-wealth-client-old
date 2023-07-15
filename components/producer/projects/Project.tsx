@@ -288,6 +288,7 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 							? moment(project?.updatedAt).format("MMMM DD, yyyy LT")
 							: moment(project?.createdAt).format("MMMM DD, yyyy LT")}
 					</p>
+
 					<p>
 						Coordinator: {project?.projectCoordinatorContact?.name},{" "}
 						{project?.projectCoordinatorContact?.phone}
