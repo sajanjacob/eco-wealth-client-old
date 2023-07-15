@@ -11,6 +11,8 @@ import { useAppSelector } from "@/redux/hooks";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Image from "next/image";
+import getBasePath from "@/lib/getBasePath";
+import axios from "axios";
 
 type Props = {
 	imageUrl: string;
@@ -137,25 +139,14 @@ const ProjectCard = ({
 	const publishProject = async (projectId: string) => {
 		if (!isVerified) return;
 		try {
-			const { data, error } = await supabase
-				.from("projects")
-				.update({ status: "verified_published" })
-				.eq("id", projectId);
-
-			if (error) {
-				// Handle the error appropriately
-				console.error("Error publishing project:", error.message);
-				toast.error("Failed to publish the project");
-			} else {
-				// Show a success message or refresh the data on the page
-				toast.success(
-					`🎉 Congrats ${userName}! Your project published successfully!`
-				);
-			}
+			axios.put(`${getBasePath()}/api/projects/${projectId}/publish`, {
+				status,
+				projectId,
+			});
 		} catch (error: any) {
 			// Handle the error appropriately
 			console.error("Error publishing project:", error.message);
-			toast.error("Failed to publish the project");
+			toast.error(`Failed to publish the project ${error.message}`);
 		}
 	};
 
@@ -282,7 +273,7 @@ const ProjectCard = ({
 									? `${treeProjects[0].type}`
 									: null}
 								{energyProjects && energyProjects.length > 0
-									? `${energyProjects[0].type}`
+									? `${energyProjects[0].locationType}`
 									: null}
 							</p>
 						</div>
