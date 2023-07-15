@@ -69,7 +69,7 @@ interface Project {
 	treeCount: number;
 	imageUrl: string;
 	status: string;
-
+	type: string;
 	fundsRequestedPerTree: number;
 	projectType?: string;
 	treeProjectType: string;

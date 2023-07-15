@@ -63,6 +63,7 @@ export default async function createProject(req: any, res: any) {
 				if (projectData.energyProjectType === "Solar" && data) {
 					await supabase.from("solar_projects").insert([
 						{
+							project_id: project?.[0].id,
 							energy_project_id: (data as any).id,
 							num_of_arrays: projectData.targetArrays,
 							energy_production_target: projectData.energyProductionTarget,

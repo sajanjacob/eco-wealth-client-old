@@ -17,7 +17,9 @@ export default async function handler(req: any, res: any) {
 
 		query = supabase
 			.from("projects")
-			.select("*, project_milestones(*), tree_projects(*), energy_projects(*)")
+			.select(
+				"*, project_milestones(*), tree_projects(*), energy_projects(*), solar_projects(*)"
+			)
 			.eq("status", "published")
 			.eq("is_verified", true)
 			.eq("is_deleted", false);
@@ -32,9 +34,7 @@ export default async function handler(req: any, res: any) {
 		) {
 			query = supabase
 				.from("projects")
-				.select(
-					"*, project_milestones(*), tree_projects!inner(*), energy_projects(*)"
-				)
+				.select("*, project_milestones(*), tree_projects!inner(*)")
 				.eq("status", "published")
 				.eq("is_verified", true)
 				.eq("is_deleted", false)
@@ -51,7 +51,7 @@ export default async function handler(req: any, res: any) {
 			query = supabase
 				.from("projects")
 				.select(
-					"*, project_milestones(*), tree_projects(*), energy_projects!inner(*)"
+					"*, project_milestones(*), energy_projects!inner(*), solar_projects(*)"
 				)
 				.eq("status", "published")
 				.eq("is_verified", true)
@@ -64,11 +64,11 @@ export default async function handler(req: any, res: any) {
 			query = query.eq("is_non_profit", true);
 		}
 
-		console.log("query >>> ", query);
 		let { data, error } = await query;
-
+		console.log("data >>> ", data);
+		console.log("error >>> ", error);
 		if (error) {
-			res.status(400).json({ error: error.message });
+			res.status(400).json({ message: error.message });
 		} else {
 			res.status(200).json(data);
 		}

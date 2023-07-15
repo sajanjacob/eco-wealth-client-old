@@ -24,6 +24,7 @@ import {
 } from "react-icons/md";
 import { AiOutlineUserSwitch } from "react-icons/ai";
 import Link from "next/link";
+import Image from "next/image";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -173,12 +174,12 @@ const Header = ({}: Props) => {
 	const handleSupportClick = () => router.push("mailto:support@ecowealth.app");
 	return (
 		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
-			<div
-				className='text-xl cursor-pointer text-black font-semibold dark:text-white'
-				onClick={handleReturnHome}
-			>
-				Eco Wealth
-			</div>
+			<Image
+				src='/logo_transparent_background.png'
+				alt='EcoWealth logo'
+				width={184}
+				height={120}
+			/>
 			<div className='flex space-x-4 items-center'>
 				{isLoggedIn ? (
 					<>
