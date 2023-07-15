@@ -43,6 +43,7 @@ interface FormValues {
 	estimatedMaintenanceCost: number;
 	connectWithSolarPartner: string;
 	fundsRequested: number;
+	locationType: string;
 }
 const style = {
 	position: "absolute" as "absolute",
@@ -100,11 +101,13 @@ function AddProject() {
 			estimatedMaintenanceCost: 0,
 			connectWithSolarPartner: "",
 			fundsRequested: 0,
+			locationType: "",
 		},
 	});
 	const formValues = getValues();
 	const [loading, setLoading] = useState({ loading: false, message: "" });
 	const projectType = watch("projectType");
+	const locationType = watch("locationType");
 	const uploadMethod = watch("uploadMethod");
 	const energyType = watch("energyType");
 	const installationTeam = watch("installationTeam");
@@ -171,9 +174,8 @@ function AddProject() {
 			producerId: producerId,
 			status: "pending_verification",
 			type: formValues.projectType,
-			projectVerificationConsentGiven: true,
-			adminFeeConsent: true,
-			agreedToPayInvestor: true,
+			agreementAccepted: true,
+
 			totalAreaSqkm: formValues.totalArea,
 			propertyAddressId: formValues.projectAddressId,
 
@@ -226,6 +228,7 @@ function AddProject() {
 			totalNumberOfInvestors: 0,
 			totalAmountRaised: 0,
 			isVerified: false,
+			locationType: locationType,
 		};
 
 		await axios
@@ -491,6 +494,20 @@ function AddProject() {
 							<>
 								<label className='flex flex-col mt-[8px]'>
 									<span className='mb-[4px] mt-2'>
+										Is this a residential, commercial, or rural project?
+									</span>
+									<select
+										{...register("locationType", { required: true })}
+										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+									>
+										<option value=''>Select the project location type</option>
+										<option value='Residential'>Residential</option>
+										<option value='Commercial'>Commercial</option>
+										<option value='Rural'>Rural</option>
+									</select>
+								</label>
+								<label className='flex flex-col mt-[8px]'>
+									<span className='mb-[4px] mt-2'>
 										What is the target yearly energy production of this project
 										(kWh)?
 									</span>
@@ -510,6 +527,7 @@ function AddProject() {
 										type='text'
 									/>
 								</label>
+
 								<label className='flex flex-col mt-[8px]'>
 									<span className='mb-[4px] mt-2'>
 										Are you contracting a company to install the system, doing

@@ -5,13 +5,19 @@ export default async function createProject(req: any, res: any) {
 	if (req.method === "POST") {
 		try {
 			const projectData = req.body;
+			let fundsRequested = 0;
+			if (projectData.projectType === "Energy") {
+				fundsRequested = projectData.totalFundsRequested;
+			} else if (projectData.projectType === "Tree") {
+				fundsRequested =
+					projectData.treeTarget * projectData.fundsRequestedPerTree;
+			}
 
 			// Insert into projects table
 			const { data: project } = await supabase
 				.from("projects")
 				.insert([
 					{
-						id: uuidv4(),
 						title: projectData.title,
 						image_url: projectData.imageUrl,
 						project_coordinator_contact: projectData.projectCoordinatorContact,
@@ -19,12 +25,10 @@ export default async function createProject(req: any, res: any) {
 						producer_id: projectData.producerId,
 						status: projectData.status,
 						type: projectData.projectType,
-						project_verification_consent_given:
-							projectData.projectVerificationConsentGiven,
-						admin_fee_consent: projectData.adminFeeConsent,
-						agreed_to_pay_investor: projectData.agreedToPayInvestor,
+						agreement_accepted: projectData.agreementAccepted,
 						total_area_sqkm: projectData.totalArea,
 						property_address_id: projectData.propertyAddressId,
+						requested_amount_total: fundsRequested,
 					},
 				])
 				.select();
@@ -33,7 +37,6 @@ export default async function createProject(req: any, res: any) {
 			if (projectData.projectType === "Tree" && project) {
 				await supabase.from("tree_projects").insert([
 					{
-						id: uuidv4(),
 						project_id: project?.[0].id,
 						tree_target: projectData.treeTarget,
 						funds_requested_per_tree: projectData.fundsRequestedPerTree,
@@ -45,23 +48,34 @@ export default async function createProject(req: any, res: any) {
 
 			// Insert into energy_projects table if project type is Energy
 			if (projectData.projectType === "Energy" && project) {
-				await supabase.from("energy_projects").insert([
-					{
-						id: uuidv4(),
-						project_id: project?.[0].id,
-						funds_requested: projectData.totalFundsRequested,
-						energy_production_target: projectData.energyProductionTarget,
-						num_of_arrays: projectData.targetArrays,
-						system_size_in_kw: projectData.systemSize,
-						system_capacity: projectData.systemCapacity,
-						labour_cost: projectData.labourCost,
-						estimated_system_cost: projectData.systemCost,
-						maintenance_cost: projectData.maintenanceCost,
-						type: projectData.energyProjectType,
-						installation_team: projectData.installerType,
-						connect_with_solar_partner: projectData.connectWithSolarPartner,
-					},
-				]);
+				const { data, error } = await supabase
+					.from("energy_projects")
+					.insert([
+						{
+							project_id: project?.[0].id,
+							energy_production_target: projectData.energyProductionTarget,
+							type: projectData.energyProjectType,
+							installation_team: projectData.installerType,
+						},
+					])
+					.select();
+
+				if (projectData.energyProjectType === "Solar" && data) {
+					await supabase.from("solar_projects").insert([
+						{
+							energy_project_id: (data as any).id,
+							num_of_arrays: projectData.targetArrays,
+							energy_production_target: projectData.energyProductionTarget,
+							system_size_in_kw: projectData.systemSize,
+							system_capacity: projectData.systemCapacity,
+							location_type: projectData.locationType,
+							estimated_labour_cost: projectData.labourCost,
+							estimated_system_cost: projectData.systemCost,
+							estimated_maintenance_cost: projectData.maintenanceCost,
+							connect_with_solar_partner: projectData.connectWithSolarPartner,
+						},
+					]);
+				}
 			}
 
 			// Send response

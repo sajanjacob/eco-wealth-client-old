@@ -80,9 +80,8 @@ interface Project {
 		phone: string;
 	};
 	totalArea: number;
-	projectVerificationConsentGiven: boolean;
-	adminFeeConsent: boolean;
-	agreedToPayInvestor: boolean;
+	agreementAccepted: boolean;
+
 	propertyAddressId: string;
 	fundsCollected: number;
 	producerProperties: Property;
@@ -135,6 +134,7 @@ interface EnergyProject extends Project {
 	};
 	installerType: string;
 	connectWithSolarPartner: string;
+	locationType: string;
 }
 
 interface TreeProject extends Project {
