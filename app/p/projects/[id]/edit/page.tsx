@@ -48,7 +48,7 @@ function Edit() {
 	const user = useAppSelector((state: RootState) => state.user);
 	const [project, setProject] = useState<Project | null>(null);
 	const path = useParams();
-	const { id } = path;
+	const id = path?.id;
 	const {
 		register,
 		handleSubmit,
@@ -92,7 +92,7 @@ function Edit() {
 		const { data, error } = await supabase
 			.from("projects")
 			.select(
-				`*, tree_projects(*), energy_projects(*), producer_properties(*), project_milestones(*)`
+				`*, tree_projects(*), energy_projects(*), solar_projects(*), producer_properties(*), project_milestones(*)`
 			)
 			.eq("id", id)
 			.neq("is_deleted", true);
@@ -102,7 +102,11 @@ function Edit() {
 		}
 		if (data) {
 			setProject(
-				convertToCamelCase(data[0]) as Project | TreeProject | EnergyProject
+				convertToCamelCase(data[0]) as
+					| Project
+					| TreeProject
+					| EnergyProject
+					| SolarProject
 			);
 			console.log("project details >>> ", data[0] as Project);
 		}
@@ -131,24 +135,30 @@ function Edit() {
 					project.energyProjects[0].energyProductionTarget
 				);
 				setValue("numOfArrays", project.energyProjects[0].targetArrays);
-				setValue("installationTeam", project.energyProjects[0].installerType);
-				setValue("installedSystemSize", project.energyProjects[0].systemSize);
+				setValue(
+					"installationTeam",
+					project.energyProjects[0].installationTeam
+				);
+				setValue(
+					"installedSystemSize",
+					project.solarProjects[0].systemSizeInKw
+				);
 				setValue(
 					"photovoltaicCapacity",
-					project.energyProjects[0].systemCapacity
+					project.solarProjects[0].systemCapacity
 				);
 				setValue(
 					"estimatedInstallationCost",
-					project.energyProjects[0].labourCost
+					project.solarProjects[0].labourCost
 				);
-				setValue("estimatedSystemCost", project.energyProjects[0].systemCost);
+				setValue("estimatedSystemCost", project.solarProjects[0].systemCost);
 				setValue(
 					"estimatedMaintenanceCost",
-					project.energyProjects[0].maintenanceCost
+					project.solarProjects[0].maintenanceCost
 				);
 				setValue(
 					"connectWithSolarPartner",
-					project.energyProjects[0].connectWithSolarPartner
+					project.solarProjects[0].connectWithSolarPartner
 				);
 				setValue(
 					"fundsRequested",

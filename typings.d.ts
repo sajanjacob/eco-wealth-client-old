@@ -128,11 +128,7 @@ interface EnergyProject extends Project {
 	energyProductionUnitValue?: number;
 	avgYearlyProduction?: number;
 	targetArrays: number;
-	systemSizeInKw: number;
-	systemCapacity: number;
-	labourCost: number;
-	systemCost: number;
-	maintenanceCost: number;
+
 	installerDetails?: {
 		name: string;
 	};
@@ -144,6 +140,11 @@ interface SolarProject extends EnergyProject {
 	systemSizeInKw: number;
 	numOfArrays: number;
 	locationType: string;
+	systemSizeInKw: number;
+	systemCapacity: number;
+	labourCost: number;
+	systemCost: number;
+	maintenanceCost: number;
 }
 
 interface TreeProject extends Project {
