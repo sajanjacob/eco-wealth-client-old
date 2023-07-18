@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const ThankYou = () => {
 	const params = useSearchParams();
-	const email = params.get("email");
+	const email = params?.get("email");
 
 	return (
 		<div className='flex flex-col items-center justify-center min-h-screen'>
