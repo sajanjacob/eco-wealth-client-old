@@ -5,10 +5,11 @@ import Header from "@/components/Header";
 import { usePathname } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
 	title: "Eco Wealth",
-	description: "A green-tech investment platform",
+	description: "A green-tech investment platform that empowers tree/renewable energy projects.",
 };
 
 export default function RootLayout({
