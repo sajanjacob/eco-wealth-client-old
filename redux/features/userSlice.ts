@@ -1,25 +1,28 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 const initialState: UserState = {
-	roles: ["investor", "producer"],
-	loggedIn: true,
-	id: "23d2690a-487c-4eca-9cc8-b5303aacbf70",
-	producerId: "23d2690a-487c-4eca-9cc8-b5444aacbf70",
-	investorId: "23d2690a-487c-4eca-9cc8-b5333aacbf70",
-	activeRole: "producer",
+	roles: [""],
+	loggedIn: false,
+	id: "",
+	producerId: "",
+	investorId: "",
+	activeRole: "",
 	currentTheme: "dark",
-	email: "sajanjacob67@gmail.com",
-	name: "Sajan",
-	phoneNumber: "7802463275",
-	isVerified: true,
+	email: "",
+	name: "",
+	phoneNumber: "",
+	isVerified: false,
 	totalUserTreeCount: 0,
 	userTreeCount: 0,
-	onboardingComplete: true,
-	investorOnboardingComplete: true,
-	producerOnboardingComplete: true,
+	onboardingComplete: false,
+	investorOnboardingComplete: false,
+	producerOnboardingComplete: false,
 	emailNotification: false,
-	smsNotification: true,
-	pushNotification: true,
+	smsNotification: false,
+	pushNotification: false,
+	mfaEnabled: false,
+	mfaVerified: false,
+	mfaVerifiedAt: "",
 };
 
 export const userSlice = createSlice({
@@ -55,6 +58,8 @@ export const userSlice = createSlice({
 				state.smsNotification = userData.smsNotification;
 			if (userData.pushNotification !== undefined)
 				state.pushNotification = userData.pushNotification;
+			if (userData.mfaEnabled !== undefined)
+				state.mfaEnabled = userData.mfaEnabled;
 		},
 	},
 });

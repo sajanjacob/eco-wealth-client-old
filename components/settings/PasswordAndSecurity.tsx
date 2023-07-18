@@ -1,7 +1,9 @@
 import supabase from "@/utils/supabaseClient";
-import React, { useState } from "react";
+import React, { use, useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
+import UnenrollMFA from "../login/UnenrollMFA";
+import EnrollMFA from "../login/EnrollMFA";
+import { FaLock } from "react-icons/fa";
 type Props = {
 	user: UserState;
 };
@@ -12,7 +14,31 @@ export default function PasswordAndSecurity({ user }: Props) {
 	const [confirmNewPassword, setConfirmNewPassword] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [isMfaEnrolled, setIsMfaEnrolled] = useState(false);
 
+	useEffect(() => {
+		if (newPassword !== confirmNewPassword) {
+			setErrorMessage("New passwords do not match!");
+		} else {
+			setErrorMessage("");
+		}
+	}, [newPassword, confirmNewPassword]);
+
+	useEffect(() => {
+		if (user?.mfaEnabled) {
+			setIsMfaEnrolled(true);
+		}
+	}, [user]);
+
+	const handleEnrollment = useCallback(() => {
+		setIsMfaEnrolled(true);
+		toast.success("MFA enrolled successfully");
+	}, []);
+
+	const handleCancel = useCallback(() => {
+		setIsMfaEnrolled(false);
+		toast.success("MFA enrolment cancelled");
+	}, []);
 	// Here we have a function called setPassword that updates the user's password in the supabase database
 	const setPassword = async () => {
 		setLoading(true);
@@ -105,6 +131,21 @@ export default function PasswordAndSecurity({ user }: Props) {
 				>
 					{loading ? "Updating Password..." : "Update Password"}
 				</button>
+			</div>
+			{/* The following block is for MFA settings */}
+			<div className='mt-4'>
+				<h3 className='mb-3 text-xl font-light flex items-center'>
+					<FaLock className='mr-2' />
+					Multi-Factor Authentication
+				</h3>
+				{isMfaEnrolled ? (
+					<UnenrollMFA onCancelled={handleCancel} />
+				) : (
+					<EnrollMFA
+						onEnrolled={handleEnrollment}
+						onCancelled={handleCancel}
+					/>
+				)}
 			</div>
 		</div>
 	);

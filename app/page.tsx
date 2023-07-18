@@ -12,7 +12,6 @@ export default function Home() {
 	const backgroundImageUrl =
 		"https://storage.googleapis.com/msgsndr/6xhGkq67K123q2R9TMf0/media/644868002b9d838721622a4d.jpeg";
 	const router = useRouter();
-	const dispatch = useAppDispatch();
 	const [treeCount, setTreeCount] = React.useState(0);
 	const [arrayCount, setArrayCount] = React.useState(0);
 
@@ -27,7 +26,6 @@ export default function Home() {
 	const fetchArrayCount = async () => {
 		const res = await fetch("/api/solarArrays");
 		const data = await res.json();
-		console.log("tree count >>> ", data);
 		setArrayCount(data.total);
 	};
 

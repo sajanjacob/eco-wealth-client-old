@@ -5,6 +5,7 @@ export default async function createProject(req: any, res: any) {
 	if (req.method === "POST") {
 		try {
 			const projectData = req.body;
+			const producerId = req.body;
 			let fundsRequested = 0;
 			if (projectData.projectType === "Energy") {
 				fundsRequested = projectData.totalFundsRequested;
@@ -42,6 +43,7 @@ export default async function createProject(req: any, res: any) {
 						funds_requested_per_tree: projectData.fundsRequestedPerTree,
 						type: projectData.treeProjectType,
 						tree_count: 0,
+						producer_id: producerId,
 					},
 				]);
 			}
@@ -56,6 +58,7 @@ export default async function createProject(req: any, res: any) {
 							energy_production_target: projectData.energyProductionTarget,
 							type: projectData.energyProjectType,
 							installation_team: projectData.installerType,
+							producer_id: producerId,
 						},
 					])
 					.select();
@@ -74,6 +77,7 @@ export default async function createProject(req: any, res: any) {
 							estimated_system_cost: projectData.systemCost,
 							estimated_maintenance_cost: projectData.maintenanceCost,
 							connect_with_solar_partner: projectData.connectWithSolarPartner,
+							producer_id: producerId,
 						},
 					]);
 				}

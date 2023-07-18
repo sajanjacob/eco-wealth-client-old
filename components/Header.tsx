@@ -106,15 +106,24 @@ const Header = ({}: Props) => {
 				pushNotification: false,
 			})
 		);
+		await supabase
+			.from("users")
+			.update({
+				mfa_verified: false,
+			})
+			.eq("id", user.id);
 		router.push("/login");
 	};
-
-	// Here we toggle the theme between light and dark.
-	const handleToggleTheme = () => {
-		// Toggle the theme state between 'light' and 'dark'
-		setTheme((prevTheme: string) => {
-			const newTheme = prevTheme === "light" ? "dark" : "light";
-
+	const handleUpdateTheme = async (theme: string) => {
+		const { data, error } = await supabase
+			.from("users")
+			.update({ current_theme: theme })
+			.eq("id", user?.id);
+		if (error) {
+			console.error("Error updating user theme:", error.message);
+		}
+		if (data) {
+			dispatch(setUser({ ...user, currentTheme: theme }));
 			// Apply or remove the 'dark' class to the root HTML element
 			if (theme === "light") {
 				if (typeof window !== "undefined")
@@ -123,7 +132,27 @@ const Header = ({}: Props) => {
 				if (typeof window !== "undefined")
 					window.document.documentElement.classList.remove("dark");
 			}
+		}
+	};
 
+	// Here we toggle the theme between light and dark.
+	const handleToggleTheme = () => {
+		// Toggle the theme state between 'light' and 'dark'
+		setTheme((prevTheme: string) => {
+			const newTheme = prevTheme === "light" ? "dark" : "light";
+
+			if (isLoggedIn) {
+				handleUpdateTheme(newTheme);
+			} else {
+				// Apply or remove the 'dark' class to the root HTML element
+				if (theme === "light") {
+					if (typeof window !== "undefined")
+						document.documentElement.classList.add("dark");
+				} else {
+					if (typeof window !== "undefined")
+						window.document.documentElement.classList.remove("dark");
+				}
+			}
 			return newTheme;
 		});
 	};
@@ -171,7 +200,7 @@ const Header = ({}: Props) => {
 
 	const handleSettingsClick = () =>
 		router.push("/settings?tab=personal-details");
-	const handleSupportClick = () => router.push("mailto:support@ecowealth.app");
+
 	return (
 		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
 			<Image
@@ -179,6 +208,8 @@ const Header = ({}: Props) => {
 				alt='EcoWealth logo'
 				width={148}
 				height={60}
+				onClick={handleReturnHome}
+				className='cursor-pointer'
 			/>
 			<div className='flex space-x-4 items-center'>
 				{isLoggedIn ? (

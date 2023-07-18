@@ -33,6 +33,7 @@ export default async function Projects() {
 	};
 	useEffect(() => {
 		fetchProject();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

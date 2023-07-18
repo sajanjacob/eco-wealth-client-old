@@ -18,7 +18,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 			try {
 				const { data, error } = await supabase
 					.from("users")
-					.select("*")
+					.select("*, producers(*), investors(*)")
 					.eq("id", userId)
 					.single();
 				if (error) {
@@ -40,8 +40,13 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						emailNotification: data.email_notification,
 						smsNotification: data.sms_notification,
 						pushNotification: data.push_notification,
-						investorOnboardingComplete: data.investor_onboarding_complete,
-						producerOnboardingComplete: data.producer_onboarding_complete,
+						onboardingComplete: data.onboarding_complete,
+						investorOnboardingComplete: data.investors[0].onboarding_complete,
+						producerOnboardingComplete: data.producers[0].onboarding_complete,
+						mfaEnabled: data.mfa_enabled,
+						currentTheme: data?.current_theme,
+						mfaVerified: data.mfa_verified,
+						mfaVerifiedAt: data.mfa_verified_at,
 					})
 				); // Dispatch a redux action
 
@@ -52,20 +57,22 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 				// respective dashboard pages if they have completed their onboarding.
 				if (
 					data.active_role === "investor" &&
-					!data.investor_onboarding_complete
+					!data.investors[0].onboarding_complete
 				) {
 					router.push("/i/onboarding/");
 				} else if (
 					data.active_role === "producer" &&
-					!data.producer_onboarding_complete
+					!data.producers[0].onboarding_complete
 				) {
 					router.push("/p/onboarding/");
 				} else {
-					if (data.active_role === "investor") {
-						router.push("/i/dashboard");
+					if (!data.mfa_enabled) {
+						console.log("MFA is not enabled");
+						return router.push("/setup-mfa");
 					}
-					if (data.active_role === "producer") {
-						router.push("/p/dashboard");
+					if (!data.mfa_verified) {
+						console.log("MFA is not verified");
+						return router.push("/login");
 					}
 				}
 			} catch (err) {
@@ -107,6 +114,8 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						router.push(`/${user.activeRole?.charAt(0)}/dashboard`);
 					}
 				}
+			} else {
+				checkUserLoggedInStatus();
 			}
 		}, [user, pathname, dispatch, router]);
 

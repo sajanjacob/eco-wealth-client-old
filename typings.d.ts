@@ -36,6 +36,9 @@ interface UserState {
 	pushNotification: boolean;
 	investorOnboardingComplete: boolean;
 	producerOnboardingComplete: boolean;
+	mfaEnabled: boolean;
+	mfaVerified: boolean;
+	mfaVerifiedAt: string;
 }
 
 interface OnboardingState {

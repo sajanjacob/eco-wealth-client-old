@@ -5,14 +5,54 @@ import { RootState } from "@/redux/store"; // import the root state from your re
 import { setTotalUserTreeCount, setUserTreeCount } from "@/redux/actions"; // import actions from your redux store
 import withAuth from "@/utils/withAuth";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import axios from "axios";
+import getBasePath from "@/lib/getBasePath";
+import convertToCamelCase from "@/utils/convertToCamelCase";
 
 interface DashboardProps {}
+type AnalyticData = {
+	data: [
+		{
+			totalTrees: number;
+			totalPlantedTrees: number;
+			totalEnergyProduced: number;
+			totalSolarSystems: number;
+		}
+	];
+	totalData: {
+		totalTrees: number;
+		totalTreesPlanted: number;
+		totalEnergyProduced: number;
+		totalSolarSystems: number;
+	};
+};
 
-const Dashboard: React.FC<DashboardProps> = () => {
-	const user = useAppSelector((state) => state.user);
+const Dashboard = async ({}: DashboardProps) => {
+	const user = useAppSelector((state: RootState) => state.user);
+	const [analyticData, setAnalyticData] = useState<AnalyticData | null>(null); // [TODO] - type this properly
+	const fetchAnalytics = async () => {
+		if (user) {
+			await axios
+				.get(`${getBasePath()}/api/analytics?userId=${user.id}`)
+				.then((res) => {
+					console.log("analytics res >>> ", res.data);
+					setAnalyticData(convertToCamelCase(res.data));
+				})
+				.catch((err) => {
+					console.log("analytics err >>> ", err);
+				});
+		} else {
+		}
+	};
+
+	useEffect(() => {
+		fetchAnalytics();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	// Tree count values
-	const targetTotalUserTreeCount = 333333;
-	const targetTotalAppTreeCount = 1111111111111;
+	const [targetTotalUserTreeCount, setTargetTotalUserTreeCount] = useState(0);
+	const [targetTotalAppTreeCount, setTargetTotalAppTreeCount] = useState(0);
 	const targetUserTreeCount = 45;
 
 	// This is for animation
@@ -21,14 +61,28 @@ const Dashboard: React.FC<DashboardProps> = () => {
 	const [userTreeContributionCount, setUserTreeCount] = useState(0);
 
 	// Energy production values
-	const targetTotalUserEnergyProduction = 10000;
-	const targetTotalAppEnergyProduction = 33333333333;
+	const [targetTotalUserEnergyProduction, setTargetTotalUserEnergyProduction] =
+		useState(0);
+	const [targetTotalAppEnergyProduction, setTargetTotalAppEnergyProduction] =
+		useState(0);
 	const targetUserEnergyProduction = 8888888;
 
 	const [totalUserEnergyProduction, setTotalUserEnergyProduction] = useState(0);
 	const [totalAppEnergyProduction, setTotalAppEnergyProduction] = useState(0);
 	const [userEnergyProduction, setUserEnergyProduction] = useState(0);
-
+	useEffect(() => {
+		if (analyticData) {
+			setTargetTotalUserTreeCount(analyticData?.data[0]?.totalPlantedTrees);
+			setTargetTotalAppTreeCount(analyticData?.totalData?.totalTreesPlanted);
+			setTargetTotalUserEnergyProduction(
+				analyticData?.data[0]?.totalEnergyProduced
+			);
+			setTargetTotalAppEnergyProduction(
+				analyticData?.totalData?.totalEnergyProduced
+			);
+			console.log("analyticData >>> ", targetTotalUserTreeCount);
+		}
+	}, [targetTotalUserTreeCount, analyticData]);
 	// This is for animation
 	const animateValue = (
 		start: number,
@@ -146,7 +200,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 					<div className='flex flex-col items-center'>
 						<p className='mb-2'>You&apos;ve Generated:</p>
 						<h2 className='mt-0'>
-							⚡ {userEnergyProduction.toLocaleString()} KWH
+							⚡ {totalUserEnergyProduction.toLocaleString()} KWH
 						</h2>
 					</div>
 					<div className='flex flex-col items-center'>
@@ -163,16 +217,16 @@ const Dashboard: React.FC<DashboardProps> = () => {
 						<p className='mb-2'>You&apos;re Powering:</p>
 						<h2 className='mt-0'>
 							🏡{" "}
-							{userEnergyProduction / averageHomeEnergyConsumption < 10
-								? (userEnergyProduction / averageHomeEnergyConsumption).toFixed(
-										2
-								  )
+							{totalUserEnergyProduction / averageHomeEnergyConsumption < 10
+								? (
+										totalUserEnergyProduction / averageHomeEnergyConsumption
+								  ).toFixed(2)
 								: Math.floor(
-										userEnergyProduction / averageHomeEnergyConsumption
+										totalUserEnergyProduction / averageHomeEnergyConsumption
 								  ).toLocaleString("en-CA")}{" "}
-							{userEnergyProduction / averageHomeEnergyConsumption < 1
+							{totalUserEnergyProduction / averageHomeEnergyConsumption < 1
 								? "of a home for an entire year"
-								: userEnergyProduction / averageHomeEnergyConsumption === 1
+								: totalUserEnergyProduction / averageHomeEnergyConsumption === 1
 								? "home for an entire year"
 								: "homes for an entire year"}{" "}
 						</h2>

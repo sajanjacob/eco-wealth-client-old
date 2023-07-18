@@ -20,7 +20,13 @@ const Onboarding: FC = () => {
 	//  Here we update the user's role in the database and redux store
 	const updateUserData = async (role: string) => {
 		dispatch(
-			setUser({ ...user, roles: [role], activeRole: role, phoneNumber: phone })
+			setUser({
+				...user,
+				roles: [role],
+				activeRole: role,
+				phoneNumber: phone,
+				onboardingComplete: true,
+			})
 		);
 		const { data, error } = await supabase
 			.from("users")
@@ -28,7 +34,7 @@ const Onboarding: FC = () => {
 				name: name,
 				roles: [role],
 				phone_number: phone,
-				activeRole: role,
+				active_role: role,
 				onboarding_complete: true,
 			})
 			.eq("id", user.id);
@@ -43,6 +49,13 @@ const Onboarding: FC = () => {
 						user_id: user.id,
 					},
 				]);
+				const { data: analyticData, error: analyticErr } = await supabase
+					.from("analytics")
+					.insert([
+						{
+							user_id: user.id,
+						},
+					]);
 				if (error) {
 					console.error("Error inserting investor:", error.message);
 				}

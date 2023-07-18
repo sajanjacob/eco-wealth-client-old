@@ -163,7 +163,7 @@ function AddProject() {
 
 	// Note to future me - Might need to update everything to 'watch' for react-hook-form
 	const createProject = async (bannerUrl: string) => {
-		const projectData: Project | EnergyProject | TreeProject = {
+		const projectData: Project | EnergyProject | TreeProject | SolarProject = {
 			title: formValues.title,
 			imageUrl: bannerUrl,
 			projectCoordinatorContact: {
@@ -186,8 +186,8 @@ function AddProject() {
 			totalFundsRequested: formValues.fundsRequested,
 			energyProductionTarget: formValues.energyProductionTarget,
 			targetArrays: formValues.numOfArrays,
-			installerType: formValues.installationTeam,
-			systemSize: formValues.installedSystemSize,
+			installationTeam: formValues.installationTeam,
+			systemSizeInKw: formValues.installedSystemSize,
 			systemCapacity: formValues.photovoltaicCapacity,
 			labourCost: formValues.estimatedInstallationCost,
 			maintenanceCost: formValues.estimatedMaintenanceCost,
@@ -222,6 +222,7 @@ function AddProject() {
 			investorCount: 0,
 			treeProjects: [],
 			energyProjects: [],
+			solarProjects: [],
 			projectMilestones: [],
 			treeInvestments: [],
 			energyInvestments: [],
@@ -232,7 +233,7 @@ function AddProject() {
 		};
 
 		await axios
-			.post("/api/projects/create", projectData)
+			.post("/api/projects/create", { projectData, producerId })
 			.then((response) => {
 				console.log("Project Created: ", response.data);
 				toast.success("Project created successfully!");
