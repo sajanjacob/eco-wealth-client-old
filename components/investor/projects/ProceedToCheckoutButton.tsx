@@ -4,7 +4,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 type Props = {
-	setCheckoutStep: React.Dispatch<React.SetStateAction<number>>;
+	setCheckoutStep?: React.Dispatch<React.SetStateAction<number>>;
 	numOfUnits: number;
 	amountPerUnit: number;
 	isNonProfit: boolean;
