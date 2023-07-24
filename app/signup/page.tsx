@@ -16,6 +16,10 @@ const SignUp: React.FC = () => {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [passwordMatch, setPasswordMatch] = useState(false);
 
+	// TODO: Add password strength meter
+	// TODO: Add password requirements
+	// TODO: Add password reset
+
 	async function handleEmailSignUp(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 
