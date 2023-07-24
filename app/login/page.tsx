@@ -17,8 +17,24 @@ export default function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [verified, setVerified] = useState(false);
+	const [loggedInUser, setLoggedInUser] = useState({});
 
-	const fetchUserData = async (userId: string, mfaEnabled: boolean) => {
+	function isOlderThan30Days(timestamp: string) {
+		// Parse the input timestamp into a Date object
+		const dateFromTimestamp = new Date(timestamp);
+
+		// Get the current date and time
+		const now = new Date();
+
+		// Subtract 30 days from the current date
+		const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+		// If dateFromTimestamp is older than thirtyDaysAgo, return true
+		// otherwise, return false
+		return dateFromTimestamp < thirtyDaysAgo;
+	}
+
+	const fetchUserData = async (userId: string) => {
 		try {
 			const { data, error } = await supabase
 				.from("users")
@@ -31,6 +47,7 @@ export default function Login() {
 				return null;
 			}
 			console.log("User data fetched successfully:", data);
+			setLoggedInUser(data);
 			dispatch(
 				setUser({
 					loggedIn: true,
@@ -48,8 +65,11 @@ export default function Login() {
 					smsNotification: data.sms_notification,
 					pushNotification: data.push_notification,
 					mfaEnabled: data.mfa_enabled,
+					mfaVerified: data.mfa_verified,
+					mfaVerifiedAt: data.mfa_verified_at,
 				})
 			); // Dispatch a redux action
+			return data;
 		} catch (err) {
 			console.error("Unexpected error fetching user data:", err);
 			return null;
@@ -58,19 +78,26 @@ export default function Login() {
 
 	const login = async (user: any) => {
 		const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-		if (
-			data &&
-			data.nextLevel === "aal2" &&
-			data.nextLevel !== data.currentLevel
-		) {
-			setShowMFA(true);
-			const mfaEnabled = true;
-			await fetchUserData(user.id, mfaEnabled);
-		} else {
-			setShowMFA(false);
-			const mfaEnabled = false;
-			router.push("/setup-mfa");
-			await fetchUserData(user.id, mfaEnabled);
+		await fetchUserData(user.id);
+		if (user.loggedIn) {
+			if (user.mfaVerified) {
+				if (isOlderThan30Days(user.mfaVerifiedAt)) {
+					if (
+						data &&
+						data.nextLevel === "aal2" &&
+						data.nextLevel !== data.currentLevel
+					) {
+						setShowMFA(true);
+						const mfaEnabled = true;
+					} else {
+						setShowMFA(false);
+						const mfaEnabled = false;
+						router.push("/setup-mfa");
+					}
+				} else {
+					setShowMFA(false);
+				}
+			}
 		}
 	};
 
@@ -81,10 +108,10 @@ export default function Login() {
 		if (isLoggedIn && !user.mfaVerified) {
 			setShowMFA(true);
 		}
-		if (isLoggedIn && user?.roles?.length === 0) {
-			router.push("/onboarding");
-		} else {
-			if (verified) {
+		if (verified) {
+			if (isLoggedIn && user?.roles?.length === 0) {
+				router.push("/onboarding");
+			} else {
 				if (isLoggedIn && user?.activeRole === "investor") {
 					router.push("/i/dashboard");
 				} else if (isLoggedIn && user?.activeRole === "producer") {
