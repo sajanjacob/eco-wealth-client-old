@@ -77,10 +77,10 @@ export default function Home() {
 						.
 					</h1>
 					{!user.loggedIn && (
-						<div className='flex flex-col '>
+						<div className='flex flex-col mt-6'>
 							<h3 className='text-white text-right font-medium'>
-								By using Eco Wealth, you help make the environment cleaner,
-								healthier, and last for generations to come.
+								By using Eco Wealth, you can help bring balance to the
+								environment and ensure future generations of people thrive.
 							</h3>
 							<h3 className='text-white text-right font-medium '>
 								<span
