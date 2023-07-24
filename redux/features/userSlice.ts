@@ -58,6 +58,10 @@ export const userSlice = createSlice({
 				state.smsNotification = userData.smsNotification;
 			if (userData.pushNotification !== undefined)
 				state.pushNotification = userData.pushNotification;
+			if (userData.mfaVerified !== undefined)
+				state.mfaVerified = userData.mfaVerified;
+			if (userData.mfaVerifiedAt !== undefined)
+				state.mfaVerifiedAt = userData.mfaVerifiedAt;
 			if (userData.mfaEnabled !== undefined)
 				state.mfaEnabled = userData.mfaEnabled;
 		},

@@ -33,7 +33,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						email: data.email,
 						phoneNumber: data.phone_number,
 						isVerified: data.is_verified,
-						roles: data.roles ? data.roles : [],
+						roles: data.roles ? data.roles : [""],
 						id: data.id,
 						activeRole: data.active_role,
 						loggedIn: true,
@@ -41,20 +41,20 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						smsNotification: data.sms_notification,
 						pushNotification: data.push_notification,
 						onboardingComplete: data.onboarding_complete,
-						investorOnboardingComplete: data.investors[0].onboarding_complete,
-						producerOnboardingComplete: data.producers[0].onboarding_complete,
+						investorOnboardingComplete: data.investors[0]?.onboarding_complete,
+						producerOnboardingComplete: data.producers[0]?.onboarding_complete,
 						mfaEnabled: data.mfa_enabled,
-						currentTheme: data?.current_theme,
 						mfaVerified: data.mfa_verified,
 						mfaVerifiedAt: data.mfa_verified_at,
+						currentTheme:
+							data.current_theme !== null ? data.current_theme : "dark",
 					})
 				); // Dispatch a redux action
-
-				console.log("(withAuth) → user is logged in, ", data);
 
 				// Here we check for the user's active role from supabase and then push them to their
 				// respective onboarding page if they haven't completed it yet or we push them to their
 				// respective dashboard pages if they have completed their onboarding.
+
 				if (
 					data.active_role === "investor" &&
 					!data.investors[0].onboarding_complete
@@ -95,6 +95,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 		};
 
 		useEffect(() => {
+			console.log("user >>> ", user);
 			if (user.loggedIn) {
 				let role = null;
 				if (pathname?.includes("/i/")) {
@@ -104,6 +105,16 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 				}
 
 				if (role) {
+					console.log(
+						"user.roles.includes(role) >>> ",
+						user.roles.includes(role)
+					);
+					console.log(
+						"user.activeRole !== role >>> ",
+						user.activeRole !== role
+					);
+					console.log("user.activeRole >>> ", user.activeRole);
+					console.log("role >>> ", role);
 					if (user.roles.includes(role)) {
 						if (user.activeRole !== role) {
 							// Switch role
@@ -111,7 +122,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						}
 					} else {
 						// Redirect to dashboard if user doesn't have role
-						router.push(`/${user.activeRole?.charAt(0)}/dashboard`);
+						router.push(`/onboarding/`);
 					}
 				}
 			} else {
