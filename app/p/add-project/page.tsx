@@ -7,13 +7,13 @@ import { toast } from "react-toastify";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import withAuth from "@/utils/withAuth";
-import { v4 as uuidv4 } from "uuid";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Agreement from "@/components/producer/projects/Agreement";
+import Switch from "react-switch";
 interface FormValues {
 	title: string;
 	image: File | null;
@@ -23,7 +23,7 @@ interface FormValues {
 	numTrees: number;
 	pricePerTree: number;
 	projectType: string;
-	agreements: boolean[];
+	agreements: boolean;
 	imageFile: FileList | null;
 	imageUrlInput: string;
 	uploadMethod: boolean;
@@ -41,9 +41,20 @@ interface FormValues {
 	estimatedInstallationCost: number;
 	estimatedSystemCost: number;
 	estimatedMaintenanceCost: number;
+	estimatedMaterialCost: number;
+	estimatedInstallationDate: string;
 	connectWithSolarPartner: string;
 	fundsRequested: number;
 	locationType: string;
+
+	isNonProfit: boolean;
+	estRevenue: number;
+	estRoiPercentage: number;
+
+	estimatedSeedCost: number;
+	estimatedLabourCost: number;
+	estimatedPlantingDate: string;
+	estimatedMaturityDate: string;
 }
 const style = {
 	position: "absolute" as "absolute",
@@ -64,6 +75,11 @@ function AddProject() {
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
 
+	const [isNonProfit, setIsNonProfit] = useState(false);
+	const handleIsNonProfitChange = (checked: boolean) => {
+		setIsNonProfit(checked);
+		setValue("isNonProfit", checked);
+	};
 	const {
 		register,
 		handleSubmit,
@@ -81,7 +97,7 @@ function AddProject() {
 			numTrees: 0,
 			pricePerTree: 0,
 			projectType: "",
-			agreements: [false, false, false],
+			agreements: false,
 			imageFile: null,
 			imageUrlInput: "",
 			uploadMethod: true,
@@ -99,9 +115,18 @@ function AddProject() {
 			estimatedInstallationCost: 0,
 			estimatedSystemCost: 0,
 			estimatedMaintenanceCost: 0,
+			estimatedMaterialCost: 0,
+			estimatedInstallationDate: "",
 			connectWithSolarPartner: "",
 			fundsRequested: 0,
 			locationType: "",
+			isNonProfit: false,
+			estRevenue: 0,
+			estRoiPercentage: 0,
+			estimatedSeedCost: 0,
+			estimatedLabourCost: 0,
+			estimatedPlantingDate: "",
+			estimatedMaturityDate: "",
 		},
 	});
 	const formValues = getValues();
@@ -174,13 +199,12 @@ function AddProject() {
 			producerId: producerId,
 			status: "pending_verification",
 			type: formValues.projectType,
-			agreementAccepted: true,
+			agreementAccepted: agreements,
 
 			totalAreaSqkm: formValues.totalArea,
 			propertyAddressId: formValues.projectAddressId,
 
 			treeTarget: formValues.numTrees,
-			fundsRequestedPerTree: formValues.pricePerTree,
 			treeProjectType: formValues.treeType,
 
 			totalFundsRequested: formValues.fundsRequested,
@@ -199,9 +223,6 @@ function AddProject() {
 			updatedAt: Date.now().toString(),
 			treeCount: 0,
 			projectType: formValues.projectType,
-			projectId: "",
-			totalArea: formValues.totalArea,
-			id: "",
 			userId: user.id,
 			fundsCollected: 0,
 			producerProperties: {
@@ -219,17 +240,14 @@ function AddProject() {
 				updatedAt: "",
 				isVerified: false,
 			},
-			investorCount: 0,
 			treeProjects: [],
 			energyProjects: [],
 			solarProjects: [],
-			projectMilestones: [],
-			treeInvestments: [],
-			energyInvestments: [],
-			totalNumberOfInvestors: 0,
-			totalAmountRaised: 0,
+
 			isVerified: false,
 			locationType: locationType,
+
+			isNonProfit: isNonProfit,
 		};
 
 		await axios
@@ -311,25 +329,30 @@ function AddProject() {
 		);
 
 	return (
-		<div className='container mx-auto py-6 px-4 min-h-[100vh]'>
-			<h1 className='text-2xl font-semibold mb-6'>Add Project</h1>
-			<form onSubmit={handleSubmit(onSubmit)}>
-				<label className='flex flex-col'>
+		<div className='container mx-auto py-6 px-4 min-h-[100vh] '>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className='flex flex-col w-[800px] mx-auto'
+			>
+				<h1 className='text-3xl font-semibold mb-6 flex justify-start text-left'>
+					Add Project
+				</h1>
+				<label className='flex flex-col w-[800px]'>
 					<span className='mb-[4px] mt-2'>Project Title:</span>
 					<input
 						type='text'
-						className='text-gray-700 border-2 border-gray-300 rounded-md p-2 w-[500px]'
+						className='text-gray-700 border-2 border-gray-300 rounded-md p-2 w-full'
 						{...register("title", { required: true })}
 					/>
 				</label>
 				<br />
-				<label className='flex flex-col'>
+				<label className='flex flex-col w-[800px]'>
 					{properties.length > 0 && (
 						<>
 							<span className='mb-[4px] mt-2'>Project Location:</span>
 							<select
 								{...register("projectAddressId", { required: true })}
-								className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+								className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 							>
 								<option value=''>
 									Select the address your project will be operated from
@@ -409,83 +432,131 @@ function AddProject() {
 						</>
 					)}
 				</label>
+
 				<br />
-				<label className='flex flex-col'>
+				<label className='flex flex-col w-[800px]'>
 					<span className='mb-[4px] mt-2'>Project Type:</span>
 					<select
 						{...register("projectType", { required: true })}
-						className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+						className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 					>
 						<option value=''>Select a project type</option>
 						<option value='Tree'>Tree</option>
 						<option value='Energy'>Renewable Energy</option>
 					</select>
 				</label>
-
-				{projectType === "Tree" && (
-					<label className='flex flex-col mt-[8px]'>
-						<span className='mb-[4px] mt-2'>Tree Project Type:</span>
-						<select
-							{...register("treeType", { required: true })}
-							className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
-						>
-							<option value=''>Select a tree project type</option>
-							<option value='Timber / Lumber'>Timber / Lumber</option>
-							<option value='Fruit'>Fruits</option>
-							<option value='Nut'>Nuts</option>
-							<option value='Bio Fuel'>Bio Fuel</option>
-							<option value='Pulp'>Pulp</option>
-							<option value='Syrup'>Syrup</option>
-							<option value='Oil / Chemical'>Oils / Chemicals</option>
-							<option value='Non-Profit Initiative'>
-								Non-Profit Initiatives
-							</option>
-						</select>
-					</label>
-				)}
-				<label className='flex flex-col'>
+				<label className='flex flex-col w-[800px]'>
 					<span className='mb-[4px] mt-2'>Total Project Area (km²)</span>
 					<input
 						type='number'
 						{...register("totalArea", { required: true })}
-						className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
+						className='border-2 border-gray-300 rounded-md p-2 w-full'
 					/>
 				</label>
+				<br />
+
 				{projectType === "Tree" && (
 					<>
-						<label className='flex flex-col'>
+						<label className='flex flex-col mt-[8px] w-[800px]'>
+							<span className='mb-[4px] mt-2'>Tree Project Type:</span>
+							<select
+								{...register("treeType", { required: true })}
+								className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
+							>
+								<option value=''>Select a tree project type</option>
+								<option value='Timber / Lumber'>Timber / Lumber</option>
+								<option value='Fruit'>Fruits</option>
+								<option value='Nut'>Nuts</option>
+								<option value='Bio Fuel'>Bio Fuel</option>
+								<option value='Pulp'>Pulp</option>
+								<option value='Syrup'>Syrup</option>
+								<option value='Oil / Chemical'>Oils / Chemicals</option>
+							</select>
+						</label>
+						<label className='flex flex-col w-[800px]'>
 							<span className='mb-[4px] mt-2'>
 								How many trees are you aiming to plant for this project?
 							</span>
-							<input
-								type='number'
-								{...register("numTrees", { required: true })}
-								className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
-							/>
+							<div className='bg-white border-2 border-gray-300 rounded-md p-2 text-gray-400'>
+								🌳{" "}
+								<input
+									type='number'
+									{...register("numTrees", { required: true })}
+									className='w-[96%] outline-none'
+								/>
+							</div>
 						</label>
-						<label className='flex flex-col'>
+						<label className='flex flex-col w-[800px]'>
 							<span className='mb-[4px] mt-2'>
-								How much do you want to raise per tree?
+								How much do you want to raise for seeds/saplings?
 							</span>
-							$
-							<input
-								type='number'
-								step='1'
-								{...register("pricePerTree", { required: true })}
-								className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
-							/>
+							<div className='bg-white border-2 border-gray-300 rounded-md p-2 text-gray-400'>
+								${" "}
+								<input
+									type='number'
+									step='1'
+									{...register("estimatedSeedCost", { required: true })}
+									className='w-[97%] outline-none'
+								/>
+							</div>
+							<span className='mb-[4px] mt-2'>
+								How much will the planting & labour cost be?
+							</span>
+							<div className='bg-white border-2 border-gray-300 rounded-md p-2 text-gray-400'>
+								${" "}
+								<input
+									type='number'
+									step='1'
+									{...register("estimatedLabourCost", { required: true })}
+									className='w-[97%] outline-none'
+								/>
+							</div>
+							<span className='mb-[4px] mt-2'>
+								How much will the yearly maintenance cost be?
+							</span>
+							<div className='bg-white border-2 border-gray-300 rounded-md p-2 text-gray-400'>
+								${" "}
+								<input
+									type='number'
+									step='1'
+									{...register("estimatedMaintenanceCost", { required: true })}
+									className='w-[97%] outline-none'
+								/>
+							</div>
+							<div className='flex mt-12'>
+								<div>
+									<span className='mb-[4px] mt-2'>
+										When is the estimated planting date?
+									</span>
+									<input
+										type='date'
+										{...register("estimatedPlantingDate", { required: true })}
+										className='bg-white border-2 border-gray-300 rounded-md mt-2 p-2 text-gray-400 w-max'
+									/>
+								</div>
+								<div>
+									<span className='mb-[4px] mt-2'>
+										When is the estimated harvest date?
+									</span>
+									<input
+										type='date'
+										{...register("estimatedMaturityDate", { required: true })}
+										className='bg-white border-2 border-gray-300 rounded-md mt-2 p-2 text-gray-400 w-max'
+									/>
+								</div>
+							</div>
 						</label>
 					</>
 				)}
 				{projectType === "Energy" && (
 					<>
-						<label className='flex flex-col mt-[8px]'>
+						<label className='flex flex-col mt-[8px] w-[800px]'>
 							<span className='mb-[4px] mt-2'>
 								Renewable Energy Project Type:
 							</span>
 							<select
 								{...register("energyType", { required: true })}
-								className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+								className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 							>
 								<option value=''>Select a renewable energy project type</option>
 								<option value='Solar'>Solar</option>
@@ -493,43 +564,43 @@ function AddProject() {
 						</label>
 						{energyType === "Solar" && (
 							<>
-								<label className='flex flex-col mt-[8px]'>
+								<label className='flex flex-col mt-[8px] w-[800px]'>
 									<span className='mb-[4px] mt-2'>
 										Is this a residential, commercial, or rural project?
 									</span>
 									<select
 										{...register("locationType", { required: true })}
-										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+										className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 									>
 										<option value=''>Select the project location type</option>
 										<option value='Residential'>Residential</option>
 										<option value='Commercial'>Commercial</option>
-										<option value='Rural'>Rural</option>
+										<option value='Rural'>Acreage/Rural</option>
 									</select>
 								</label>
-								<label className='flex flex-col mt-[8px]'>
+								<label className='flex flex-col mt-[8px] w-[800px]'>
 									<span className='mb-[4px] mt-2'>
 										What is the target yearly energy production of this project
 										(kWh)?
 									</span>
 									<input
 										{...register("energyProductionTarget", { required: true })}
-										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+										className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 										type='number'
 									/>
 								</label>
-								<label className='flex flex-col mt-[8px]'>
+								<label className='flex flex-col mt-[8px] w-[800px]'>
 									<span className='mb-[4px] mt-2'>
 										How many arrays will be setup?
 									</span>
 									<input
 										{...register("numOfArrays", { required: true })}
-										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+										className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 										type='text'
 									/>
 								</label>
 
-								<label className='flex flex-col mt-[8px]'>
+								<label className='flex flex-col mt-[8px] w-[800px]'>
 									<span className='mb-[4px] mt-2'>
 										Are you contracting a company to install the system, doing
 										this with your own team of installers, or are you still
@@ -537,7 +608,7 @@ function AddProject() {
 									</span>
 									<select
 										{...register("installationTeam", { required: true })}
-										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+										className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 									>
 										<option value=''>Select one</option>
 										<option value='Has company'>
@@ -552,63 +623,87 @@ function AddProject() {
 								</label>
 								{installationTeam === ("Has company" || "Has team") ? (
 									<>
-										<label className='flex flex-col mt-[8px]'>
+										<label className='flex flex-col mt-[8px] w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												What will the size of the installed system be? (in kW)
 											</span>
 											<input
 												{...register("installedSystemSize")}
-												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px]'>
+										<label className='flex flex-col mt-[8px] w-[800px]'>
 											<span className='mb-4px] mt-2'>
 												If known, what is the photovoltaic capacity of the
 												system?
 											</span>
 											<input
 												{...register("photovoltaicCapacity")}
-												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px]'>
+										<label className='flex flex-col mt-[8px] w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												What is the estimated cost of the system installation?
 											</span>
 											$
 											<input
 												{...register("estimatedInstallationCost")}
-												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px]'>
+										<label className='flex flex-col mt-[8px] w-[800px]'>
 											<span className='mb-[4px] mt-2'>
-												What is the total cost of the system minus the labour?
+												What is the total cost of the system (do not include
+												labour charges)?
 											</span>
 											<input
 												{...register("estimatedSystemCost")}
-												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px]'>
+										<label className='flex flex-col mt-[8px] w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												If discussed, what are the estimated maintenance costs
 												for the system?
 											</span>
 											<input
 												{...register("estimatedMaintenanceCost")}
-												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
+												type='number'
+											/>
+										</label>
+
+										<label className='flex flex-col mt-[8px] w-[800px]'>
+											<span className='mb-[4px] mt-2'>
+												If discussed, what&apos;s the estimated material cost?
+												(any materials beyond the arrays, inverters, and
+												racking)
+											</span>
+											<input
+												{...register("estimatedMaterialCost")}
+												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
+												type='number'
+											/>
+										</label>
+										<label className='flex flex-col mt-[8px] w-[800px]'>
+											<span className='mb-[4px] mt-2'>
+												When is the estimated installation date?
+											</span>
+											<input
+												{...register("estimatedInstallationDate")}
+												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 												type='number'
 											/>
 										</label>
 									</>
 								) : installationTeam === "Needs team" ? (
 									<>
-										<label className='flex flex-col mt-[8px]'>
+										<label className='flex flex-col mt-[8px] w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												Do you want us to connect you with a trusted solar
 												installation partner in your area to handle the
@@ -616,7 +711,7 @@ function AddProject() {
 											</span>
 											<select
 												{...register("connectWithSolarPartner")}
-												className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 											>
 												<option value=''>Select one</option>
 												<option value='Connect with partner'>
@@ -630,13 +725,14 @@ function AddProject() {
 										</label>
 									</>
 								) : null}
-								<label className='flex flex-col mt-[8px]'>
+
+								<label className='flex flex-col mt-[8px] w-[800px]'>
 									<span className='mb-[4px] mt-2'>
 										How much do you want to raise for this project?
 									</span>
 									<input
 										{...register("fundsRequested")}
-										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
+										className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 										type='number'
 									/>
 								</label>
@@ -645,7 +741,7 @@ function AddProject() {
 					</>
 				)}
 				<br />
-				<label>
+				<label className='flex flex-col mt-[8px] w-[800px]'>
 					<span className='mt-2'>Project Banner Image:</span>
 					<br />
 					<button
@@ -661,80 +757,132 @@ function AddProject() {
 							{...register("imageFile")}
 							type='file'
 							accept='image/png, image/jpeg'
-							className='border-2 border-gray-300 rounded-md p-2 w-[500px] cursor-pointer'
+							className='border-2 border-gray-300 rounded-md p-2 w-full cursor-pointer'
 						/>
 					) : (
-						<label className='flex flex-col'>
+						<label className='flex flex-col w-[800px]'>
 							<span className='mb-[4px] mt-2'>Paste direct image URL:</span>
 							<input
 								{...register("imageUrlInput")}
 								type='text'
-								className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
+								className='border-2 border-gray-300 rounded-md p-2 w-full'
 							/>
 						</label>
 					)}
 				</label>
 				<br />
 
-				<label className='flex flex-col'>
+				<label className='flex flex-col w-[800px]'>
 					<span className='mb-[4px] mt-2'>Project Coordinator Name:</span>
 					<input
 						{...register("coordinatorName", { required: true })}
 						type='text'
-						className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
+						className='border-2 border-gray-300 rounded-md p-2 w-full'
 					/>
 				</label>
 
-				<label className='flex flex-col'>
+				<label className='flex flex-col w-[800px]'>
 					<span className='mb-[4px] mt-2'>Project Coordinator Phone:</span>
 					<input
 						{...register("coordinatorPhone", { required: true })}
 						type='tel'
-						className='border-2 border-gray-300 rounded-md p-2 w-[500px]'
+						className='border-2 border-gray-300 rounded-md p-2 w-full'
 					/>
 				</label>
 				<br />
-				<label className='flex flex-col'>
+				<label className='flex flex-col w-[800px]'>
 					<span className='mb-[4px] mt-2'>Project Description:</span>
 					<textarea
 						{...register("description", { required: true })}
-						className='text-gray-700 border-2 border-gray-300 rounded-md p-2 h-[150px] w-[500px]'
+						className='text-gray-700 border-2 border-gray-300 rounded-md p-2 h-[150px] w-full'
 					/>
 				</label>
 				<br />
-
-				{!agreements ? (
-					<>
-						<h3>Agreements:</h3>{" "}
-						<button
-							onClick={handleOpen}
-							className='my-2 text-left w-fit bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
-						>
-							View agreement
-						</button>
-						<Modal
-							open={open}
-							onClose={handleClose}
-							aria-labelledby='modal-modal-title'
-							aria-describedby='modal-modal-description'
-						>
-							<Box sx={style}>
-								<Agreement
-									handleAgreementButtonClick={handleAgreementButtonClick}
-								/>
-							</Box>
-						</Modal>
-					</>
-				) : (
-					<>
-						<h3>✅ Agreements</h3>
-					</>
-				)}
+				<label className='flex flex-col w-[800px]'>
+					<span className='mb-[4px] mt-2'>
+						What do you estimate the revenue per year will be?
+					</span>
+					<div className='border-2 border-gray-300 rounded-md p-2 bg-white text-gray-400'>
+						${" "}
+						<input
+							{...register("estRevenue", { required: true })}
+							type='number'
+							className='w-[98%] outline-none'
+						/>
+					</div>
+				</label>
+				<br />
+				<label className='flex flex-col w-[800px]'>
+					<span className='mb-[4px] mt-2'>
+						What percentage of the total funds requested will you offer
+						investors for investing into your project?
+					</span>
+					<div className='border-2 border-gray-300 rounded-md p-2 bg-white text-gray-400'>
+						%{" "}
+						<input
+							{...register("estRoiPercentage", { required: true })}
+							type='number'
+							className='w-[97%] outline-none'
+							min={0}
+							max={100}
+						/>
+					</div>
+				</label>
+				<br />
+				<div className='flex justify-between '>
+					<label className='flex flex-col mt-[8px] w-[800px]'>
+						<span className='mb-[4px] mt-2'>
+							Is this a non-profit initiative?
+						</span>
+						<div className='flex items-center'>
+							<Switch
+								onChange={handleIsNonProfitChange}
+								checked={isNonProfit}
+								className='react-switch mr-2'
+								id='isNonProfit'
+								offColor='#808080'
+								onColor='#66bb6a'
+								height={20}
+								width={48}
+								uncheckedIcon={false}
+								checkedIcon={false}
+							/>
+							{isNonProfit ? "Yes" : "No"}
+						</div>
+					</label>
+					{!agreements ? (
+						<div>
+							<h3>Agreements:</h3>{" "}
+							<button
+								onClick={handleOpen}
+								className='my-2 text-left w-[300px] bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
+							>
+								View agreement
+							</button>
+							<Modal
+								open={open}
+								onClose={handleClose}
+								aria-labelledby='modal-modal-title'
+								aria-describedby='modal-modal-description'
+							>
+								<Box sx={style}>
+									<Agreement
+										handleAgreementButtonClick={handleAgreementButtonClick}
+									/>
+								</Box>
+							</Modal>
+						</div>
+					) : (
+						<>
+							<h3>✅ Agreements</h3>
+						</>
+					)}
+				</div>
 				<br />
 				<div className='flex justify-end'>
 					<button
 						type='submit'
-						className='mt-[16px] bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
+						className='mt-[16px] bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer w-full'
 					>
 						Submit Project
 					</button>

@@ -7,6 +7,7 @@ import InvestPopup from "@/components/investor/projects/ProceedToCheckoutButton"
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import ProceedToCheckoutButton from "@/components/investor/projects/ProceedToCheckoutButton";
 type Props = {
 	project: Project;
 };
@@ -176,11 +177,14 @@ export default function EnergyInvestment({ project }: Props) {
 						</div>
 					</>
 				)}
-				<InvestPopup
-					calculateInvestmentTotalAmount={parseFloat(
-						calculateInvestmentTotalAmount()
-					)}
-					onInvestmentSuccess={onInvestmentSuccess}
+				<ProceedToCheckoutButton
+					numOfUnits={}
+					amountPerUnit={}
+					isNonProfit={}
+					projectName={}
+					type={}
+					projectId={}
+					project={}
 				/>
 			</form>
 		</div>
