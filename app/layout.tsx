@@ -23,6 +23,8 @@ export default function RootLayout({
 					{path !== "/thankyou" &&
 					path !== "/login" &&
 					path !== "/signup" &&
+					path !== "/forgot-password" &&
+					path !== "/onboarding" &&
 					path !== "/i/onboarding" &&
 					path !== "/p/onboarding" &&
 					path !== "/setup-mfa" ? (
