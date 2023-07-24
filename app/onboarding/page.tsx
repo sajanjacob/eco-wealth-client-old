@@ -129,29 +129,33 @@ const Onboarding: FC = () => {
 					onSubmit={handleNameSubmit}
 					className='flex flex-col items-center justify-center min-h-screen'
 				>
-					<div>
-						<label className='text-left mb-4 text-xl text-gray-500 dark:text-white'>
-							What&apos;s your name?
-						</label>
-						<input
-							value={name}
-							onChange={handleNameInput}
-							className='w-[300px] p-2 mb-4 rounded text-gray-800 border-gray-100 border-2 outline-green-300 transition-colors hover:border-green-200'
-							type='name'
-							placeholder='Full name'
-							name='name'
-						/>
-						<label className='text-left mb-4 text-xl text-gray-500 dark:text-white'>
-							What&apos;s your phone number?
-						</label>
-						<input
-							value={phone}
-							onChange={handlePhoneInput}
-							className='w-[300px] p-2 mb-4 rounded text-gray-800 border-gray-100 border-2 outline-green-300 transition-colors hover:border-green-200'
-							type='tel'
-							placeholder='Phone Number'
-							name='phone'
-						/>
+					<div className='flex flex-col'>
+						<div>
+							<label className='mr-4 text-left mb-4 text-xl text-gray-500 dark:text-white'>
+								What&apos;s your name?
+							</label>
+							<input
+								value={name}
+								onChange={handleNameInput}
+								className='w-[300px] p-2 mb-4 rounded text-gray-800 border-gray-100 border-2 outline-green-300 transition-colors hover:border-green-200'
+								type='name'
+								placeholder='Full name'
+								name='name'
+							/>
+						</div>
+						<div>
+							<label className='mr-4 text-left mb-4 text-xl text-gray-500 dark:text-white'>
+								What&apos;s your phone number?
+							</label>
+							<input
+								value={phone}
+								onChange={handlePhoneInput}
+								className='w-[300px] p-2 mb-4 rounded text-gray-800 border-gray-100 border-2 outline-green-300 transition-colors hover:border-green-200'
+								type='tel'
+								placeholder='Phone Number'
+								name='phone'
+							/>
+						</div>
 					</div>
 					<div>
 						<button
