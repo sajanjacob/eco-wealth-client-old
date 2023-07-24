@@ -1,127 +1,245 @@
+// ---------------------
+// User
+// ---------------------
 interface User {
+	// Identifier
+	id: string;
+
+	// User Info
 	name: string;
 	email: string;
 	phoneNumber: string;
+
+	// User Status
 	isVerified: boolean;
+	onboardingComplete: boolean;
+	investorOnboardingComplete: boolean;
+	producerOnboardingComplete: boolean;
+
+	// User Roles
 	roles: string[];
-	id: string;
 	activeRole: string;
+
+	// Counters
 	totalUserTreeCount: number;
 	userTreeCount: number;
-	onboardingComplete: boolean;
+
+	// Notifications
 	emailNotification: boolean;
 	smsNotification: boolean;
 	pushNotification: boolean;
-	investorOnboardingComplete: boolean;
-	producerOnboardingComplete: boolean;
 }
 interface UserState {
-	roles: string[];
-	loggedIn: boolean;
-	roles: string[];
+	// Identifier
 	id: string | null;
 	producerId: string | null;
 	investorId: string | null;
-	activeRole: string | null;
-	currentTheme: string | null;
-	email: string | null;
+
+	// User Info
 	name: string | null;
+	email: string | null;
 	phoneNumber: string | null;
+
+	// User Status
+	loggedIn: boolean;
 	isVerified: boolean;
-	totalUserTreeCount: number;
-	userTreeCount: number;
+	mfaEnabled: boolean;
+	mfaVerified: boolean;
+
+	// User Roles
+	roles: string[];
+	activeRole: string | null;
+
+	// Onboarding
 	onboardingComplete: boolean;
+	investorOnboardingComplete: boolean;
+	producerOnboardingComplete: boolean;
+
+	// Notifications
 	emailNotification: boolean;
 	smsNotification: boolean;
 	pushNotification: boolean;
-	investorOnboardingComplete: boolean;
-	producerOnboardingComplete: boolean;
-	mfaEnabled: boolean;
-	mfaVerified: boolean;
+
+	// Counters
+	totalUserTreeCount: number;
+	userTreeCount: number;
+
+	// Settings
+	currentTheme: string | null;
+
+	// Timestamps
 	mfaVerifiedAt: string;
 }
 
+// ---------------------
+// Producer Team
+// ---------------------
+interface Team {
+	// Identifier
+	id: string;
+
+	// Team Info
+	name: string;
+	iconUrl: string;
+
+	// Metadata
+	createdAt: string;
+}
+
+// ---------------------
+// Producer Properties
+// ---------------------
+interface Property {
+	// Identifier
+	id: string;
+
+	// Producer
+	producerId: string;
+
+	// Verification Status
+	isVerified: boolean;
+
+	// Address
+	address: {
+		addressLineOne: string;
+		addressLineTwo: string;
+		city: string;
+		stateProvince: string;
+		postalCode: string;
+		country: string;
+	};
+
+	// Timestamps
+	createdAt: string;
+	updatedAt: string;
+}
+
+// ---------------------
+// Onboarding
+// ---------------------
 interface OnboardingState {
+	// Address
 	addressLineOne: string;
 	addressLineTwo: string;
 	city: string;
-	country: string;
-	postalCode: string;
 	stateProvince: string;
+	postalCode: string;
+	country: string;
+
+	// Operation Details
 	operationType: string[];
 	treeTypes: string;
 	solarTypes: string;
 	treeOpSize: string;
 	solarOpSize: string;
 	producerGoal: string;
-	propertyZoneMap: string;
 	hasSolarFarmOperation: string;
 	hasTreeFarmOperation: string;
+
+	// Additional Info
+	propertyZoneMap: string;
 	loadingMsg: string;
 }
 
+// ---------------------
+// Project
+// ---------------------
 interface Project {
-	id: string;
+	// project meta data
+	id?: string;
 	userId: string | null;
 	producerId: string | null;
-	title: string;
-	description: string;
+
+	// timestamps
 	createdAt: string;
 	updatedAt: string;
-	treeTarget: number;
-	treeCount: number;
+
+	// project details
+	title: string;
+	description: string;
 	imageUrl: string;
 	status: string;
 	type: string;
-	fundsRequestedPerTree: number;
+	isNonProfit: boolean;
+
+	// type
 	projectType?: string;
 	treeProjectType: string;
 	energyProjectType: string;
-	projectId: string;
+
+	// contact details
 	projectCoordinatorContact: {
 		name: string;
 		phone: string;
 	};
-	totalArea: number;
+
+	// agreement
 	agreementAccepted: boolean;
 
+	// property & project area in km² details
 	propertyAddressId: string;
-	fundsCollected: number;
 	producerProperties: Property;
-	investorCount: number;
 	totalAreaSqkm: number;
+
+	// financial details
+	requestedAmountTotal?: number;
+	fundsCollected?: number;
+	investorCount?: number;
+	averageROI?: number;
+	percentFunded?: number;
+	estRevenue?: number;
+	estRoiPercentage?: number;
+
+	// additional details for tree & energy projects
 	treeProjects: TreeProject[];
 	energyProjects: EnergyProject[];
 	solarProjects: SolarProject[];
-	projectMilestones: ProjectMilestone[];
-	treeInvestments: [];
-	energyInvestments: [];
-	totalNumberOfInvestors: number;
-	totalAmountRaised: number;
+
+	// milestones
+	projectMilestones?: ProjectMilestone[];
+
+	// investment transactions
+	treeInvestments?: [];
+	energyInvestments?: [];
+
+	// financial kpis
+	totalNumberOfInvestors?: number;
+	totalAmountRaised?: number;
+
+	// verified status
 	isVerified: boolean;
+	verificationId?: string;
+
+	// soil organic content
 	currentSoilOrganicContentPercentage?: number;
 	targetSoilOrganicContentPercentage?: number;
-	requestedAmountTotal?: number;
-	unitsContributed?: number;
-	averageROI?: number;
-	percentFunded?: number;
 }
 
 interface ProjectMilestone {
+	// Identifier
 	id: string;
+
+	// Project Info
 	projectId: string;
 	title: string;
 	shortDescription: string;
+	body: string;
+
+	// Timestamps
 	createdAt: string;
 	updatedAt: string;
-	body: string;
-	isDeleted: boolean;
 	deletedAt: string;
+
+	// Status
+	isDeleted: boolean;
 }
 
 interface EnergyProject extends Project {
+	// Financials
 	totalFundsRequested: number;
 	totalFundsRaised?: number;
+
+	// Energy Production
 	energyProductionTarget: number;
 	energyProduced?: number;
 	energyProductionUnit?: string;
@@ -129,45 +247,54 @@ interface EnergyProject extends Project {
 	avgYearlyProduction?: number;
 	targetArrays: number;
 
+	// Installation Details
 	installerDetails?: {
 		name: string;
 	};
 	installationTeam: string;
+
+	// Partner Connection
 	connectWithSolarPartner: string;
 }
 
 interface SolarProject extends EnergyProject {
-	systemSizeInKw: number;
-	numOfArrays: number;
-	locationType: string;
+	// System Specifications
 	systemSizeInKw: number;
 	systemCapacity: number;
+	numOfArrays: number;
+	locationType: string;
+
+	// Estimated Costs
+	estSystemCost: number;
+	estLabourCost: number;
+	estMaintenanceCost: number;
+	estInstallationDate: string;
+	estYearlyOutputInKwh: number;
+
+	// Cost Details
 	labourCost: number;
 	systemCost: number;
 	maintenanceCost: number;
 }
 
 interface TreeProject extends Project {
+	// Tree Project Info
 	treeTarget: number;
 	treeCount: number;
 	fundsRequestedPerTree: number;
 	treeProjectType: string;
+	estSeedCost: number;
+	estLabourCost: number;
+	estMaintenanceCost: number;
+	estMaturityDate: string;
+	amountOfProduceGeneratedInKgToDate: number;
+	avgRevenuePerItem: number;
+
+	// Project Identifier
 	projectId: string;
+
+	// General Type
 	type: string;
 }
-interface Property {
-	id: string;
-	createdAt: string;
-	producerId: string;
-	address: {
-		addressLineOne: string;
-		addressLineTwo: string;
-		city: string;
-		country: string;
-		postalCode: string;
-		stateProvince: string;
-	};
-	updatedAt: string;
-	isVerified: boolean;
-}
+
 type Projects = Project[];
