@@ -7,9 +7,9 @@ import React, {
 	useCallback,
 	Ref,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { BsFillMoonFill, BsFillSunFill } from "react-icons/bs";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient } from "@/utils/supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { RxAvatar } from "react-icons/rx";
@@ -25,9 +25,11 @@ import {
 import { AiOutlineUserSwitch } from "react-icons/ai";
 import Link from "next/link";
 import Image from "next/image";
+import { GiSolarPower } from "react-icons/gi";
 type Props = {};
 
 const Header = ({}: Props) => {
+	const supabase = supabaseClient;
 	const router = useRouter();
 	const dispatch = useAppDispatch();
 	const activeRole = useAppSelector((state) => state.user?.activeRole);
@@ -201,6 +203,22 @@ const Header = ({}: Props) => {
 	const handleSettingsClick = () =>
 		router.push("/settings?tab=personal-details");
 
+	const [render, setRender] = useState(true);
+	const path = usePathname();
+
+	useEffect(() => {
+		path !== "/thankyou" &&
+		path !== "/login" &&
+		path !== "/signup" &&
+		path !== "/forgot-password" &&
+		path !== "/onboarding" &&
+		path !== "/i/onboarding" &&
+		path !== "/p/onboarding" &&
+		path !== "/setup-mfa"
+			? setRender(true)
+			: setRender(false);
+	}, [path]);
+	if (!render) return null;
 	return (
 		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
 			<Image
@@ -313,7 +331,14 @@ const Header = ({}: Props) => {
 									</MenuItem>
 								</>
 							) : null}
-
+							<Link
+								href='https://ecoxsolar.com/'
+								target='_blank'
+							>
+								<MenuItem className='menu-link'>
+									<GiSolarPower className='mr-2' /> Get Home Solar
+								</MenuItem>
+							</Link>
 							<Link
 								href='https://eco-wealth.canny.io/'
 								target='_blank'
@@ -338,6 +363,7 @@ const Header = ({}: Props) => {
 									<MdBugReport className='mr-2' /> Report a Bug
 								</MenuItem>
 							</Link>
+
 							<MenuItem
 								className='menu-link'
 								onClick={handleToggleTheme}
