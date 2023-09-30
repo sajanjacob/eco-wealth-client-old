@@ -2,17 +2,31 @@
 import React, { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import supabase from "./supabaseClient";
+import { supabaseClient } from "./supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { RootState } from "@/redux/store";
 
 export default function withAuth(WrappedComponent: React.ComponentType<any>) {
+	const supabase = supabaseClient;
 	return function WithAuthComponent(props: any) {
 		const router = useRouter();
 		const user = useAppSelector((state: RootState) => state.user);
 		const pathname = usePathname();
 		const dispatch = useAppDispatch();
+		function isOlderThan30Days(timestamp: string) {
+			// Parse the input timestamp into a Date object
+			const dateFromTimestamp = new Date(timestamp);
 
+			// Get the current date and time
+			const now = new Date();
+
+			// Subtract 30 days from the current date
+			const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+			// If dateFromTimestamp is older than thirtyDaysAgo, return true
+			// otherwise, return false
+			return dateFromTimestamp < thirtyDaysAgo;
+		}
 		// Here we query public.users for the user's additional profile data
 		const fetchUserData = async (userId: string) => {
 			try {
@@ -26,6 +40,10 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 
 					return null;
 				}
+				if (data.mfa_verified_at && isOlderThan30Days(data.mfa_verified_at)) {
+					return router.push("/login");
+				}
+				console.log("User data fetched successfully:", data);
 				dispatch(
 					setUser({
 						...user,
@@ -35,14 +53,16 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						isVerified: data.is_verified,
 						roles: data.roles ? data.roles : [""],
 						id: data.id,
+						investorId: data?.investors?.id,
+						producerId: data?.producers?.id,
 						activeRole: data.active_role,
 						loggedIn: true,
 						emailNotification: data.email_notification,
 						smsNotification: data.sms_notification,
 						pushNotification: data.push_notification,
 						onboardingComplete: data.onboarding_complete,
-						investorOnboardingComplete: data.investors[0]?.onboarding_complete,
-						producerOnboardingComplete: data.producers[0]?.onboarding_complete,
+						investorOnboardingComplete: data?.investors?.onboarding_complete,
+						producerOnboardingComplete: data?.producers?.onboarding_complete,
 						mfaEnabled: data.mfa_enabled,
 						mfaVerified: data.mfa_verified,
 						mfaVerifiedAt: data.mfa_verified_at,
@@ -120,6 +140,18 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 							// Switch role
 							dispatch(setUser({ ...user, activeRole: role }));
 						}
+						if (
+							user.activeRole === "producer" &&
+							!user.producerOnboardingComplete
+						) {
+							return router.push("/p/onboarding");
+						}
+						if (
+							user.activeRole === "investor" &&
+							!user.investorOnboardingComplete
+						) {
+							return router.push("/i/onboarding");
+						}
 					} else {
 						// Redirect to dashboard if user doesn't have role
 						router.push(`/onboarding/`);
@@ -128,6 +160,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 			} else {
 				checkUserLoggedInStatus();
 			}
+			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [user, pathname, dispatch, router]);
 
 		return <WrappedComponent {...props} />;

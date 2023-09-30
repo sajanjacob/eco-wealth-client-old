@@ -29,8 +29,11 @@ type AnalyticData = {
 
 const Dashboard = async ({}: DashboardProps) => {
 	const user = useAppSelector((state: RootState) => state.user);
+	const [loading, setLoading] = useState(false);
 	const [analyticData, setAnalyticData] = useState<AnalyticData | null>(null); // [TODO] - type this properly
 	const fetchAnalytics = async () => {
+		setLoading(true);
+
 		if (user) {
 			await axios
 				.get(`${getBasePath()}/api/analytics?userId=${user.id}`)
@@ -41,7 +44,9 @@ const Dashboard = async ({}: DashboardProps) => {
 				.catch((err) => {
 					console.log("analytics err >>> ", err);
 				});
+			setLoading(false);
 		} else {
+			setLoading(false);
 		}
 	};
 
@@ -72,15 +77,20 @@ const Dashboard = async ({}: DashboardProps) => {
 	const [userEnergyProduction, setUserEnergyProduction] = useState(0);
 	useEffect(() => {
 		if (analyticData) {
-			setTargetTotalUserTreeCount(analyticData?.data[0]?.totalPlantedTrees);
+			if (analyticData?.data[0]?.totalPlantedTrees) {
+				setTargetTotalUserTreeCount(analyticData?.data[0]?.totalPlantedTrees);
+				setTargetTotalUserEnergyProduction(
+					analyticData?.data[0]?.totalEnergyProduced
+				);
+			} else {
+				setTargetTotalUserTreeCount(0);
+				setTargetTotalUserEnergyProduction(0);
+			}
 			setTargetTotalAppTreeCount(analyticData?.totalData?.totalTreesPlanted);
-			setTargetTotalUserEnergyProduction(
-				analyticData?.data[0]?.totalEnergyProduced
-			);
+
 			setTargetTotalAppEnergyProduction(
 				analyticData?.totalData?.totalEnergyProduced
 			);
-			console.log("analyticData >>> ", targetTotalUserTreeCount);
 		}
 	}, [targetTotalUserTreeCount, analyticData]);
 	// This is for animation
@@ -145,6 +155,8 @@ const Dashboard = async ({}: DashboardProps) => {
 	const CO2RemovalRate = 4.5;
 	const ConvertToKGFromTonnes = 1016.04691;
 	const averageHomeEnergyConsumption = 11000;
+	if (loading) return <div>Loading...</div>;
+
 	return (
 		<div className='h-[100vh] w-[100%]'>
 			<h1 className='mb-12 pt-12 ml-8 text-2xl'>

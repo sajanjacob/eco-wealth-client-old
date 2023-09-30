@@ -16,33 +16,26 @@ export default function EnergyInvestment({ project }: Props) {
 	const router = useRouter();
 	const [numberOfTrees, setNumberOfTrees] = useState(1);
 	const [amountPerTree, setAmountPerTree] = useState(1);
-	const {
-		title,
-		description,
-		imageUrl,
-		treeTarget,
-		fundsRequestedPerTree,
-		treeProjects,
-	} = project;
+	const { title, description, imageUrl, energyProjects } = project;
 
-	useEffect(() => {
-		if (!project) return;
-		if (project && numberOfTrees > treeProjects[0].treeTarget) {
-			setNumberOfTrees(treeProjects[0].treeTarget);
-			toast.info(
-				`Note: The maximum number of trees you can invest in for this project is ${treeProjects[0].treeTarget}`
-			);
-		}
-	}, [numberOfTrees, treeProjects, project]);
-	useEffect(() => {
-		if (!project) return;
-		if (amountPerTree > treeProjects[0].fundsRequestedPerTree) {
-			setAmountPerTree(treeProjects[0].fundsRequestedPerTree);
-			toast.info(
-				`Note: The maximum investment amount per tree for this project is $${treeProjects[0].fundsRequestedPerTree}`
-			);
-		}
-	}, [amountPerTree, treeProjects, project]);
+	// useEffect(() => {
+	// 	if (!project) return;
+	// 	if (project && numberOfTrees > treeProjects[0].treeTarget) {
+	// 		setNumberOfTrees(treeProjects[0].treeTarget);
+	// 		toast.info(
+	// 			`Note: The maximum number of trees you can invest in for this project is ${treeProjects[0].treeTarget}`
+	// 		);
+	// 	}
+	// }, [numberOfTrees, treeProjects, project]);
+	// useEffect(() => {
+	// 	if (!project) return;
+	// 	if (amountPerTree > treeProjects[0].fundsRequestedPerTree) {
+	// 		setAmountPerTree(treeProjects[0].fundsRequestedPerTree);
+	// 		toast.info(
+	// 			`Note: The maximum investment amount per tree for this project is $${treeProjects[0].fundsRequestedPerTree}`
+	// 		);
+	// 	}
+	// }, [amountPerTree, treeProjects, project]);
 
 	const handleInvestment = () => {
 		// Perform investment logic here
@@ -117,7 +110,7 @@ export default function EnergyInvestment({ project }: Props) {
 							value={numberOfTrees}
 							onChange={handleNumberOfTreesChange}
 							min='1'
-							max={`${treeTarget}`}
+							// max={`${treeTarget}`}
 							className='text-left w-full outline-none ml-2'
 						/>
 					</div>
@@ -132,7 +125,7 @@ export default function EnergyInvestment({ project }: Props) {
 							value={amountPerTree}
 							onChange={handleAmountPerTreeChange}
 							min='1'
-							max={`${treeProjects[0].fundsRequestedPerTree}`}
+							// max={`${treeProjects[0].fundsRequestedPerTree}`}
 							className='text-left w-full outline-none ml-2'
 						/>
 					</div>
@@ -177,7 +170,7 @@ export default function EnergyInvestment({ project }: Props) {
 						</div>
 					</>
 				)}
-				<ProceedToCheckoutButton
+				{/* <ProceedToCheckoutButton
 					numOfUnits={}
 					amountPerUnit={}
 					isNonProfit={}
@@ -185,7 +178,7 @@ export default function EnergyInvestment({ project }: Props) {
 					type={}
 					projectId={}
 					project={}
-				/>
+				/> */}
 			</form>
 		</div>
 	);

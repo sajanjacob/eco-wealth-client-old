@@ -16,19 +16,11 @@ import axios from "axios";
 
 type Props = {
 	project: Project;
-	imageUrl: string;
-	title: string;
-	description: string;
-	projectId: string;
-	status: string;
+	projectId?: string;
 	role: string;
 	projectCoordinatorContactName: string;
 	projectCoordinatorContactPhone: string;
-	treeTarget: number;
-	fundsRequestedPerTree: number;
-	projectType: string;
-	createdAt: string;
-	isVerified: boolean;
+
 	treeProjects?: TreeProject[];
 	energyProjects?: EnergyProject[];
 	solarProjects?: SolarProject[];
@@ -46,14 +38,13 @@ const ProjectCard = ({
 		title,
 		description,
 		imageUrl,
-
-		projectId,
+		id,
 		status,
 		projectType,
 		createdAt,
 		isVerified,
 	} = project;
-
+	const projectId = id;
 	const [isFavorited, setIsFavorited] = useState(false);
 	const [isFavIconHovered, setIsFavIconHovered] = useState(false);
 
@@ -158,6 +149,7 @@ const ProjectCard = ({
 
 	// Initiates the publish project flow
 	const handlePublish = async () => {
+		if (!projectId) return;
 		await publishProject(projectId);
 		setMenuOpen(false);
 		toast.info("Publishing Project...");
@@ -175,6 +167,8 @@ const ProjectCard = ({
 		router.push(`/i/projects/${projectId}/invest`);
 
 	// Initiates the report project flow
+	console.log("project producer id >>> ", project.producerId);
+	console.log("user producer id >>> ", user.producerId);
 	const handleReport = async () => {};
 	const handleOnMouseEnter = () => setIsFavIconHovered(true);
 	const handleOnMouseLeave = () => setIsFavIconHovered(false);
@@ -295,19 +289,27 @@ const ProjectCard = ({
 								{description}
 							</p>
 						</Link>
-						<div className='flex justify-between'>
+						<div
+							className={
+								project.producerId !== user.producerId
+									? "flex justify-between"
+									: "flex justify-end"
+							}
+						>
 							<button
 								onClick={handleKnowMoreClick}
 								className='w-1/2 p-2 mr-4 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'
 							>
 								Know more
 							</button>
-							<button
-								onClick={handleInvestClick}
-								className='w-1/2 p-2 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'
-							>
-								Invest now
-							</button>
+							{project.producerId !== user.producerId ? (
+								<button
+									onClick={handleInvestClick}
+									className='w-1/2 p-2 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'
+								>
+									Invest now
+								</button>
+							) : null}
 						</div>
 					</div>
 				</a>

@@ -25,36 +25,39 @@ export default function Roles({ user }: Props) {
 				.update({ roles: newRoles })
 				.eq("id", user.id);
 
-			if (error) throw error;
+			if (error)
+				return console.log("Error updating user roles:", error.message);
 
 			if (data) {
 				dispatch(setUser({ ...user, roles: newRoles }));
 				if (role === "investor") {
-					const { data, error } = await supabase.from("investors").insert([
-						{
-							user_id: user.id,
-						},
-					]);
+					const { data, error } = await supabase
+						.from("investors")
+						.insert([
+							{
+								user_id: user.id,
+							},
+						])
+						.select();
 					if (error) {
 						console.error("Error inserting investor:", error.message);
 					}
-					if (data) {
-						router.push("/i/onboarding");
-					}
+					router.push("/i/onboarding");
 				}
 
 				if (role === "producer") {
-					const { data, error } = await supabase.from("producers").insert([
-						{
-							user_id: user.id,
-						},
-					]);
+					const { data, error } = await supabase
+						.from("producers")
+						.insert([
+							{
+								user_id: user.id,
+							},
+						])
+						.select();
 					if (error) {
 						console.error("Error inserting producer:", error.message);
 					}
-					if (data) {
-						router.push("/p/onboarding");
-					}
+					router.push("/p/onboarding");
 				}
 			}
 

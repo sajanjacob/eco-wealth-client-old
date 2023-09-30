@@ -71,6 +71,17 @@ interface UserState {
 	mfaVerifiedAt: string;
 }
 
+interface ProducerState {
+	// Identifier
+	id: string | null;
+
+	// Producer Info
+	name: string | null;
+
+	// Producer Addresses
+	producerProperties: Property[];
+}
+
 // ---------------------
 // Producer Team
 // ---------------------

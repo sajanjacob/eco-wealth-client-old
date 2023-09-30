@@ -10,7 +10,6 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import AddressForm from "../AddressForm";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import getBasePath from "@/lib/getBasePath";
 type Props = {
@@ -42,33 +41,32 @@ function ProducerAddresses({ user }: Props) {
 	};
 	// Fetch addresses on initial render
 	useEffect(() => {
+		console.log("producerId >>> ", producerId);
+		if (!producerId) return;
 		fetchAddresses();
-	}, []);
+	}, [producerId]);
 
 	async function fetchAddresses() {
-		const { data, error } = await supabase
-			.from("producer_properties")
-			.select("*")
-			.eq("producer_id", producerId)
-			.eq("is_deleted", false);
-
-		if (error) {
-			console.error("Error fetching addresses:", error);
-		} else {
-			setProperties(convertToCamelCase(data) as Property[]);
-			console.log("data >>> ", data);
-		}
+		console.log("fetching addresses...");
+		const res = await axios.get(
+			`${getBasePath()}/api/properties?producer_id=${producerId}`
+		);
+		const data = await res.data;
+		const propertyData = convertToCamelCase(data.propertyData);
+		setProperties(convertToCamelCase(propertyData) as Property[]);
 	}
 
 	async function addAddress() {
-		const { data, error } = await supabase.from("producer_properties").insert([
-			{
-				id: uuidv4(),
-				producer_id: producerId,
-				address: newAddressDetails,
-				is_verified: false,
-			},
-		]);
+		const { data, error } = await supabase
+			.from("producer_properties")
+			.insert([
+				{
+					producer_id: producerId,
+					address: newAddressDetails,
+					is_verified: false,
+				},
+			])
+			.select();
 
 		if (error) {
 			console.error("Error adding address:", error);
@@ -86,6 +84,7 @@ function ProducerAddresses({ user }: Props) {
 			});
 			setAddNewAddress(false);
 			toast.success(`Address added successfully`);
+			fetchAddresses();
 		}
 	}
 	const [newAddressDetails, setNewAddressDetails] = useState<any>({
@@ -187,7 +186,7 @@ function ProducerAddresses({ user }: Props) {
 	};
 
 	return (
-		<div>
+		<div className='w-[80%]'>
 			<h1>Your Properties</h1>
 
 			<div className='flex justify-end mt-4'>
@@ -296,84 +295,85 @@ function ProducerAddresses({ user }: Props) {
 			) : null}
 
 			<h2>Your Addresses:</h2>
-			{properties.map(({ id, address, isVerified }) => (
-				<div
-					key={id}
-					className='border-[1px] border-white rounded-md flex justify-between p-4 mt-4'
-				>
-					<div>
-						<p
-							className={
-								isVerified
-									? "text-green-400 border-green-400 border-[1px] rounded-md px-3 py-[4px] w-[max-content]"
-									: "text-orange-400 border-orange-400 border-[1px] rounded-md px-3 py-[4px] w-[max-content]"
-							}
-						>
-							{isVerified ? "Address verified" : "Pending verification"}
-						</p>
-						<p className='mt-3'>{address.addressLineOne}</p>
-						<p>{address.addressLineTwo}</p>
-						<p>
-							{address.city}, {address.stateProvince}, {address.country}
-						</p>
-						<p>{address.postalCode}</p>
+			{properties &&
+				properties.map(({ id, address, isVerified }) => (
+					<div
+						key={id}
+						className='border-[1px] border-white rounded-md flex justify-between p-4 mt-4'
+					>
+						<div>
+							<p
+								className={
+									isVerified
+										? "text-green-400 border-green-400 border-[1px] rounded-md px-3 py-[4px] w-[max-content]"
+										: "text-orange-400 border-orange-400 border-[1px] rounded-md px-3 py-[4px] w-[max-content]"
+								}
+							>
+								{isVerified ? "Address verified" : "Pending verification"}
+							</p>
+							<p className='mt-3'>{address.addressLineOne}</p>
+							<p>{address.addressLineTwo}</p>
+							<p>
+								{address.city}, {address.stateProvince}, {address.country}
+							</p>
+							<p>{address.postalCode}</p>
+						</div>
+						<div className='text-right flex flex-col'>
+							<button
+								onClick={() => {
+									setSelectedPropertyId(id);
+									handleOpenCreateModal();
+								}}
+								className='bg-green-500 hover:bg-green-600 text-white rounded-md p-2 mb-2 text-lg'
+							>
+								<BiEdit />
+							</button>
+							<Modal
+								open={openCreateModal}
+								onClose={handleCloseCreateModal}
+								aria-labelledby='modal-modal-title'
+								aria-describedby='modal-modal-description'
+							>
+								<Box sx={createModalStyle}>
+									<AddressForm
+										handleUpdateAddress={handleUpdateAddress}
+										setAddress={setAddressDetails}
+										address={addressDetails}
+										initialDetails={address}
+										editing={true}
+									/>
+								</Box>
+							</Modal>
+							<button
+								onClick={handleOpenDeleteModal}
+								className='bg-red-500 hover:b-red-600 text-white rounded-md p-2 text-lg'
+							>
+								<BiTrash />
+							</button>
+							<Modal
+								open={openDeleteModal}
+								onClose={handleCloseDeleteModal}
+								aria-labelledby='modal-modal-title'
+								aria-describedby='modal-modal-description'
+							>
+								<Box sx={createModalStyle}>
+									<h1>Are you sure you want to delete this address?</h1>
+									<div className='flex justify-end'>
+										<button
+											onClick={() => {
+												handleDeleteAddress(id);
+												handleCloseDeleteModal();
+											}}
+											className='bg-red-500 hover:bg-red-600 text-white rounded-md p-2 mt-4'
+										>
+											Yes, delete Address
+										</button>
+									</div>
+								</Box>
+							</Modal>
+						</div>
 					</div>
-					<div className='text-right flex flex-col'>
-						<button
-							onClick={() => {
-								setSelectedPropertyId(id);
-								handleOpenCreateModal();
-							}}
-							className='bg-green-500 hover:bg-green-600 text-white rounded-md p-2 mb-2 text-lg'
-						>
-							<BiEdit />
-						</button>
-						<Modal
-							open={openCreateModal}
-							onClose={handleCloseCreateModal}
-							aria-labelledby='modal-modal-title'
-							aria-describedby='modal-modal-description'
-						>
-							<Box sx={createModalStyle}>
-								<AddressForm
-									handleUpdateAddress={handleUpdateAddress}
-									setAddress={setAddressDetails}
-									address={addressDetails}
-									initialDetails={address}
-									editing={true}
-								/>
-							</Box>
-						</Modal>
-						<button
-							onClick={handleOpenDeleteModal}
-							className='bg-red-500 hover:b-red-600 text-white rounded-md p-2 text-lg'
-						>
-							<BiTrash />
-						</button>
-						<Modal
-							open={openDeleteModal}
-							onClose={handleCloseDeleteModal}
-							aria-labelledby='modal-modal-title'
-							aria-describedby='modal-modal-description'
-						>
-							<Box sx={createModalStyle}>
-								<h1>Are you sure you want to delete this address?</h1>
-								<div className='flex justify-end'>
-									<button
-										onClick={() => {
-											handleDeleteAddress(id);
-											handleCloseDeleteModal();
-										}}
-										className='bg-red-500 hover:bg-red-600 text-white rounded-md p-2 mt-4'
-									>
-										Yes, delete Address
-									</button>
-								</div>
-							</Box>
-						</Modal>
-					</div>
-				</div>
-			))}
+				))}
 		</div>
 	);
 }

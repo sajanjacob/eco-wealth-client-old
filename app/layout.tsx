@@ -1,18 +1,22 @@
-"use client";
 import "./globals.css";
 import { Providers } from "@/redux/provider";
 import Header from "@/components/Header";
-import { usePathname } from "next/navigation";
-import "react-toastify/dist/ReactToastify.css";
+
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Eco Wealth",
+	description:
+		"Eco Wealth is a platform that allows you to invest in tree planting and solar energy projects.",
+};
 
 export default function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const path = usePathname();
 	return (
 		<html
 			lang='en'
@@ -20,16 +24,7 @@ export default function RootLayout({
 		>
 			<body>
 				<Providers>
-					{path !== "/thankyou" &&
-					path !== "/login" &&
-					path !== "/signup" &&
-					path !== "/forgot-password" &&
-					path !== "/onboarding" &&
-					path !== "/i/onboarding" &&
-					path !== "/p/onboarding" &&
-					path !== "/setup-mfa" ? (
-						<Header />
-					) : null}
+					<Header />
 					<ToastContainer />
 					{children}
 				</Providers>

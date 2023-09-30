@@ -1,8 +1,7 @@
 "use client";
 import React, { FormEvent, useState, useEffect } from "react";
-import supabase from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
-
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 interface SignUpForm {
 	email: string;
 	password: string;
@@ -15,7 +14,7 @@ const SignUp: React.FC = () => {
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [passwordMatch, setPasswordMatch] = useState(false);
-
+	const supabase = createClientComponentClient();
 	// TODO: Add password strength meter
 	// TODO: Add password requirements
 	// TODO: Add password reset
@@ -33,6 +32,9 @@ const SignUp: React.FC = () => {
 		let { error, data: userData } = (await supabase.auth.signUp({
 			email,
 			password,
+			options: {
+				emailRedirectTo: `${location.origin}/auth/callback`,
+			},
 		})) as { error: any; data: any };
 		if (error) {
 			console.error("Error signing up:", error.message);

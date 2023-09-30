@@ -15,14 +15,7 @@ export default function TreeInvestment({ project }: Props) {
 	const [numberOfTrees, setNumberOfTrees] = useState(1);
 	const [amountPerTree, setAmountPerTree] = useState(1);
 	const [checkoutStep, setCheckoutStep] = useState(1);
-	const {
-		title,
-		description,
-		imageUrl,
-		treeTarget,
-		fundsRequestedPerTree,
-		treeProjects,
-	} = project;
+	const { title, description, imageUrl, treeProjects } = project;
 
 	useEffect(() => {
 		if (!project) return;
@@ -105,7 +98,7 @@ export default function TreeInvestment({ project }: Props) {
 							Choose how much to invest in this project:
 						</h2>
 						<div className='flex flex-col my-4'>
-							<label htmlFor='numberOfTrees'>Number of trees:</label>
+							<label htmlFor='numberOfTrees'>Number of shares:</label>
 							<div className='bg-white text-gray-500 p-[4px] rounded flex flex-nowrap'>
 								<span className='text-lg'>🌳</span>
 								<input
@@ -114,28 +107,17 @@ export default function TreeInvestment({ project }: Props) {
 									value={numberOfTrees}
 									onChange={handleNumberOfTreesChange}
 									min='1'
-									max={`${treeTarget}`}
+									// max={`${treeTarget}`}
 									className='text-left w-full outline-none ml-2'
 								/>
 							</div>
 						</div>
-						<div className='flex flex-col my-4'>
-							<label htmlFor='amountPerTree'>Amount per tree:</label>
-							<div className='bg-white text-gray-500 p-[4px] rounded  flex flex-nowrap'>
-								<span className='font-bold text-lg'>$</span>
-								<input
-									type='number'
-									id='amountPerTree'
-									value={amountPerTree}
-									onChange={handleAmountPerTreeChange}
-									min='1'
-									max={`${treeProjects[0].fundsRequestedPerTree}`}
-									className='text-left w-full outline-none ml-2'
-								/>
-							</div>
+						<div className='flex justify-between items-center my-4'>
+							<label htmlFor='amountPerTree'>Amount per share:</label>
+							<p>$1.00</p>
 						</div>
 						<div className='flex justify-between items-center'>
-							<span className='text-sm'>Potential ROI on produce sales:</span>{" "}
+							<span className='text-sm'>Potential ROI:</span>{" "}
 							<span className='font-bold'>{calculateROI()}%</span>
 						</div>
 						{numberOfTrees > 0 && (
@@ -181,10 +163,8 @@ export default function TreeInvestment({ project }: Props) {
 							setCheckoutStep={setCheckoutStep}
 							numOfUnits={numberOfTrees}
 							amountPerUnit={amountPerTree}
-							isNonProfit={false}
 							projectName={title}
 							type={project.type}
-							projectId={project.id}
 							project={project}
 						/>
 					</form>

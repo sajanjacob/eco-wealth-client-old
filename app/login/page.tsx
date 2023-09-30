@@ -18,7 +18,7 @@ export default function Login() {
 	const [password, setPassword] = useState("");
 	const [verified, setVerified] = useState(false);
 	const [loggedInUser, setLoggedInUser] = useState({});
-
+	const [loading, setLoading] = useState(false);
 	function isOlderThan30Days(timestamp: string) {
 		// Parse the input timestamp into a Date object
 		const dateFromTimestamp = new Date(timestamp);
@@ -35,6 +35,7 @@ export default function Login() {
 	}
 
 	const fetchUserData = async (userId: string) => {
+		console.log("fetching user data...", userId);
 		try {
 			const { data, error } = await supabase
 				.from("users")
@@ -46,8 +47,40 @@ export default function Login() {
 
 				return null;
 			}
-			console.log("User data fetched successfully:", data);
+
 			setLoggedInUser(data);
+			if (isOlderThan30Days(data.mfa_verified_at)) {
+				await supabase
+					.from("users")
+					.update({
+						mfa_verified: false,
+					})
+					.eq("id", data.id);
+				dispatch(
+					setUser({
+						loggedIn: true,
+						name: data.name,
+						email: data.email,
+						phoneNumber: data.phone_number,
+						isVerified: data.is_verified,
+						roles: data.roles,
+						id: data.id,
+						producerId: data.producers.id,
+						investorId: data.producers.id,
+						activeRole: data.active_role,
+						onboardingComplete: data.onboarding_complete,
+						investorOnboardingComplete: data.investors.onboarding_complete,
+						producerOnboardingComplete: data.producers.onboarding_complete,
+						emailNotification: data.email_notification,
+						smsNotification: data.sms_notification,
+						pushNotification: data.push_notification,
+						mfaEnabled: data.mfa_enabled,
+						mfaVerified: false,
+						mfaVerifiedAt: data.mfa_verified_at,
+					})
+				); // Dispatch a redux action
+				return setShowMFA(true);
+			}
 			dispatch(
 				setUser({
 					loggedIn: true,
@@ -57,6 +90,8 @@ export default function Login() {
 					isVerified: data.is_verified,
 					roles: data.roles,
 					id: data.id,
+					producerId: data.producers.id,
+					investorId: data.producers.id,
 					activeRole: data.active_role,
 					onboardingComplete: data.onboarding_complete,
 					investorOnboardingComplete: data.investors.onboarding_complete,
@@ -81,33 +116,20 @@ export default function Login() {
 		await fetchUserData(user.id);
 		if (user.loggedIn) {
 			if (user.mfaVerified) {
+				console.log("user.mfaVerifiedAt >>> ", user.mfaVerifiedAt);
 				if (isOlderThan30Days(user.mfaVerifiedAt)) {
-					if (
-						data &&
-						data.nextLevel === "aal2" &&
-						data.nextLevel !== data.currentLevel
-					) {
-						setShowMFA(true);
-						const mfaEnabled = true;
-					} else {
-						setShowMFA(false);
-						const mfaEnabled = false;
-						router.push("/setup-mfa");
-					}
+					setShowMFA(true); // This line ensures MFA will be shown
 				} else {
 					setShowMFA(false);
 				}
+			} else {
+				setShowMFA(true); // Show MFA if user.mfaVerified is false
 			}
 		}
+		setLoading(false);
 	};
 
-	useEffect(() => {
-		if (!isLoggedIn) {
-			return;
-		}
-		if (isLoggedIn && !user.mfaVerified) {
-			setShowMFA(true);
-		}
+	const userVerificationRouting = () => {
 		if (verified) {
 			if (isLoggedIn && user?.roles?.length === 0) {
 				router.push("/onboarding");
@@ -121,11 +143,53 @@ export default function Login() {
 				}
 			}
 		}
+	};
+
+	useEffect(() => {
+		if (isLoggedIn) {
+			if (!user.mfaVerified || isOlderThan30Days(user.mfaVerifiedAt)) {
+				setShowMFA(true);
+			} else {
+				setShowMFA(false);
+				if (verified) userVerificationRouting();
+			}
+		}
+	}, [isLoggedIn, user.mfaVerifiedAt, verified]);
+
+	useEffect(() => {
+		console.log("isLoggedIn >>> ", isLoggedIn);
+		console.log("user.mfaVerified >>> ", user.mfaVerified);
+		console.log("user.activeRole >>> ", user.activeRole);
+		console.log("user.roles >>> ", user.roles);
+		console.log("verified >>> ", verified);
+		if (!isLoggedIn) {
+			return;
+		}
+
+		if (isLoggedIn && user.mfaVerified) {
+			setShowMFA(false);
+			if (user.activeRole === undefined) {
+				if (user.roles.includes("investor")) {
+					router.push("/i/dashboard");
+					setLoading(false);
+				} else if (user.roles.includes("producer")) {
+					router.push("/p/dashboard");
+					setLoading(false);
+				}
+			}
+			if (user.activeRole === "investor") {
+				router.push("/i/dashboard");
+				setLoading(false);
+			} else if (user.activeRole === "producer") {
+				router.push("/p/dashboard");
+				setLoading(false);
+			}
+		}
 	}, [isLoggedIn, user, router, verified]);
 
 	async function handleEmailSignIn(event: React.FormEvent) {
 		event.preventDefault();
-
+		setLoading(true);
 		try {
 			const { error, data } = await supabase.auth.signInWithPassword({
 				email,
@@ -137,6 +201,7 @@ export default function Login() {
 				toast.error(
 					`Error signing you in: ${error.message}, please try again.`
 				);
+				setLoading(false);
 			} else {
 				const userData = data.user;
 				if (userData) {
@@ -168,7 +233,10 @@ export default function Login() {
 		<>
 			{showMFA ? (
 				<div className='flex flex-col items-center justify-center min-h-screen'>
-					<AuthMFA setVerified={setVerified} />
+					<AuthMFA
+						setVerified={setVerified}
+						setShowMFA={setShowMFA}
+					/>
 				</div>
 			) : (
 				<div className='flex flex-col items-center justify-center min-h-screen'>
@@ -207,9 +275,14 @@ export default function Login() {
 						/>
 						<button
 							type='submit'
-							className='p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
+							disabled={loading}
+							className={
+								loading
+									? "p-2 rounded bg-gray-600 text-white font-bold transition-all cursor-default"
+									: "cursor-pointer p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105"
+							}
 						>
-							Sign in with Email
+							{loading ? "Signing you in..." : "Sign in with Email"}
 						</button>
 					</form>
 					<p className='text-gray-500 dark:text-gray-400 mt-4 text-sm'>

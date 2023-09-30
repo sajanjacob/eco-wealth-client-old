@@ -1,68 +1,86 @@
-import { useAppSelector } from "@/redux/hooks";
+import { setUser } from "@/redux/features/userSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import supabase from "@/utils/supabaseClient";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { set } from "react-hook-form";
 import { FaLock } from "react-icons/fa";
 
 type Props = {
 	setVerified: (verified: boolean) => void;
+	setShowMFA: (showMFA: boolean) => void;
 };
 
-function AuthMFA({ setVerified }: Props) {
+function AuthMFA({ setVerified, setShowMFA }: Props) {
 	const [verifyCode, setVerifyCode] = useState("");
 	const [error, setError] = useState("");
 	const [disabled, setDisabled] = useState(true);
 	const [loading, setLoading] = useState(false);
 	const user = useAppSelector((state: RootState) => state.user);
 
+	const verifyMFA = async () => {
+		const factors = await supabase.auth.mfa.listFactors();
+		if (factors.error) {
+			throw new Error(factors.error.message);
+		}
+
+		const totpFactor = factors.data.totp[0];
+
+		if (!totpFactor) {
+			throw new Error("No TOTP factors found!");
+		}
+
+		const factorId = totpFactor.id;
+
+		const challenge = await supabase.auth.mfa.challenge({ factorId });
+		if (challenge.error) {
+			setError(challenge.error.message);
+			throw new Error(challenge.error.message);
+		}
+
+		const challengeId = challenge.data.id;
+
+		const verify = await supabase.auth.mfa.verify({
+			factorId,
+			challengeId,
+			code: verifyCode,
+		});
+		if (verify.error) {
+			setError(verify.error.message);
+
+			return;
+		} else {
+			const { data, error } = await supabase
+				.from("users")
+				.update({
+					mfa_verified: true,
+					mfa_verified_at: new Date().toISOString(),
+				})
+				.eq("id", user.id);
+			if (error) {
+				console.log("Error updating user:", error.message);
+			}
+			dispatch(
+				setUser({
+					...user,
+					mfaVerified: true,
+				})
+			);
+			setShowMFA(false);
+			setVerified(true);
+		}
+	};
 	const onSubmitClicked = () => {
 		setLoading(true);
 		setError("");
-		(async () => {
-			const factors = await supabase.auth.mfa.listFactors();
-			if (factors.error) {
-				return factors.error;
-			}
-
-			const totpFactor = factors.data.totp[0];
-
-			if (!totpFactor) {
-				return new Error("No TOTP factors found!");
-			}
-
-			const factorId = totpFactor.id;
-
-			const challenge = await supabase.auth.mfa.challenge({ factorId });
-			if (challenge.error) {
-				setError(challenge.error.message);
+		verifyMFA()
+			.then(() => setLoading(false))
+			.catch((err) => {
+				setError(err.message);
 				setLoading(false);
-				return;
-			}
-
-			const challengeId = challenge.data.id;
-
-			const verify = await supabase.auth.mfa.verify({
-				factorId,
-				challengeId,
-				code: verifyCode,
 			});
-			if (verify.error) {
-				setError(verify.error.message);
-				setLoading(false);
-				return;
-			} else {
-				await supabase
-					.from("users")
-					.update({
-						mfa_verified: true,
-						mfa_verified_at: new Date().toISOString(),
-					})
-					.eq("id", user.id);
-
-				setVerified(true);
-			}
-		})();
 	};
 	useEffect(() => {
 		if (verifyCode.length === 6) {
@@ -78,7 +96,42 @@ function AuthMFA({ setVerified }: Props) {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [verifyCode]);
-
+	// Logout logic
+	const dispatch = useAppDispatch();
+	const router = useRouter();
+	const handleLogoutClick = async () => {
+		// Handle logout logic here
+		await supabase.auth.signOut();
+		dispatch(
+			setUser({
+				roles: [],
+				loggedIn: false,
+				id: null,
+				activeRole: null,
+				currentTheme: null,
+				email: null,
+				name: null,
+				phoneNumber: null,
+				isVerified: false,
+				totalUserTreeCount: 0,
+				userTreeCount: 0,
+				onboardingComplete: false,
+				investorOnboardingComplete: false,
+				producerOnboardingComplete: false,
+				emailNotification: false,
+				smsNotification: false,
+				pushNotification: false,
+			})
+		);
+		await supabase
+			.from("users")
+			.update({
+				mfa_verified: false,
+			})
+			.eq("id", user.id);
+		setShowMFA(false);
+		router.push("/login");
+	};
 	return (
 		<div className='flex flex-col'>
 			<Image
@@ -113,6 +166,12 @@ function AuthMFA({ setVerified }: Props) {
 			>
 				{loading ? "Verifying..." : "Confirm Code"}
 			</button>
+			<p
+				onClick={handleLogoutClick}
+				className='mt-4 text-center text-sm cursor-pointer text-gray-400 hover:text-green-400 transition-colors'
+			>
+				Sign out
+			</p>
 		</div>
 	);
 }

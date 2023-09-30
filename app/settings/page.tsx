@@ -63,22 +63,25 @@ function Settings({}: Props) {
 					Account Settings
 				</h1>
 
-				{links.map((link) => (
-					<button
-						key={link}
-						className={`mb-4 w-full p-2 rounded ${
-							searchParams?.get("tab") === link
-								? "text-white bg-green-700 cursor-default"
-								: "text-white bg-gray-800 hover:bg-gray-700 transition-colors"
-						}`}
-						onClick={() => navigateTo(`/settings?tab=${link}`)}
-					>
-						{link
-							.split("-")
-							.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-							.join(" ")}
-					</button>
-				))}
+				{links.map((link) => {
+					if (link === null) return;
+					return (
+						<button
+							key={link}
+							className={`mb-4 w-full p-2 rounded ${
+								searchParams?.get("tab") === link
+									? "text-white bg-green-700 cursor-default"
+									: "text-white bg-gray-800 hover:bg-gray-700 transition-colors"
+							}`}
+							onClick={() => navigateTo(`/settings?tab=${link}`)}
+						>
+							{link
+								.split("-")
+								.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+								.join(" ")}
+						</button>
+					);
+				})}
 			</div>
 
 			<div className='w-3/4 p-4'>

@@ -28,6 +28,30 @@ export default function ProducerOnboarding() {
 
 	const router = useRouter();
 
+	// redundant id check to prevent no producer user profile from not being created
+	const createProducerProfile = async () => {
+		const { data, error } = await supabase
+			.from("producers")
+			.insert([
+				{
+					user_id: user.id,
+				},
+			])
+			.select();
+		if (error) {
+			console.error("Error inserting producer:", error.message);
+		}
+		if (data) {
+			dispatch(setUser({ ...user, producerId: data[0].id }));
+		}
+	};
+
+	useEffect(() => {
+		if (user.id && user.producerId === "" && user.roles.includes("producer")) {
+			createProducerProfile();
+		}
+	}, [user.id]);
+
 	const handleUpdateProducerOnboardingStatus = async (onboardingId: string) => {
 		const { data, error } = await supabase
 			.from("producers")
@@ -49,11 +73,18 @@ export default function ProducerOnboarding() {
 	};
 
 	const handleUpdateProducerOnboardingData = async () => {
+		const address = {
+			addressLineOne: onboarding.addressLineOne,
+			addressLineTwo: onboarding.addressLineTwo,
+			city: onboarding.city,
+			stateProvince: onboarding.stateProvince,
+			postalCode: onboarding.postalCode,
+			country: onboarding.country,
+		};
 		const { data, error } = await supabase
 			.from("producer_onboarding")
 			.insert([
 				{
-					id: uuidv4(),
 					producer_id: user.producerId,
 					goals: onboarding.producerGoal,
 					operation_type: onboarding.operationType,
@@ -66,23 +97,17 @@ export default function ProducerOnboarding() {
 						solar_op_size: onboarding.solarOpSize,
 					},
 					property_zone_map: onboarding.propertyZoneMap,
+					address: address,
 				},
 			])
 			.select();
 		if (error) {
 			console.error("Error updating producer onboarding data:", error);
 			toast.error(`Error updating producer onboarding data: ${error.message}`);
+			return;
 		}
 		if (data) {
 			handleUpdateProducerOnboardingStatus(data[0].id);
-			const address = {
-				addressLineOne: onboarding.addressLineOne,
-				addressLineTwo: onboarding.addressLineTwo,
-				city: onboarding.city,
-				stateProvince: onboarding.stateProvince,
-				postalCode: onboarding.postalCode,
-				country: onboarding.country,
-			};
 
 			await axios
 				.post(`${getBasePath()}/api/properties/create`, {

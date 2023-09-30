@@ -23,6 +23,30 @@ export default function InvestorOnboarding() {
 
 	const router = useRouter();
 
+	// redundant id check to prevent no investor user profile from not being created
+	const createInvestorProfile = async () => {
+		const { data, error } = await supabase
+			.from("investors")
+			.insert([
+				{
+					user_id: user.id,
+				},
+			])
+			.select();
+		if (error) {
+			console.error("Error inserting investor:", error.message);
+		}
+		if (data) {
+			dispatch(setUser({ ...user, investorId: data[0].id }));
+		}
+	};
+
+	useEffect(() => {
+		if (user.id && user.investorId === "" && user.roles.includes("investor")) {
+			createInvestorProfile();
+		}
+	}, [user.id]);
+
 	const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.checked) {
 			setInvestmentGoals([...investmentGoals, e.target.value]);

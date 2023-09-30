@@ -1,5 +1,4 @@
 import supabase from "@/utils/supabaseClient"; // Adjust the import to your Supabase client setup
-import { v4 as uuidv4 } from "uuid";
 import shortid from "shortid";
 
 export default async function handler(req: any, res: any) {
@@ -29,7 +28,6 @@ export default async function handler(req: any, res: any) {
 			.from("producer_properties")
 			.insert([
 				{
-					id: uuidv4(),
 					producer_id: producerId,
 					address: {
 						address_line_one: address.addressLineOne,
@@ -53,7 +51,6 @@ export default async function handler(req: any, res: any) {
 				.from("producer_verification_codes")
 				.insert([
 					{
-						id: uuidv4(),
 						producer_id: producerId,
 						property_id: propertyData[0].id,
 						verification_code: shortid.generate(),

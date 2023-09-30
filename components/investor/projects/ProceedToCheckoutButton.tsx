@@ -7,10 +7,9 @@ type Props = {
 	setCheckoutStep?: React.Dispatch<React.SetStateAction<number>>;
 	numOfUnits: number;
 	amountPerUnit: number;
-	isNonProfit: boolean;
 	projectName: string;
 	type: string;
-	projectId: string;
+	projectId?: string;
 	project: Project;
 };
 const stripePromise = loadStripe(`${process.env.stripe_publishable_key}`);
@@ -20,13 +19,13 @@ function ProceedToCheckoutButton({
 	setCheckoutStep,
 	numOfUnits,
 	amountPerUnit,
-	isNonProfit,
 	projectName,
 	type,
 	projectId,
 	project,
 }: Props) {
 	const user = useAppSelector((state: RootState) => state.user);
+	const isNonProfit = project.isNonProfit;
 	const Checkout = async (e: any) => {
 		e.preventDefault();
 		// Get Stripe.js instance

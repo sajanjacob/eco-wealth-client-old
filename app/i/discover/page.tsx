@@ -7,9 +7,18 @@ import convertToCamelCase from "@/utils/convertToCamelCase";
 import { set } from "react-hook-form";
 import getBasePath from "@/lib/getBasePath";
 import axios from "axios";
-
+type Filter = {
+	label: string;
+	value: string;
+};
 function Discover() {
-	const filters = [
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const activeFilter = searchParams?.get("filter") ?? "All";
+	const [projects, setProjects] = useState<Projects>([]);
+	const nonProfitFilter = searchParams?.get("nonProfit") ?? "false";
+	const [loading, setLoading] = useState<boolean>(false);
+	const [filters, setFilters] = useState<Filter[]>([
 		{ label: "All", value: "All" },
 		{ label: "🌳 Timber / Lumber", value: "Timber / Lumber" },
 		{ label: "🌳 Fruit", value: "Fruit" },
@@ -19,14 +28,36 @@ function Discover() {
 		{ label: "🌳 Syrup", value: "Syrup" },
 		{ label: "🌳 Oil / Chemical", value: "Oil / Chemical" },
 		{ label: "☀️ Solar", value: "Solar" },
-	];
+	]);
+	useEffect(() => {
+		if (nonProfitFilter === "true") {
+			setFilters([
+				{ label: "All", value: "All" },
+				{ label: "🌳 Restoration", value: "Restoration" },
+				{ label: "🌳 Timber / Lumber", value: "Timber / Lumber" },
+				{ label: "🌳 Fruit", value: "Fruit" },
+				{ label: "🌳 Nut", value: "Nut" },
+				{ label: "🌳 Bio Fuel", value: "Bio Fuel" },
+				{ label: "🌳 Pulp", value: "Pulp" },
+				{ label: "🌳 Syrup", value: "Syrup" },
+				{ label: "🌳 Oil / Chemical", value: "Oil / Chemical" },
+				{ label: "☀️ Solar", value: "Solar" },
+			]);
+		} else {
+			setFilters([
+				{ label: "All", value: "All" },
+				{ label: "🌳 Timber / Lumber", value: "Timber / Lumber" },
+				{ label: "🌳 Fruit", value: "Fruit" },
+				{ label: "🌳 Nut", value: "Nut" },
+				{ label: "🌳 Bio Fuel", value: "Bio Fuel" },
+				{ label: "🌳 Pulp", value: "Pulp" },
+				{ label: "🌳 Syrup", value: "Syrup" },
+				{ label: "🌳 Oil / Chemical", value: "Oil / Chemical" },
+				{ label: "☀️ Solar", value: "Solar" },
+			]);
+		}
+	}, [nonProfitFilter]);
 
-	const router = useRouter();
-	const searchParams = useSearchParams();
-	const activeFilter = searchParams?.get("filter") ?? "All";
-	const [projects, setProjects] = useState<Projects>([]);
-	const nonProfitFilter = searchParams?.get("nonProfit") ?? "false";
-	const [loading, setLoading] = useState<boolean>(false);
 	// Here we fetch the projects from supabase
 	useEffect(() => {
 		setLoading(true);
@@ -38,7 +69,7 @@ function Discover() {
 					}`
 				)
 				.then((res) => {
-					console.log(res.data);
+					console.log("projects >>> ", res.data);
 					setProjects(convertToCamelCase(res.data));
 					setLoading(false);
 				})
@@ -127,16 +158,7 @@ function Discover() {
 						projects.map((project) => {
 							const {
 								id,
-								createdAt,
-								title,
-								description,
-								type,
-								imageUrl,
-								treeTarget,
-								fundsRequestedPerTree,
-								status,
 								projectCoordinatorContact,
-								isVerified,
 								treeProjects,
 								energyProjects,
 							} = project;
@@ -144,21 +166,12 @@ function Discover() {
 								<ProjectCard
 									key={id}
 									project={project}
-									imageUrl={imageUrl}
-									title={title}
-									description={description}
 									projectId={id}
-									createdAt={createdAt}
-									projectType={type}
-									treeTarget={treeTarget}
-									fundsRequestedPerTree={fundsRequestedPerTree}
-									status={status}
 									role={"investor"}
 									projectCoordinatorContactName={projectCoordinatorContact.name}
 									projectCoordinatorContactPhone={
 										projectCoordinatorContact.phone
 									}
-									isVerified={isVerified}
 									treeProjects={treeProjects}
 									energyProjects={energyProjects}
 								/>

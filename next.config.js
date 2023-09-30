@@ -12,7 +12,9 @@ const nextConfig = {
 	},
 	env: {
 		supabase_public_url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-		supabase_public_key: process.env.NEXT_PUBLIC_SUPABASE_KEY,
+		supabase_public_key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+		NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+		NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
 		stripe_publishable_key: process.env.NEXT_STRIPE_PUBLISHABLE_KEY,
 		stripe_secret_key: process.env.STRIPE_SECRET_KEY,
 		VERCEL_URL: process.env.VERCEL_URL,
