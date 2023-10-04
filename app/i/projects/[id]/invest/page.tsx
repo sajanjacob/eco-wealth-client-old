@@ -4,7 +4,7 @@ import convertToCamelCase from "@/utils/convertToCamelCase";
 import withAuth from "@/utils/withAuth";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import TreeInvestment from "@/components/investor/projects/TreeInvestment";
 import EnergyInvestment from "@/components/investor/projects/EnergyInvestment";
 function Invest() {

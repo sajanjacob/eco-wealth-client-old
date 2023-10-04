@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";

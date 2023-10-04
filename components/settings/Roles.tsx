@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { useAppDispatch } from "@/redux/hooks";
 

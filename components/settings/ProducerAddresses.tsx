@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import CityPicker from "../CityPicker";

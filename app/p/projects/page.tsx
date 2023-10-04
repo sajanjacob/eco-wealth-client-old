@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import ProjectCard from "@/components/ProjectCard";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { RootState } from "@/redux/store";
 import { useAppSelector } from "@/redux/hooks";
 import convertToCamelCase from "@/utils/convertToCamelCase";

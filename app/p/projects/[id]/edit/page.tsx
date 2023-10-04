@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { RootState } from "@/redux/store";
 import { toast } from "react-toastify";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";

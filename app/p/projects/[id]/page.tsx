@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { toast } from "react-toastify";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import Project from "@/components/producer/projects/Project";

@@ -4,7 +4,7 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Link from "next/link";
 import moment from "moment";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/hooks";

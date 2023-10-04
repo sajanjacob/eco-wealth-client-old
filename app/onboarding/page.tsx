@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { setUser } from "@/redux/features/userSlice"; // You need to create this action
 import { RootState } from "@/redux/store"; // You need to create this file
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import withAuth from "@/utils/withAuth";
 
 const Onboarding: FC = () => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FC } from "react";
 import { useRouter, useParams } from "next/navigation";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import Project from "./producer/projects/Project";
 import InvestButton from "./investor/projects/InvestButton";

@@ -1,4 +1,4 @@
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import React, { use, useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import UnenrollMFA from "../login/UnenrollMFA";

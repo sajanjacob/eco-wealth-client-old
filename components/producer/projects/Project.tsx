@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import TreeProject from "./TreeProject";
 import EnergyProject from "./EnergyProject";
 import { toast } from "react-toastify";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useAppSelector } from "@/redux/hooks";

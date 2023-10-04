@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import moment from "moment";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { toast } from "react-toastify";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";

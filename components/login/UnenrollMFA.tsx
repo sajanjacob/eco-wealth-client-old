@@ -1,7 +1,7 @@
 "use client";
 import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { useEffect, useState } from "react";
 import { FaUnlock } from "react-icons/fa";
 import { toast } from "react-toastify";

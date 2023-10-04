@@ -1,7 +1,7 @@
 "use client";
 import EnrollMFA from "@/components/login/EnrollMFA";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { use, useCallback, useEffect, useState } from "react";

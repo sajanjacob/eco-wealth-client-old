@@ -1,7 +1,7 @@
 "use client";
 import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
-import supabase from "@/utils/supabaseClient";
+import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { usePathname, useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
