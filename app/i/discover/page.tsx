@@ -58,7 +58,7 @@ function Discover() {
 		}
 	}, [nonProfitFilter]);
 
-	// Here we fetch the projects from supabase
+	// Here we fetch projects from app/api/projects/route.tsx
 	useEffect(() => {
 		setLoading(true);
 		const fetchProjects = async (type: string, nonProfit: string) => {
@@ -66,7 +66,8 @@ function Discover() {
 				.get(
 					`/api/projects?type=${type}${
 						nonProfit === "true" ? "&nonProfit=true" : ""
-					}`
+					}`,
+					{ withCredentials: true } // Ensure cookies are sent with the request
 				)
 				.then((res) => {
 					console.log("projects >>> ", res.data);
