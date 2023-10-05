@@ -210,14 +210,19 @@ function AddProject() {
 
 			treeTarget: formValues.numTrees,
 			treeProjectType: formValues.treeType,
-
+			maturityDate: formValues.estimatedMaturityDate,
+			plantingDate: formValues.estimatedPlantingDate,
 			totalFundsRequested: formValues.fundsRequested,
 			energyProductionTarget: formValues.energyProductionTarget,
 			targetArrays: formValues.numOfArrays,
 			installationTeam: formValues.installationTeam,
 			systemSizeInKw: formValues.installedSystemSize,
 			systemCapacity: formValues.photovoltaicCapacity,
-			labourCost: formValues.estimatedInstallationCost,
+			estSeedCost: formValues.estimatedSeedCost,
+			labourCost:
+				formValues.projectType === "Tree"
+					? formValues.estimatedLabourCost
+					: formValues.estimatedInstallationCost,
 			maintenanceCost: formValues.estimatedMaintenanceCost,
 			energyProjectType: energyType,
 			connectWithSolarPartner: formValues.connectWithSolarPartner,
@@ -252,6 +257,9 @@ function AddProject() {
 			locationType: locationType,
 
 			isNonProfit: isNonProfit,
+
+			estRevenue: formValues.estRevenue,
+			estRoiPercentage: formValues.estRoiPercentage,
 		};
 
 		await axios
@@ -264,6 +272,7 @@ function AddProject() {
 			.catch((error: any) => {
 				console.log("Error creating project:", error);
 				toast.error(`Error creating project. ${error}`);
+				setLoading({ loading: false, message: "" });
 			});
 	};
 
@@ -301,7 +310,6 @@ function AddProject() {
 					throw new Error("Error uploading image");
 				}
 				if (publicURL.publicUrl) {
-					console.log("publicURL: ", publicURL.publicUrl);
 					createProject(publicURL.publicUrl);
 				}
 			}
@@ -322,13 +330,11 @@ function AddProject() {
 	const userId = user.id;
 
 	const fetchProducerData = async () => {
-		console.log("user id >>> ", userId);
 		const res = await axios.get(
 			`${getBasePath()}/api/producer?user_id=${userId}`
 		);
 		const data = await res.data;
 		const producerData = convertToCamelCase(data.producerData[0]);
-		console.log("producer data >>> ", data);
 		dispatch(
 			setProducer({
 				...data,
@@ -355,7 +361,6 @@ function AddProject() {
 	const [allPropertiesUnverified, setAllPropertiesUnverified] = useState(false);
 
 	useEffect(() => {
-		console.log("producer >>> ", producer);
 		if (producer && producer.id) {
 			if (producer.producerProperties.length === 0) {
 				setUrgentNotification({
@@ -952,9 +957,16 @@ function AddProject() {
 				{!isNonProfit && locationType !== "Residential" && (
 					<>
 						<label className='flex flex-col w-[800px]'>
-							<span className='mb-[4px] mt-2'>
-								What do you estimate the revenue per year will be?
-							</span>
+							{projectType === "Tree" ? (
+								<span className='mb-[4px] mt-2'>
+									What do you estimate the revenue{" "}
+									{treeType === "Timber / Lumber" ? "" : "per year"} will be?
+								</span>
+							) : (
+								<span className='mb-[4px] mt-2'>
+									What do you estimate the revenue per year will be?
+								</span>
+							)}
 							<div className='border-2 border-gray-300 rounded-md p-2 bg-white text-gray-400'>
 								${" "}
 								<input
@@ -967,8 +979,8 @@ function AddProject() {
 						<br />
 						<label className='flex flex-col w-[800px]'>
 							<span className='mb-[4px] mt-2'>
-								What percentage of the total funds requested will you offer
-								investors for investing into your project?
+								What percentage of the profits will you offer investors for
+								investing into your project?
 							</span>
 							<div className='border-2 border-gray-300 rounded-md p-2 bg-white text-gray-400'>
 								%{" "}

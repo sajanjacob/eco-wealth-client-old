@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import TreeInvestmentLeft from "./TreeInvestmentLeft";
 import TreeInvestmentCheckout from "./TreeInvestmentCheckout";
 import ProceedToCheckoutButton from "@/components/investor/projects/ProceedToCheckoutButton";
+import { GiPieChart } from "react-icons/gi";
+
 type Props = {
 	project: Project;
 };
@@ -99,8 +101,10 @@ export default function TreeInvestment({ project }: Props) {
 						</h2>
 						<div className='flex flex-col my-4'>
 							<label htmlFor='numberOfTrees'>Number of shares:</label>
-							<div className='bg-white text-gray-500 p-[4px] rounded flex flex-nowrap'>
-								<span className='text-lg'>🌳</span>
+							<div className='bg-white text-gray-500 p-[4px] rounded flex flex-nowrap items-center'>
+								<span className='text-lg text-green-600'>
+									<GiPieChart />
+								</span>
 								<input
 									type='number'
 									id='numberOfTrees'

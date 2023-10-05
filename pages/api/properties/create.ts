@@ -1,7 +1,9 @@
-import supabase from "@/utils/supabaseClient"; // Adjust the import to your Supabase client setup
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import shortid from "shortid";
 
 export default async function handler(req: any, res: any) {
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	if (req.method === "POST") {
 		const { producerId, address } = req.body;
 

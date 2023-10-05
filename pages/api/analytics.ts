@@ -1,6 +1,8 @@
-import supabase from "@/utils/supabaseClient";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
 export default async function analytics(req: any, res: any) {
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	const userId = req.query.userId;
 	if (req.method === "GET") {
 		try {

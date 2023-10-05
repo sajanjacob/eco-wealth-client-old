@@ -1,9 +1,11 @@
 import convertToCamelCase from "@/utils/convertToCamelCase";
-import supabase from "@/utils/supabaseClient";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import shortid from "shortid";
 
 export default async function handler(req: any, res: any) {
 	const producerId = req.query.producer_id;
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	console.log("received request");
 	if (!producerId || producerId === "") {
 		return res.status(400).json({ error: "Missing producer_id" });

@@ -27,7 +27,7 @@ type AnalyticData = {
 	};
 };
 
-const Dashboard = async ({}: DashboardProps) => {
+const Dashboard = ({}: DashboardProps) => {
 	const user = useAppSelector((state: RootState) => state.user);
 	const [loading, setLoading] = useState(false);
 	const [analyticData, setAnalyticData] = useState<AnalyticData | null>(null); // [TODO] - type this properly
@@ -38,7 +38,6 @@ const Dashboard = async ({}: DashboardProps) => {
 			await axios
 				.get(`${getBasePath()}/api/analytics?userId=${user.id}`)
 				.then((res) => {
-					console.log("analytics res >>> ", res.data);
 					setAnalyticData(convertToCamelCase(res.data));
 				})
 				.catch((err) => {

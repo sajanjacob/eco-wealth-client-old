@@ -105,7 +105,6 @@ const Onboarding: FC = () => {
 	};
 
 	useEffect(() => {
-		console.log("user role >>> ", user?.activeRole);
 		if (user?.activeRole === "investor") {
 			router.push("/i/dashboard");
 		} else if (user?.activeRole === "producer") {

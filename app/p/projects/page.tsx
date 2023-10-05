@@ -28,7 +28,6 @@ function Projects({}: Props) {
 		if (error) {
 			console.error("Error fetching projects:", error);
 		} else {
-			console.log("projects >>> ", data);
 			setProjects(convertToCamelCase(data) as Project[]);
 		}
 	};

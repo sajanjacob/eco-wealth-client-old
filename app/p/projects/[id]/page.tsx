@@ -5,8 +5,9 @@ import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { toast } from "react-toastify";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import Project from "@/components/producer/projects/Project";
+import withAuth from "@/utils/withAuth";
 
-export default async function Projects() {
+function Projects() {
 	const path: any = useParams();
 	const { id } = path;
 	const [project, setProject] = useState<
@@ -28,7 +29,6 @@ export default async function Projects() {
 			setProject(
 				convertToCamelCase(data[0]) as Project | TreeProject | EnergyProject
 			);
-			console.log("project details >>> ", data[0] as Project);
 		}
 	};
 	useEffect(() => {
@@ -46,3 +46,5 @@ export default async function Projects() {
 		</div>
 	);
 }
+
+export default withAuth(Projects);

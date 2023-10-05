@@ -1,5 +1,7 @@
-import supabase from "@/utils/supabaseClient"; // Adjust the import to your Supabase client setup
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 export default async function handler(req: any, res: any) {
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	if (req.method === "PUT") {
 		const id = req.query.id; // Get project ID from URL
 		const {

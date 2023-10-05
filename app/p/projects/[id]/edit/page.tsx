@@ -108,7 +108,6 @@ function Edit() {
 					| EnergyProject
 					| SolarProject
 			);
-			console.log("project details >>> ", data[0] as Project);
 		}
 	};
 	useEffect(() => {
@@ -118,9 +117,9 @@ function Edit() {
 		if (project) {
 			setValue("title", project.title);
 			setValue("description", project.description);
-			setValue("numTrees", project.treeTarget);
+			setValue("numTrees", project.treeProjects[0].treeTarget);
 			setValue("imageUrlInput", project.imageUrl);
-			setValue("pricePerTree", project.fundsRequestedPerTree);
+			setValue("pricePerTree", project.treeProjects[0].fundsRequestedPerTree);
 			setValue("projectType", project.type);
 
 			setValue("energyType", project.energyProjectType);
@@ -307,7 +306,6 @@ function Edit() {
 					throw new Error("Error uploading image");
 				}
 				if (publicURL.publicUrl) {
-					console.log("publicURL: ", publicURL.publicUrl);
 					updateProject(publicURL.publicUrl);
 				}
 			}

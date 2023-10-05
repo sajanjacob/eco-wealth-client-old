@@ -1,7 +1,8 @@
 // pages/api/createMilestone.js
 
 import { v4 as uuidv4 } from "uuid";
-import supabase from "@/utils/supabaseClient";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import createDOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import convertToCamelCase from "@/utils/convertToCamelCase";
@@ -10,6 +11,7 @@ const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 
 export default async function createMilestone(req: any, res: any) {
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	if (req.method === "POST") {
 		const { projectId, title, shortDescription, body } = req.body;
 

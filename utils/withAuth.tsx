@@ -43,7 +43,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 				if (data.mfa_verified_at && isOlderThan30Days(data.mfa_verified_at)) {
 					return router.push("/login");
 				}
-				console.log("User data fetched successfully:", data);
+				console.log("user authenticated.");
 				dispatch(
 					setUser({
 						...user,
@@ -129,12 +129,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						"user.roles.includes(role) >>> ",
 						user.roles.includes(role)
 					);
-					console.log(
-						"user.activeRole !== role >>> ",
-						user.activeRole !== role
-					);
-					console.log("user.activeRole >>> ", user.activeRole);
-					console.log("role >>> ", role);
+
 					if (user.roles.includes(role)) {
 						if (user.activeRole !== role) {
 							// Switch role

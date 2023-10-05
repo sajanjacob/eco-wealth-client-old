@@ -83,14 +83,15 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 		const { data, error } = await supabase
 			.from("projects")
 			.update({ is_deleted: true, status: "deleted", deleted_at: deletedAt })
-			.eq("id", project?.id);
+			.eq("id", project?.id)
+			.select();
 		if (error) {
 			console.error("Error deleting project:", error);
 			toast.error(error.message);
 		}
 		if (data) {
 			toast.success("Project deleted");
-			fetchProject();
+			handleGoBack();
 		}
 		if (project?.type === "Tree") {
 			const { data, error } = await supabase
@@ -108,13 +109,14 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 	};
 	const checkIfProjectIsDeletable = () => {
 		if (
-			(project?.energyInvestments.length === 0 ||
-				project?.treeInvestments.length === 0) &&
-			(project?.status === "draft" ||
-				project?.status === "pending_verification" ||
-				project?.status === "pending_update_review" ||
-				project?.status === "published" ||
-				project?.status === "not_approved")
+			!project?.energyInvestments ||
+			project.energyInvestments.length === 0 ||
+			((!project?.treeInvestments || project.treeInvestments.length === 0) &&
+				(project?.status === "draft" ||
+					project?.status === "pending_verification" ||
+					project?.status === "pending_update_review" ||
+					project?.status === "published" ||
+					project?.status === "not_approved"))
 		) {
 			return true;
 		} else {

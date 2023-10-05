@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import supabase from "@/utils/supabaseClient";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 interface TreeInvestment {
 	id: string;
@@ -16,7 +17,7 @@ export default async function handler(
 	res: NextApiResponse
 ): Promise<void> {
 	const userId = req.query.userId;
-
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	// Get the investor's unique ID
 	const { data, error } = await supabase
 		.from("investors")
@@ -100,7 +101,7 @@ export default async function handler(
 		const averageROI = (totalROI / investmentProjects.length).toFixed(2);
 
 		(project as unknown as Project).totalAmountRaised = totalInvested;
-		(project as unknown as Project).unitsContributed = totalUnitsContributed;
+		// (project as unknown as Project).unitsContributed = totalUnitsContributed;
 		(project as unknown as Project).averageROI = parseInt(averageROI);
 		portfolio.push(project);
 	}

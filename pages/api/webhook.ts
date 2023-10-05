@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { buffer } from "micro";
 import Stripe from "stripe";
-import supabase from "@/utils/supabaseClient";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: "2022-11-15",
@@ -11,6 +12,7 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	if (req.method === "POST") {
 		console.log("webhook called");
 		// Stripe requires the raw body to construct the event.

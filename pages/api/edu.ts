@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import supabase from "@/utils/supabaseClient";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 type EduCardData = {
 	id: string;
 	title: string;
@@ -12,6 +13,7 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	// Get category from the request query
 	const category = req.query.category as string;
 	const data = [

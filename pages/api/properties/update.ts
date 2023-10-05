@@ -1,13 +1,15 @@
 // /pages/api/updateProperty.ts
 
 import { NextApiRequest, NextApiResponse } from "next";
-import supabase from "@/utils/supabaseClient"; // You need to configure supabase client in utils/supabase.js or similar
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
 import shortid from "shortid";
 export default async function updateProperty(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	if (req.method !== "PUT") {
 		return res.status(405).json({ error: "Method not allowed" });
 	}

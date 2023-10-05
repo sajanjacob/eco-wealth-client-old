@@ -7,8 +7,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: any) {
 	const supabase = createRouteHandlerClient<any>({ cookies });
 	try {
-		const { projectData, producerId } = req.body;
-
+		const { projectData, producerId } = await req.json();
 		console.log("projectData >>> ", projectData);
 		console.log("producerId >>> ", producerId);
 
@@ -59,26 +58,37 @@ export async function POST(req: any) {
 			);
 		}
 		let totalFundsRequested = 0;
-		if (projectData.isNonProfit) {
-			if (projectData.projectType === "Tree") {
-				totalFundsRequested =
-					projectData.seedCost +
-					projectData.labourCost +
-					projectData.maintenanceCostPerYear;
-			}
-			if (
-				projectData.projectType === "Energy" &&
-				projectData.energyProjectType === "Solar"
-			) {
-				totalFundsRequested =
-					projectData.systemCost +
-					projectData.materialCost +
-					projectData.labourCost +
-					projectData.maintenanceCostPerYear;
-			}
-		} else {
-			totalFundsRequested = projectData.totalFundsRequested;
+
+		console.log("projectData.projectType >>> ", projectData.projectType);
+		if (projectData.projectType === "Tree") {
+			totalFundsRequested =
+				parseInt(projectData.estSeedCost) +
+				parseInt(projectData.labourCost) +
+				parseInt(projectData.maintenanceCost);
+			console.log("projectData.seedCost >>> ", projectData.estSeedCost);
+			console.log("projectData.labourCost >>> ", projectData.labourCost);
+			console.log(
+				"projectData.maintenanceCostPerYear >>> ",
+				projectData.maintenanceCost
+			);
 		}
+		if (
+			projectData.projectType === "Energy" &&
+			projectData.energyProjectType === "Solar"
+		) {
+			const AvgSystemLifeTimeInYears = 25;
+			const estMaintenanceCost =
+				parseInt(projectData.maintenanceCost) * AvgSystemLifeTimeInYears;
+			totalFundsRequested =
+				parseInt(projectData.systemCost) +
+				parseInt(projectData.materialCost) +
+				parseInt(projectData.labourCost) +
+				estMaintenanceCost;
+		}
+		console.log("totalFundsRequested >>> ", totalFundsRequested);
+
+		const netRevenue = parseInt(projectData.estRevenue) - totalFundsRequested;
+		const estRoiAmount = netRevenue * (projectData.estRoiPercentage / 100);
 		// TODO: create function to add project_id to verified_projects table on entry
 		// Insert into projects table
 		const { data: project, error } = await supabase
@@ -93,12 +103,13 @@ export async function POST(req: any) {
 					status: "pending_verification",
 					type: projectData.projectType,
 					agreement_accepted: projectData.agreementAccepted,
-					total_area_sqkm: projectData.totalArea,
+					total_area_sqkm: projectData.totalAreaSqkm,
 					property_address_id: projectData.propertyAddressId,
 					funds_requested: totalFundsRequested,
+					est_revenue: projectData.estRevenue,
+					est_roi_percentage: projectData.estRoiPercentage,
+					est_roi_amount: estRoiAmount,
 					is_non_profit: projectData.isNonProfit,
-					est_revenue: projectData.estimatedRevenue,
-					est_roi_percentage: projectData.estimatedRoiPercentage,
 				},
 			])
 			.select();
@@ -110,7 +121,7 @@ export async function POST(req: any) {
 		// Insert into tree_projects table if project type is Tree
 		if (projectData.projectType === "Tree" && project) {
 			const fundsRequestedPerTree =
-				projectData.totalFundsRequested / projectData.treeTarget;
+				totalFundsRequested / projectData.treeTarget;
 
 			const { error } = await supabase.from("tree_projects").insert([
 				{
@@ -120,9 +131,10 @@ export async function POST(req: any) {
 					type: projectData.treeProjectType,
 					tree_count: 0,
 					producer_id: producerId,
-					est_seed_cost: projectData.seedCost,
+					est_seed_cost: projectData.estSeedCost,
 					est_labour_cost: projectData.labourCost,
-					est_maintenance_cost_per_year: projectData.maintenanceCostPerYear,
+					est_maintenance_cost_per_year: projectData.maintenanceCost,
+					est_planting_date: projectData.plantingDate,
 					est_maturity_date: projectData.maturityDate,
 				},
 			]);
@@ -174,9 +186,40 @@ export async function POST(req: any) {
 				}
 			}
 		}
-
+		// notify admin of new project submission
+		const sgMail = require("@sendgrid/mail");
+		sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+		const msg = {
+			to: "sajan@ecowealth.app", // Change to your recipient
+			from: "sajan@ecowealth.app", // Change to your verified sender
+			subject: `🔔 Eco Wealth — new project submitted by ${projectData.projectCoordinatorContact.name}`,
+			html: `<strong>New project submission</strong></br>
+			<p><b>Coordinator Details:</b></p>
+			<p>name: ${projectData.projectCoordinatorContact.name}</p>
+			<p>number: ${projectData.projectCoordinatorContact.phone}</p>
+			</br>
+			<p><b>Project Details:</b></p>
+			<p><b>Project ID:</b> ${project?.[0].id}</p>
+			<p>title: ${projectData.title}</p>
+			<p>description: ${projectData.description}</p>
+			<p>producer_id: ${producerId}</p>
+			<p>type: ${projectData.projectType}</p>
+			<p>total_area_sqkm: ${projectData.totalArea}</p>
+			<p>property_address_id: ${projectData.propertyAddressId}</p>
+			<p>funds_requested: ${totalFundsRequested}</p>
+			<p>is_non_profit: ${projectData.isNonProfit}</p>
+			`,
+		};
+		sgMail
+			.send(msg)
+			.then(() => {
+				console.log("Email sent");
+			})
+			.catch((error: any) => {
+				console.error(error);
+			});
 		// Send response
-		NextResponse.json(
+		return NextResponse.json(
 			{ message: "Project created successfully" },
 			{ status: 200 }
 		);

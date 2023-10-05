@@ -200,6 +200,7 @@ interface Project {
 	percentFunded?: number;
 	estRevenue?: number;
 	estRoiPercentage?: number;
+	estRoiAmount?: number;
 
 	// additional details for tree & energy projects
 	treeProjects: TreeProject[];
@@ -300,6 +301,8 @@ interface TreeProject extends Project {
 	estMaturityDate: string;
 	amountOfProduceGeneratedInKgToDate: number;
 	avgRevenuePerItem: number;
+	maturityDate: string;
+	plantingDate: string;
 
 	// Project Identifier
 	projectId: string;

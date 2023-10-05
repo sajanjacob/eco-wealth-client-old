@@ -1,7 +1,9 @@
 // pages/api/properties/delete.js
-import supabase from "@/utils/supabaseClient";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
 export default async function handler(req: any, res: any) {
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	// Ensure this route can only be called with a POST request
 	if (req.method !== "POST") {
 		return res.status(405).json({ error: "Method not allowed. Use POST." });

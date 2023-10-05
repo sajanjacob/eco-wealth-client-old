@@ -15,7 +15,9 @@ function Invest() {
 		const fetchProject = async () => {
 			const { data, error } = await supabase
 				.from("projects")
-				.select("*, tree_projects(*), energy_projects(*)")
+				.select(
+					"*, tree_projects(*), energy_projects(*), project_financials(*), tree_investments(*), energy_investments(*)"
+				)
 				.eq("id", id)
 				.single();
 			if (error) {

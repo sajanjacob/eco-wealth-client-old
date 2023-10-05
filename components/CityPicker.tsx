@@ -103,7 +103,6 @@ export default function CityPicker({
 		if (country) {
 			let foundCountry =
 				options.find((option) => option?.label === country) || null;
-			console.log("found country >>> ", foundCountry);
 			setSelectedCountry(foundCountry);
 			setCountryCode(foundCountry?.value.isoCode!);
 		}
@@ -124,7 +123,6 @@ export default function CityPicker({
 				},
 				label: foundStateProvince?.name!,
 			});
-			console.log("found stateProvince >>> ", foundStateProvince);
 		}
 	}, [stateProvince, selectedCountry]);
 
@@ -145,7 +143,6 @@ export default function CityPicker({
 				},
 				label: foundCity?.name!,
 			});
-			console.log("found city >>> ", foundCity);
 		}
 	}, [city, selectedState]);
 

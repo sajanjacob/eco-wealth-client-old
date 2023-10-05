@@ -20,6 +20,7 @@ const nextConfig = {
 		VERCEL_URL: process.env.VERCEL_URL,
 		admin_fee_id: process.env.ADMIN_FEES_PRICE_ID,
 		stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
+		sendgrid_api_key: process.env.SENDGRID_API_KEY,
 	},
 };
 

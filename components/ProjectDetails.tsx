@@ -4,6 +4,8 @@ import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import Project from "./producer/projects/Project";
 import InvestButton from "./investor/projects/InvestButton";
+import { RootState } from "@/redux/store";
+import { useAppSelector } from "@/redux/hooks";
 
 type Props = {};
 
@@ -55,6 +57,13 @@ const ProjectDetails = ({}: Props) => {
 	const handleInvestButtonClick = () => {
 		router.push(`/i/projects/${id}/invest`);
 	};
+	const user = useAppSelector((state: RootState) => state.user);
+	const [showInvestButton, setShowInvestButton] = useState(true);
+	useEffect(() => {
+		if (project.producerId === user.producerId) {
+			setShowInvestButton(false);
+		}
+	}, [user, project]);
 	// Render the project details or a loading message if the data is not yet available
 	return (
 		<div className='mt-4 h-[1000px]'>
@@ -66,9 +75,11 @@ const ProjectDetails = ({}: Props) => {
 							project={project}
 						/>
 					</div>
-					<div className='sticky lg:right-28 md:right-8  top-20 bg-green-900 h-min px-12 py-6 rounded-md'>
-						<InvestButton id={project.id} />
-					</div>
+					{showInvestButton && (
+						<div className='sticky lg:right-28 md:right-8  top-20 bg-green-900 h-min px-12 py-6 rounded-md'>
+							<InvestButton id={project.id} />
+						</div>
+					)}
 				</div>
 			) : (
 				<>

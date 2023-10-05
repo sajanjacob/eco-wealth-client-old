@@ -26,6 +26,7 @@ import { AiOutlineUserSwitch } from "react-icons/ai";
 import Link from "next/link";
 import Image from "next/image";
 import { GiSolarPower } from "react-icons/gi";
+import { toast } from "react-toastify";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -58,8 +59,8 @@ const Header = ({}: Props) => {
 			body: JSON.stringify({ role: role, userId: user?.id }),
 		})
 			.then((response) => response.json())
-			.then((data) => {
-				console.log("Success:", data);
+			.then(() => {
+				handleClose();
 			});
 	};
 

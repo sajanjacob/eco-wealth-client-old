@@ -116,7 +116,6 @@ export default function Login() {
 		await fetchUserData(user.id);
 		if (user.loggedIn) {
 			if (user.mfaVerified) {
-				console.log("user.mfaVerifiedAt >>> ", user.mfaVerifiedAt);
 				if (isOlderThan30Days(user.mfaVerifiedAt)) {
 					setShowMFA(true); // This line ensures MFA will be shown
 				} else {
@@ -157,11 +156,6 @@ export default function Login() {
 	}, [isLoggedIn, user.mfaVerifiedAt, verified]);
 
 	useEffect(() => {
-		console.log("isLoggedIn >>> ", isLoggedIn);
-		console.log("user.mfaVerified >>> ", user.mfaVerified);
-		console.log("user.activeRole >>> ", user.activeRole);
-		console.log("user.roles >>> ", user.roles);
-		console.log("verified >>> ", verified);
 		if (!isLoggedIn) {
 			return;
 		}

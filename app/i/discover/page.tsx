@@ -70,7 +70,6 @@ function Discover() {
 					{ withCredentials: true } // Ensure cookies are sent with the request
 				)
 				.then((res) => {
-					console.log("projects >>> ", res.data);
 					setProjects(convertToCamelCase(res.data));
 					setLoading(false);
 				})
@@ -103,7 +102,6 @@ function Discover() {
 
 	const handleNonProfitFilterClick = () => {
 		setNonProfit(!nonProfit);
-		console.log("(discover.tsx) nonProfit: ", nonProfit);
 		if (nonProfit) {
 			if (activeFilter !== "All")
 				router.push(`/i/discover?filter=${activeFilter}`);
@@ -115,7 +113,6 @@ function Discover() {
 		}
 	};
 
-	console.log("projects: ", projects);
 	return (
 		<div className='w-3/4 mx-auto py-8 h-[100%]'>
 			<h1 className='text-2xl font-bold'>Discover Projects</h1>

@@ -205,80 +205,75 @@ const ProjectCard = ({
 					</p> */}
 
 					<div className='p-6'>
-						<div className='flex justify-between items-center mb-2'>
-							<p className='text-2xl'>
-								{projectType === "Tree"
-									? "🌳"
-									: projectType === "Energy"
-									? "☀️"
-									: null}
-							</p>
-							<div
-								onClick={handleClick}
-								className='cursor-pointer text-2xl dark:text-white text-gray-800 mr-[-12px] '
-							>
-								<BsThreeDotsVertical />
-							</div>
-							<Menu
-								id='basic-menu'
-								className=''
-								anchorEl={anchorEl}
-								open={open}
-								onClose={handleClose}
-								MenuListProps={{
-									"aria-labelledby": "basic-button",
-								}}
-								disableScrollLock={true}
-								sx={
-									theme === "dark"
-										? {
-												"& .MuiPaper-root": {
-													backgroundColor: "rgb(5 46 22 / 98%)",
-													borderColor: "rgb(20 83 45 / 90%)",
-													borderWidth: "2px",
-												},
-										  }
-										: {
-												"& .MuiPaper-root": {
-													backgroundColor: "",
-												},
-										  }
-								}
-							>
-								<MenuItem
-									className='menu-link'
-									onClick={handleKnowMoreClick}
+						<div className='flex justify-between'>
+							<div className='flex flex-col pb-4'>
+								<Link
+									href={`/i/projects/${projectId}`}
+									passHref
 								>
-									View
-								</MenuItem>
-								{/* <MenuItem
+									<h3 className='font-light text-xl overflow-hidden overflow-ellipsis'>
+										{title}
+									</h3>
+								</Link>
+								<p className='text-xs'>
+									{treeProjects && treeProjects.length > 0
+										? `${treeProjects[0].type}`
+										: null}
+									{energyProjects &&
+									energyProjects.length > 0 &&
+									solarProjects &&
+									solarProjects.length > 0
+										? `${solarProjects[0].locationType}`
+										: null}
+								</p>
+							</div>
+							<div className='flex justify-between mt-[4px]'>
+								<div
+									onClick={handleClick}
+									className='cursor-pointer text-2xl dark:text-white text-gray-800 mr-[-12px] '
+								>
+									<BsThreeDotsVertical />
+								</div>
+								<Menu
+									id='basic-menu'
+									className=''
+									anchorEl={anchorEl}
+									open={open}
+									onClose={handleClose}
+									MenuListProps={{
+										"aria-labelledby": "basic-button",
+									}}
+									disableScrollLock={true}
+									sx={
+										theme === "dark"
+											? {
+													"& .MuiPaper-root": {
+														backgroundColor: "rgb(5 46 22 / 98%)",
+														borderColor: "rgb(20 83 45 / 90%)",
+														borderWidth: "2px",
+													},
+											  }
+											: {
+													"& .MuiPaper-root": {
+														backgroundColor: "",
+													},
+											  }
+									}
+								>
+									<MenuItem
+										className='menu-link'
+										onClick={handleKnowMoreClick}
+									>
+										View
+									</MenuItem>
+									{/* <MenuItem
 								className='menu-link'
 								onClick={() => router.push(`/i/projects/${projectId}/report`)}
 							>
 								Report
 							</MenuItem> */}
-							</Menu>
-						</div>
-						<div className='flex flex-col pb-4'>
-							<Link
-								href={`/i/projects/${projectId}`}
-								passHref
-							>
-								<h3 className='font-light text-xl overflow-hidden overflow-ellipsis'>
-									{title}
-								</h3>
-							</Link>
-							<p className='text-xs'>
-								{treeProjects && treeProjects.length > 0
-									? `${treeProjects[0].type}`
-									: null}
-								{energyProjects &&
-								energyProjects.length > 0 &&
-								solarProjects &&
-								solarProjects.length > 0
-									? `${solarProjects[0].locationType}`
-									: null}
-							</p>
+								</Menu>
+							</div>
 						</div>
 
 						<Link
@@ -298,7 +293,9 @@ const ProjectCard = ({
 						>
 							<button
 								onClick={handleKnowMoreClick}
-								className='w-1/2 p-2 mr-4 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'
+								className={`${
+									project.producerId !== user.producerId ? "w-1/2" : "w-[100%]"
+								} p-2 mr-4 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700`}
 							>
 								Know more
 							</button>

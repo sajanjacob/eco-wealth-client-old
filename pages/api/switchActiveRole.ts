@@ -1,9 +1,10 @@
 // pages/api/fetchActiveRole.ts
-import supabase from "@/utils/supabaseClient"; // Import your Supabase client
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
 export default async function switchActiveRole(req: any, res: any) {
 	const userId = req.body.userId;
-
+	const supabase = createRouteHandlerClient<any>({ cookies });
 	if (req.method !== "POST") {
 		res.status(405).json({ message: "Method not allowed" });
 		return;
