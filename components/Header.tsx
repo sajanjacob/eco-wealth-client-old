@@ -364,8 +364,8 @@ const Header = ({}: Props) => {
 									<MdBugReport className='mr-2' /> Report a Bug
 								</MenuItem>
 							</Link>
-
-							<MenuItem
+							{/* TODO: fix light & dark mode */}
+							{/* <MenuItem
 								className='menu-link'
 								onClick={handleToggleTheme}
 							>
@@ -380,7 +380,7 @@ const Header = ({}: Props) => {
 										Light Mode
 									</>
 								)}
-							</MenuItem>
+							</MenuItem> */}
 							<MenuItem
 								className='menu-link'
 								onClick={handleLogoutClick}

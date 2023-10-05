@@ -3,6 +3,10 @@ import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
+import Image from "next/image";
+import darkStripeLogo from "@/assets/images/stripe_logo_dark.svg";
+import lightStripeLogo from "@/assets/images/stripe_logo_light.svg";
+import acceptedCards from "@/assets/images/visa-mastercard-discover-americanexpress.png";
 type Props = {
 	setCheckoutStep?: React.Dispatch<React.SetStateAction<number>>;
 	numOfUnits: number;
@@ -13,7 +17,7 @@ type Props = {
 	project: Project;
 };
 const stripePromise = loadStripe(`${process.env.stripe_publishable_key}`);
-
+// TODO: fix light and dark mode -> Stripe logos
 // The main component
 function ProceedToCheckoutButton({
 	setCheckoutStep,
@@ -68,14 +72,28 @@ function ProceedToCheckoutButton({
 		}
 	};
 	return (
-		<>
+		<div>
 			<button
 				className='w-full my-4 p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
 				onClick={(e) => Checkout(e)}
 			>
-				Checkout now
+				Proceed to payment
 			</button>
-		</>
+			<span className='flex justify-end'>
+				<span className='flex items-center px-2 rounded-sm mr-2'>
+					<Image
+						src={acceptedCards}
+						alt=''
+						className='w-32 h-10 object-contain'
+					/>
+				</span>
+				<Image
+					src={lightStripeLogo}
+					alt=''
+					className='w-32 h-10 object-contain'
+				/>
+			</span>
+		</div>
 	);
 }
 

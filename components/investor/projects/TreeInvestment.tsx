@@ -7,60 +7,72 @@ import TreeInvestmentLeft from "./TreeInvestmentLeft";
 import TreeInvestmentCheckout from "./TreeInvestmentCheckout";
 import ProceedToCheckoutButton from "@/components/investor/projects/ProceedToCheckoutButton";
 import { GiPieChart } from "react-icons/gi";
+import moment from "moment";
 
 type Props = {
 	project: Project;
 };
 
 export default function TreeInvestment({ project }: Props) {
+	const {
+		title,
+		description,
+		imageUrl,
+		treeProjects,
+		projectFinancials,
+		treeProjectType,
+	} = project;
 	const router = useRouter();
-	const [numberOfTrees, setNumberOfTrees] = useState(1);
-	const [amountPerTree, setAmountPerTree] = useState(1);
+	const [numberOfShares, setNumberOfShares] = useState(1);
+	const [amountPerShare, setAmountPerShare] = useState(
+		projectFinancials.amountPerShare
+	);
 	const [checkoutStep, setCheckoutStep] = useState(1);
-	const { title, description, imageUrl, treeProjects } = project;
 
 	useEffect(() => {
 		if (!project) return;
-		if (project && numberOfTrees > treeProjects[0].treeTarget) {
-			setNumberOfTrees(treeProjects[0].treeTarget);
-			toast.info(
-				`Note: The maximum number of trees you can invest in for this project is ${treeProjects[0].treeTarget}`
-			);
-		}
-	}, [numberOfTrees, treeProjects, project]);
+
+		setAmountPerShare(projectFinancials.amountPerShare);
+	}, [project, projectFinancials]);
+
+	// TODO: get number of shares acquired by all investors and subtract from total number of shares to get
+	// remaining # of shares that can be acquired.
 	useEffect(() => {
 		if (!project) return;
-		if (amountPerTree > treeProjects[0].fundsRequestedPerTree) {
-			setAmountPerTree(treeProjects[0].fundsRequestedPerTree);
+		if (project && numberOfShares > projectFinancials.numOfShares) {
+			setNumberOfShares(projectFinancials.numOfShares);
 			toast.info(
-				`Note: The maximum investment amount per tree for this project is $${treeProjects[0].fundsRequestedPerTree}`
+				`Note: The maximum number of trees you can invest in for this project is ${projectFinancials.numOfShares}`
 			);
 		}
-	}, [amountPerTree, treeProjects, project]);
+	}, [numberOfShares, treeProjects, project, projectFinancials]);
 
 	const handleInvestment = () => {
 		// Perform investment logic here
 	};
 	const calculateROI = () => {
-		const amount = (amountPerTree / 10) * 0.01 * 100;
+		const estRoiPercentage =
+			parseInt(projectFinancials.estRoiPercentagePerShare) / 100;
+		const amount = numberOfShares * amountPerShare * estRoiPercentage;
 		return amount.toFixed(2);
 	};
 	const merchantFeePercentage = 0.03;
 	const merchantFeePercentageFinal = 1 + merchantFeePercentage;
 	const transactionFee = 1;
 	const calculateInvestmentSubtotalAmount = () => {
-		const amount = numberOfTrees * amountPerTree;
+		const amount = numberOfShares * amountPerShare;
 		return amount.toFixed(2);
 	};
 	const calculateInvestmentTotalAmount = () => {
 		const amount =
-			(numberOfTrees * amountPerTree + transactionFee) *
+			(numberOfShares * amountPerShare + transactionFee) *
 			merchantFeePercentageFinal;
-		return amount.toFixed(2);
+		return amount.toFixed(2).toLocaleString();
 	};
 	const calculateProcessingFees = () => {
 		const amount =
-			(numberOfTrees * amountPerTree + transactionFee) * merchantFeePercentage;
+			(numberOfShares * amountPerShare + transactionFee) *
+			merchantFeePercentage;
 		return amount.toFixed(2);
 	};
 
@@ -70,10 +82,10 @@ export default function TreeInvestment({ project }: Props) {
 
 	// Rest of the InvestmentPage component code
 	const handleNumberOfTreesChange = (e: any) => {
-		setNumberOfTrees(e.target.value);
+		setNumberOfShares(e.target.value);
 	};
 	const handleAmountPerTreeChange = (e: any) => {
-		setAmountPerTree(e.target.value);
+		setAmountPerShare(e.target.value);
 	};
 
 	const handleInvestmentSuccess = () => {
@@ -85,6 +97,9 @@ export default function TreeInvestment({ project }: Props) {
 		setCheckoutStep(1);
 	};
 
+	const estimatedMaturityDate = moment(treeProjects.estMaturityDate).format(
+		"MMMM Do, YYYY"
+	); // 'July 15th, 2021
 	switch (checkoutStep) {
 		case 1:
 			return (
@@ -93,40 +108,58 @@ export default function TreeInvestment({ project }: Props) {
 						title={title}
 						description={description}
 						imageUrl={imageUrl}
+						treeProjectType={treeProjects.type}
+						estPlantingDate={treeProjects.estPlantingDate}
+						estimatedMaturityDate={estimatedMaturityDate}
 					/>
 
 					<form className='px-8 flex-1'>
 						<h2 className='text-xl font-semibold'>
-							Choose how much to invest in this project:
+							Choose how many shares to acquire:
 						</h2>
 						<div className='flex flex-col my-4'>
-							<label htmlFor='numberOfTrees'>Number of shares:</label>
-							<div className='bg-white text-gray-500 p-[4px] rounded flex flex-nowrap items-center'>
-								<span className='text-lg text-green-600'>
+							<label htmlFor='numberOfShares'>Number of shares:</label>
+							<div className='bg-white text-gray-500 p-[4px] rounded flex flex-nowrap items-center mt-[2px]'>
+								<span className='text-lg text-green-600 ml-2'>
 									<GiPieChart />
 								</span>
 								<input
 									type='number'
-									id='numberOfTrees'
-									value={numberOfTrees}
+									id='numberOfShares'
+									value={numberOfShares}
 									onChange={handleNumberOfTreesChange}
 									min='1'
 									// max={`${treeTarget}`}
-									className='text-left w-full outline-none ml-2'
+									className='text-left w-full outline-none ml-2 text-2xl font-semibold'
 								/>
 							</div>
 						</div>
-						<div className='flex justify-between items-center my-4'>
-							<label htmlFor='amountPerTree'>Amount per share:</label>
-							<p>$1.00</p>
+						<div className='flex justify-between items-center my-2'>
+							<label htmlFor='amountPerShare'>Amount per share:</label>
+							<p>
+								$
+								{Number(projectFinancials.amountPerShare).toLocaleString(
+									"en-US"
+								)}
+							</p>
 						</div>
-						<div className='flex justify-between items-center'>
-							<span className='text-sm'>Potential ROI:</span>{" "}
-							<span className='font-bold'>{calculateROI()}%</span>
+						<div className='flex justify-between items-center text-green-500'>
+							<span className='text-sm'>Estimated Return ($)</span>{" "}
+							<span className='font-bold text-2xl '>
+								${Number(calculateROI()).toLocaleString("en-US")}
+							</span>
 						</div>
-						{numberOfTrees > 0 && (
+						<div className='flex justify-between items-center text-green-500'>
+							<span className='text-sm'>Potential ROI (%)</span>{" "}
+							<span className='font-bold'>
+								{projectFinancials.estRoiPercentagePerShare}%
+							</span>
+						</div>
+
+						<hr className='mt-2' />
+						{numberOfShares > 0 && (
 							<>
-								<div className='flex justify-between items-center'>
+								<div className='flex justify-between items-center mt-2'>
 									<span className='text-sm'>Investment Subtotal: </span>
 									<span className='text-sm'>
 										$
@@ -138,7 +171,7 @@ export default function TreeInvestment({ project }: Props) {
 								<div className='my-2'>
 									<span>Processing Fees: </span>
 									<div className='flex justify-between items-center'>
-										<span className='text-sm'>Merchant Fees:</span>
+										<span className='text-sm'>Merchant Fee:</span>
 										<span className='text-sm'>
 											$
 											{Number(calculateProcessingFees()).toLocaleString(
@@ -147,7 +180,7 @@ export default function TreeInvestment({ project }: Props) {
 										</span>
 									</div>
 									<div className='flex justify-between items-center'>
-										<span className='text-sm'>Administrative Fees:</span>{" "}
+										<span className='text-sm'>Administrative Fee:</span>{" "}
 										<span>$1.00</span>
 									</div>
 								</div>
@@ -165,8 +198,8 @@ export default function TreeInvestment({ project }: Props) {
 						)}
 						<ProceedToCheckoutButton
 							setCheckoutStep={setCheckoutStep}
-							numOfUnits={numberOfTrees}
-							amountPerUnit={amountPerTree}
+							numOfUnits={numberOfShares}
+							amountPerUnit={amountPerShare}
 							projectName={title}
 							type={project.type}
 							project={project}
@@ -175,6 +208,7 @@ export default function TreeInvestment({ project }: Props) {
 				</div>
 			);
 
+		// TODO: bring payment step in-house
 		// case 2:
 		// 	return (
 		// 		<div className='flex mx-auto lg:w-[60%]'>

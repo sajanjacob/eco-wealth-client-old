@@ -172,7 +172,7 @@ interface Project {
 	status: string;
 	type: string;
 	isNonProfit: boolean;
-
+	projectFinancials: ProjectFinancials;
 	// type
 	projectType?: string;
 	treeProjectType: string;
@@ -203,12 +203,12 @@ interface Project {
 	estRoiAmount?: number;
 
 	// additional details for tree & energy projects
-	treeProjects: TreeProject[];
-	energyProjects: EnergyProject[];
-	solarProjects: SolarProject[];
+	treeProjects: TreeProject;
+	energyProjects: EnergyProject;
+	solarProjects: SolarProject;
 
 	// milestones
-	projectMilestones?: ProjectMilestone[];
+	projectMilestones?: ProjectMilestone;
 
 	// investment transactions
 	treeInvestments?: [];
@@ -225,6 +225,17 @@ interface Project {
 	// soil organic content
 	currentSoilOrganicContentPercentage?: number;
 	targetSoilOrganicContentPercentage?: number;
+}
+
+interface ProjectFinancials {
+	id: string;
+	projectId: string;
+	numOfShares: number;
+	amountPerShare: number;
+	estRoiPercentagePerShare: string;
+	isDeleted: boolean;
+	deletedAt: string;
+	finalEstProjectFundRequestTotal: number;
 }
 
 interface ProjectMilestone {
@@ -298,11 +309,10 @@ interface TreeProject extends Project {
 	estSeedCost: number;
 	estLabourCost: number;
 	estMaintenanceCost: number;
+	estPlantingDate: string;
 	estMaturityDate: string;
 	amountOfProduceGeneratedInKgToDate: number;
 	avgRevenuePerItem: number;
-	maturityDate: string;
-	plantingDate: string;
 
 	// Project Identifier
 	projectId: string;
