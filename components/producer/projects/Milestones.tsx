@@ -43,7 +43,7 @@ export default function Milestones({ project, adminMode }: Props) {
 		p: 4,
 	};
 
-	const [milestones, setMilestones] = useState<ProjectMilestone[]>([]);
+	const [milestones, setMilestones] = useState<any>([]);
 	const [selectedMilestone, setSelectedMilestone] = useState({
 		id: "",
 		createdAt: "",
@@ -131,7 +131,7 @@ export default function Milestones({ project, adminMode }: Props) {
 				if (res.data) {
 					toast.success("Milestone updated!");
 					setMilestones(
-						milestones.map((milestone) =>
+						milestones.map((milestone: any) =>
 							milestone.id === res.data[0].id ? res.data[0] : milestone
 						)
 					);
@@ -167,7 +167,7 @@ export default function Milestones({ project, adminMode }: Props) {
 		deleteMilestone(milestoneId)
 			.then(() => {
 				setMilestones(
-					milestones.filter((milestone) => milestone.id !== milestoneId)
+					milestones.filter((milestone: any) => milestone.id !== milestoneId)
 				);
 			})
 			.catch((error: any) => {
@@ -230,7 +230,7 @@ export default function Milestones({ project, adminMode }: Props) {
 			</div>
 			<hr />
 			{milestones &&
-				milestones.map((milestone) => {
+				milestones.map((milestone: any) => {
 					if (milestone.isDeleted) return null;
 					const cleanHtml = DOMPurify.sanitize(milestone.body);
 					return (
