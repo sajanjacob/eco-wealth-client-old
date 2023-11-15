@@ -7,12 +7,10 @@ import Image from "next/image";
 import darkStripeLogo from "@/assets/images/stripe_logo_dark.svg";
 import lightStripeLogo from "@/assets/images/stripe_logo_light.svg";
 import acceptedCards from "@/assets/images/visa-mastercard-discover-americanexpress.png";
+import { set } from "react-hook-form";
 type Props = {
 	setCheckoutStep?: React.Dispatch<React.SetStateAction<number>>;
-	numOfUnits: number;
-	amountPerUnit: number;
-	projectName: string;
-	type: string;
+	numOfShares: number;
 	projectId?: string;
 	project: Project;
 };
@@ -21,21 +19,23 @@ const stripePromise = loadStripe(`${process.env.stripe_publishable_key}`);
 // The main component
 function ProceedToCheckoutButton({
 	setCheckoutStep,
-	numOfUnits,
-	amountPerUnit,
-	projectName,
-	type,
+	numOfShares,
 	projectId,
 	project,
 }: Props) {
 	const user = useAppSelector((state: RootState) => state.user);
 	const isNonProfit = project.isNonProfit;
+	const [loading, setLoading] = useState(false);
 	const Checkout = async (e: any) => {
 		e.preventDefault();
+		setLoading(true);
 		// Get Stripe.js instance
 		const stripe = await stripePromise;
+		if (!projectId) return;
 		if (!stripe) return;
 		console.log("stripe", stripe);
+		console.log("numOfShares: ", numOfShares);
+		console.log("projectId: ", projectId);
 		// Call your backend to create the Checkout Session
 		const response = await fetch("/api/checkout_sessions", {
 			method: "POST",
@@ -43,14 +43,8 @@ function ProceedToCheckoutButton({
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				numOfUnits,
-				amountPerUnit,
-				projectName,
-				isNonProfit,
-				type,
+				numOfShares,
 				projectId,
-				user,
-				project,
 			}),
 		})
 			.then((res) => res.json())
@@ -70,14 +64,17 @@ function ProceedToCheckoutButton({
 			// message to your customer.
 			alert(result.error.message);
 		}
+		setLoading(false);
 	};
 	return (
 		<div>
 			<button
-				className='w-full my-4 p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
+				className={`w-full my-4 p-2 rounded text-white font-bold transition-all 
+				${loading ? "bg-grey-700" : "bg-green-700 hover:bg-green-600 hover:scale-105"}`}
 				onClick={(e) => Checkout(e)}
+				disabled={loading}
 			>
-				Proceed to payment
+				{loading ? "Redirecting to Stripe Checkout..." : "Proceed to payment"}
 			</button>
 			<span className='flex justify-end'>
 				<span className='flex items-center px-2 rounded-sm mr-2'>

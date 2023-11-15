@@ -17,6 +17,9 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
+html {
+  @apply scroll-smooth;
+}
 
 body {
   @apply text-gray-700 bg-gradient-to-b from-green-100 to-green-200 min-h-[100vh];
@@ -57,10 +60,10 @@ body {
   }
    .custom-scrollbar::-webkit-scrollbar-track 
   {
-    @apply bg-green-800;
+    @apply bg-green-950;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb  {
-    @apply bg-green-950 rounded-full;
+    @apply bg-green-800 rounded-full;
   }
  
  

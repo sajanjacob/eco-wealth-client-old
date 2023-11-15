@@ -76,6 +76,21 @@ const Header = ({}: Props) => {
 		}
 	};
 
+	const handleAboutClick = () => {
+		router.push("/#about");
+	};
+
+	const handlePricingClick = () => {
+		router.push("/#pricing");
+	};
+
+	const handleStrategyClick = () => {
+		router.push("/#strategy");
+	};
+	const handleHowItWorksClick = () => {
+		router.push("/#how-it-works");
+	};
+
 	const handleLoginClick = () => {
 		router.push("/login");
 	};
@@ -204,11 +219,14 @@ const Header = ({}: Props) => {
 	const handleSettingsClick = () =>
 		router.push("/settings?tab=personal-details");
 
+	const handleWaitingListClick = () => router.push("/register");
+
 	const [render, setRender] = useState(true);
 	const path = usePathname();
 
 	useEffect(() => {
 		path !== "/thankyou" &&
+		path !== "/register" &&
 		path !== "/login" &&
 		path !== "/signup" &&
 		path !== "/forgot-password" &&
@@ -392,17 +410,48 @@ const Header = ({}: Props) => {
 				) : (
 					<>
 						<a
+							className='scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							onClick={handleAboutClick}
+						>
+							About
+						</a>
+						<a
+							className='scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							onClick={handleStrategyClick}
+						>
+							Strategy
+						</a>
+						<a
+							className='scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							onClick={handleHowItWorksClick}
+						>
+							How it works
+						</a>
+						<a
+							className='scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							onClick={handlePricingClick}
+						>
+							Pricing
+						</a>
+						<a
+							className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md px-8 py-2'
+							onClick={handleWaitingListClick}
+						>
+							Join the waiting list today
+						</a>
+						{/* <a
 							className='cursor-pointer hover:underline text-green-600 font-medium'
 							onClick={handleLoginClick}
 						>
 							Login
 						</a>
+
 						<a
 							className='cursor-pointer hover:underline text-green-600 font-medium'
 							onClick={handleSignupClick}
 						>
 							Signup
-						</a>
+						</a> */}
 					</>
 				)}
 			</div>

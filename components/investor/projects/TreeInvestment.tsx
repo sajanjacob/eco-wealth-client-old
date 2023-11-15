@@ -198,10 +198,8 @@ export default function TreeInvestment({ project }: Props) {
 						)}
 						<ProceedToCheckoutButton
 							setCheckoutStep={setCheckoutStep}
-							numOfUnits={numberOfShares}
-							amountPerUnit={amountPerShare}
-							projectName={title}
-							type={project.type}
+							numOfShares={numberOfShares}
+							projectId={project.id}
 							project={project}
 						/>
 					</form>
