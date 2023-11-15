@@ -19,7 +19,17 @@ export default function WaitingListGoalTracker() {
 				console.error(err);
 			});
 	};
-
+	// subscribe to supabase changes
+	supabase
+		.channel("waiting_list")
+		.on(
+			"postgres_changes",
+			{ event: "INSERT", schema: "public", table: "waiting_list" },
+			(payload: any) => {
+				fetchCurrentCount();
+			}
+		)
+		.subscribe();
 	useEffect(() => {
 		fetchCurrentCount();
 	}, []);
