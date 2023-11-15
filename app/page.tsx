@@ -71,21 +71,10 @@ export default function Home() {
 					</h1> */}
 						<h1 className='text-white font-bold text-2xl md:text-3xl md:w-[100%]'>
 							Together, we can make a positive impact all around the world by{" "}
-							<span className='text-[var(--main-link-color)]'>
-								{" "}
-								planting trees
-							</span>
-							, prioritizing{" "}
-							<span className='text-[var(--main-link-color)]'>
-								{" "}
-								soil health
-							</span>
-							, and transitioning to{" "}
-							<span className='text-[var(--main-link-color)]'>
-								{" "}
-								renewable energy
-							</span>
-							.
+							<span className='text-green-400'> planting trees</span>,
+							prioritizing <span className='text-green-400'> soil health</span>,
+							and transitioning to{" "}
+							<span className='text-green-400'> renewable energy</span>.
 						</h1>
 						{!user.loggedIn && (
 							<div className='flex flex-col mt-6'>
