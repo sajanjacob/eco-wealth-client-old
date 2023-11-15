@@ -39,11 +39,11 @@ function WaitingListForm() {
 		>
 			<h1
 				onClick={handleReturnHome}
-				className='mb-2 text-6xl text-green-700 cursor-pointer transition-colors hover:text-green-600'
+				className='mb-2 text-4xl bold lg:text-6xl text-green-700 cursor-pointer transition-colors hover:text-green-600'
 			>
 				Eco Wealth
 			</h1>
-			<h2 className='mb-12 text-xl text-gray-400'>
+			<h2 className='mb-12 lg:text-xl text-gray-400 text-center'>
 				Be the first to know when Eco Wealth launches!
 			</h2>
 			<div className='flex flex-col mb-4'>

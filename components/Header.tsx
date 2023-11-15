@@ -27,6 +27,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { GiSolarPower } from "react-icons/gi";
 import { toast } from "react-toastify";
+import WaitingListMobileMenu from "./WaitingListMobileMenu";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -410,35 +411,36 @@ const Header = ({}: Props) => {
 				) : (
 					<>
 						<a
-							className='scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden lg:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
 							onClick={handleAboutClick}
 						>
 							About
 						</a>
 						<a
-							className='scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden lg:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
 							onClick={handleStrategyClick}
 						>
 							Strategy
 						</a>
 						<a
-							className='scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden lg:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
 							onClick={handleHowItWorksClick}
 						>
 							How it works
 						</a>
 						<a
-							className='scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden lg:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
 							onClick={handlePricingClick}
 						>
 							Pricing
 						</a>
 						<button
-							className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md px-8 py-2 animation-pulsate'
+							className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 animation-pulsate'
 							onClick={handleWaitingListClick}
 						>
 							Join the waiting list today
 						</button>
+						<WaitingListMobileMenu />
 						{/* <a
 							className='cursor-pointer hover:underline text-green-600 font-medium'
 							onClick={handleLoginClick}

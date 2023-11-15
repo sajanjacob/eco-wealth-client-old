@@ -19,7 +19,7 @@ export default function Pricing({}: Props) {
 						pricing, ensuring you can invest with confidence and clarity.
 						Here&apos;s how our pricing works:
 					</h3>
-					<div className='py-4 px-8'>
+					<div className='lg:py-4 lg:px-8'>
 						<h4 className='text-lg font-bold mt-4'>
 							Investment Processing Fees
 						</h4>
@@ -35,7 +35,7 @@ export default function Pricing({}: Props) {
 							operation of your investments.
 						</p>{" "}
 					</div>
-					<div className='py-4 px-8'>
+					<div className='lg:py-4 lg:px-8'>
 						<h4 className='text-lg font-bold'>Your Investment Benefits</h4>
 						<hr className='my-4' />
 						<p className='mb-4'>

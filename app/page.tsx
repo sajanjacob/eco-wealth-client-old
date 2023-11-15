@@ -136,10 +136,12 @@ export default function Home() {
 					Photo by Matthew Smith via Unsplash.
 				</h6>
 			</div>
-			<About />
-			<Strategy />
-			<HowItWorks />
-			<Pricing />
+			<div className='lg:w-[800px] lg:mx-auto'>
+				<About />
+				<Strategy />
+				<HowItWorks />
+				<Pricing />
+			</div>
 		</>
 	);
 }
