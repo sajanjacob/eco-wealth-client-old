@@ -101,9 +101,3 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	// Return a response to acknowledge receipt of the event.
 	return NextResponse.json({ received: true });
 }
-
-export const config = {
-	api: {
-		bodyParser: true,
-	},
-};
