@@ -12,6 +12,7 @@ import Strategy from "@/components/home/Strategy";
 import HowItWorks from "@/components/home/HowItWorks";
 import Pricing from "@/components/home/Pricing";
 import RecentRegistrations from "@/components/RecentRegistrations";
+import WaitingListGoalTracker from "@/components/WaitingListGoalTracker";
 
 export default function Home() {
 	const backgroundImageUrl =
@@ -52,6 +53,7 @@ export default function Home() {
 
 	const handleLoginClick = () => router.push("/login");
 	const handleSignupClick = () => router.push("/signup");
+	const handleWaitingListClick = () => router.push("/register");
 
 	return (
 		<>
@@ -67,7 +69,7 @@ export default function Home() {
 						Together, we&apos;ve planted {treeCount} trees & installed{" "}
 						{arrayCount} solar arrays.
 					</h1> */}
-						<h1 className='text-white text-3xl md:w-[100%]'>
+						<h1 className='text-white font-bold text-2xl md:text-3xl md:w-[100%]'>
 							Together, we can make a positive impact all around the world by{" "}
 							<span className='text-[var(--main-link-color)]'>
 								{" "}
@@ -91,6 +93,13 @@ export default function Home() {
 									By using Eco Wealth, you can help bring balance to the
 									environment and ensure future generations of people thrive.
 								</h3>
+								<button
+									className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
+									onClick={handleWaitingListClick}
+								>
+									Join the waiting list today
+								</button>
+								<WaitingListGoalTracker />
 								{/* <h3 className='text-white text-right font-medium '>
 								<span
 									className='cursor-pointer transition-colors text-green-600 underline hover:text-green-300'
@@ -132,10 +141,12 @@ export default function Home() {
 							</div>
 						)}
 					</div>
+					<div className='flex justify-end w-[100%]'>
+						<h6 className='text-right text-white font-light mb-4 mr-4 text-xs opacity-50'>
+							Photo by Matthew Smith via Unsplash.
+						</h6>
+					</div>
 				</div>
-				<h6 className='absolute bottom-0 right-0 text-white font-light mb-4 mr-4 text-xs'>
-					Photo by Matthew Smith via Unsplash.
-				</h6>
 			</div>
 			<div className='lg:w-[800px] lg:mx-auto'>
 				<About />
