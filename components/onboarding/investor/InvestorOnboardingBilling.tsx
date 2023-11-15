@@ -1,5 +1,5 @@
 import React from "react";
-import BillingDetailsForm from "../BillingDetailsForm";
+import BillingDetailsForm from "@/components/BillingDetailsForm";
 type Props = {};
 
 export default function InvestorOnboardingBilling({}: Props) {
