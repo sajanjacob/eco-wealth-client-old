@@ -51,6 +51,29 @@ body {
 .animation-pulsate {
   animation: pulsate 3s ease-in-out infinite;
 }
+
+@keyframes glow {
+  0% {
+      box-shadow: 0 0 0px rgb(88, 221, 55), 0 0 0px rgb(88, 221, 55);
+  }
+  25% {
+    box-shadow: 0 0 1px rgb(88, 221, 55), 0 0 2px rgb(88, 221, 55);
+  }
+  50% {
+      box-shadow: 0 0 2px rgb(88, 221, 55), 0 0 4px rgb(88, 221, 55);
+  }
+  75% {
+    box-shadow: 0 0 1px rgb(88, 221, 55), 0 0 2px rgb(88, 221, 55);
+  }
+  100% {
+      box-shadow: 0 0 0px rgb(88, 221, 55), 0 0 0px rgb(88, 221, 55);
+  }
+}
+
+.glow-animation {
+  animation: glow 3s ease-in-out infinite;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }

@@ -94,7 +94,7 @@ export default function Home() {
 									environment and ensure future generations of people thrive.
 								</h3>
 								<button
-									className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
+									className='glow-animation cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
 									onClick={handleWaitingListClick}
 								>
 									Join the waiting list today
