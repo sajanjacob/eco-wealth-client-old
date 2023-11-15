@@ -433,12 +433,12 @@ const Header = ({}: Props) => {
 						>
 							Pricing
 						</a>
-						<a
-							className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md px-8 py-2'
+						<button
+							className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md px-8 py-2 animation-pulsate'
 							onClick={handleWaitingListClick}
 						>
 							Join the waiting list today
-						</a>
+						</button>
 						{/* <a
 							className='cursor-pointer hover:underline text-green-600 font-medium'
 							onClick={handleLoginClick}

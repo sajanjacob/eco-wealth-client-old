@@ -19,10 +19,15 @@
 }
 html {
   @apply scroll-smooth;
+
 }
+
 
 body {
   @apply text-gray-700 bg-gradient-to-b from-green-100 to-green-200 min-h-[100vh];
+  
+  
+ 
 }
 @layer base {
   .dark body {
@@ -30,11 +35,22 @@ body {
   }
   .dark input, textarea {
     @apply text-gray-700;
-  }
- 
+  } 
  
 }
-
+@keyframes pulsate {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+.animation-pulsate {
+  animation: pulsate 11s ease-in-out infinite;
+}
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
@@ -86,3 +102,5 @@ body {
     background-color: #48bb78;
   }
 }
+
+
