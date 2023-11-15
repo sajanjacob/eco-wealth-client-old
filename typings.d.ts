@@ -203,9 +203,9 @@ interface Project {
 	estRoiAmount?: number;
 
 	// additional details for tree & energy projects
-	treeProjects: TreeProject;
-	energyProjects: EnergyProject;
-	solarProjects: SolarProject;
+	treeProjects: TreeProject[];
+	energyProjects: EnergyProject[];
+	solarProjects: SolarProject[];
 
 	// milestones
 	projectMilestones?: ProjectMilestone;
