@@ -411,25 +411,25 @@ const Header = ({}: Props) => {
 				) : (
 					<>
 						<a
-							className='hidden lg:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden md:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
 							onClick={handleAboutClick}
 						>
 							About
 						</a>
 						<a
-							className='hidden lg:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden md:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
 							onClick={handleStrategyClick}
 						>
 							Strategy
 						</a>
 						<a
-							className='hidden lg:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden md:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
 							onClick={handleHowItWorksClick}
 						>
 							How it works
 						</a>
 						<a
-							className='hidden lg:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden md:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
 							onClick={handlePricingClick}
 						>
 							Pricing

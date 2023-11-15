@@ -8,7 +8,7 @@ export default function WaitingListMobileMenu({}: Props) {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	return (
-		<div className='lg:hidden'>
+		<div className='md:hidden'>
 			<RxHamburgerMenu
 				className='text-2xl'
 				onClick={() => setIsMenuOpen(true)}

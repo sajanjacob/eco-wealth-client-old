@@ -11,6 +11,7 @@ import About from "@/components/home/About";
 import Strategy from "@/components/home/Strategy";
 import HowItWorks from "@/components/home/HowItWorks";
 import Pricing from "@/components/home/Pricing";
+import RecentRegistrations from "@/components/RecentRegistrations";
 
 export default function Home() {
 	const backgroundImageUrl =
@@ -141,6 +142,7 @@ export default function Home() {
 				<Strategy />
 				<HowItWorks />
 				<Pricing />
+				<RecentRegistrations />
 			</div>
 		</>
 	);
