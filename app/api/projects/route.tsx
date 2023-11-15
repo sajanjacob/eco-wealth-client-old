@@ -105,11 +105,12 @@ export async function POST(req: any) {
 					agreement_accepted: projectData.agreementAccepted,
 					total_area_sqkm: projectData.totalAreaSqkm,
 					property_address_id: projectData.propertyAddressId,
+					is_non_profit: projectData.isNonProfit,
+					// TODO: store in project_financials table
 					funds_requested: totalFundsRequested,
 					est_revenue: projectData.estRevenue,
 					est_roi_percentage: projectData.estRoiPercentage,
 					est_roi_amount: estRoiAmount,
-					is_non_profit: projectData.isNonProfit,
 				},
 			])
 			.select();
@@ -117,6 +118,21 @@ export async function POST(req: any) {
 		if (error) {
 			return NextResponse.json({ error: error.message }, { status: 500 });
 		}
+
+		const { data: projectFinancials, error: projectFinancialsError } =
+			await supabase
+				.from("project_financials")
+				.insert([
+					{
+						project_id: project?.[0].id,
+						funds_requested: totalFundsRequested,
+						est_revenue: projectData.estRevenue,
+						est_roi_percentage: projectData.estRoiPercentage,
+						est_roi_amount: estRoiAmount,
+					},
+				])
+				.select();
+
 		console.log("project >>> ", project);
 		// Insert into tree_projects table if project type is Tree
 		if (projectData.projectType === "Tree" && project) {
