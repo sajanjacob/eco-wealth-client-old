@@ -20,17 +20,6 @@ export default function WaitingListGoalTracker() {
 		if (count) setEntryCount(count);
 	};
 
-	// Subscribe to changes
-	supabase
-		.channel("waiting_list")
-		.on(
-			"postgres_changes",
-			{ event: "INSERT", schema: "public", table: "waiting_list" },
-			(payload) => {
-				fetchCurrentCount();
-			}
-		)
-		.subscribe();
 	useEffect(() => {
 		fetchCurrentCount();
 	}, []);

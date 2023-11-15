@@ -99,7 +99,7 @@ export default function Home() {
 								>
 									Join the waiting list today
 								</button>
-								<WaitingListGoalTracker />
+								{/* <WaitingListGoalTracker /> */}
 								{/* <h3 className='text-white text-right font-medium '>
 								<span
 									className='cursor-pointer transition-colors text-green-600 underline hover:text-green-300'

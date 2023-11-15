@@ -8,7 +8,6 @@ export default function RecentRegistrations() {
 	useEffect(() => {
 		const fetchRegistrations = async () =>
 			axios.get("/api/recent_waiting_list_signups").then((res) => {
-				console.log(res.data);
 				setRegistrations(res.data);
 			}); // 1 second delay between each toast});
 
@@ -19,21 +18,19 @@ export default function RecentRegistrations() {
 		registrations.forEach((registration: any, index: number) => {
 			const toastId = `registration-${registration.id}`; // Assuming each registration has a unique 'id'
 			setTimeout(() => {
-				if (!toast.isActive(toastId)) {
-					toast.success(
-						`${registration.name.substring(
-							0,
-							registration.name?.indexOf(" ")
-						)} signed up at ${new Date(
-							registration.created_at
-						).toLocaleTimeString()}`,
-						{
-							position: "bottom-left",
-							theme: "dark",
-							toastId,
-						}
-					);
-				}
+				toast.success(
+					`${registration.name.substring(
+						0,
+						registration.name?.indexOf(" ")
+					)} signed up at ${new Date(
+						registration.created_at
+					).toLocaleTimeString()}`,
+					{
+						position: "bottom-left",
+						theme: "dark",
+						toastId,
+					}
+				);
 			}, 3333);
 		});
 	}, [registrations, count]);
