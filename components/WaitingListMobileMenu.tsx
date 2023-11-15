@@ -15,7 +15,12 @@ export default function WaitingListMobileMenu({}: Props) {
 			/>
 
 			{isMenuOpen && (
-				<div className='absolute top-0 left-0 h-screen w-full bg-green-950 flex flex-col'>
+				<div
+					className={`absolute top-0 left-0 h-screen w-full bg-green-950 flex flex-col transform transition-opacity duration-500 ${
+						isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+					}`}
+					style={{ transition: "visibility 0s, opacity 0.5s linear" }}
+				>
 					<button
 						onClick={() => setIsMenuOpen(false)}
 						className='self-end p-4'
