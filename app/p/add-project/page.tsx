@@ -192,7 +192,7 @@ function AddProject() {
 
 	// Note to future me - Might need to update everything to 'watch' for react-hook-form
 	const createProject = async (bannerUrl: string) => {
-		const projectData: Project | EnergyProject | TreeProject | SolarProject = {
+		const projectData = {
 			title: formValues.title,
 			imageUrl: bannerUrl,
 			projectCoordinatorContact: {
@@ -210,8 +210,8 @@ function AddProject() {
 
 			treeTarget: formValues.numTrees,
 			treeProjectType: formValues.treeType,
-			maturityDate: formValues.estimatedMaturityDate,
-			plantingDate: formValues.estimatedPlantingDate,
+			estMaturityDate: formValues.estimatedMaturityDate,
+			estPlantingDate: formValues.estimatedPlantingDate,
 			totalFundsRequested: formValues.fundsRequested,
 			energyProductionTarget: formValues.energyProductionTarget,
 			targetArrays: formValues.numOfArrays,
