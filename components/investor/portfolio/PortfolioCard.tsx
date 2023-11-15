@@ -6,7 +6,7 @@ import { LinearProgress } from "@mui/material";
 interface PortfolioCardProps {
 	project: Project;
 	investmentDetails: {
-		unitsContributed: number;
+		sharesPurchased: number;
 		estRoi: number;
 	};
 }
@@ -17,7 +17,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
 }) => {
 	if (!project) return <div>loading...</div>;
 	let percentFunded = 0;
-	if (project.requestedAmountTotal) {
+	if (project.requestedAmountTotal && project.totalAmountRaised) {
 		percentFunded =
 			(project.totalAmountRaised / project.requestedAmountTotal) * 100;
 	}
@@ -34,11 +34,13 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
 				/>
 				<div className='p-6'>
 					<h3 className='text-xl mb-2'>{project.title}</h3>
+					{project.totalAmountRaised && (
+						<p className='mb-4'>
+							Total Invested: ${project.totalAmountRaised.toFixed(2)}
+						</p>
+					)}
 					<p className='mb-4'>
-						Total Invested: ${project.totalAmountRaised.toFixed(2)}
-					</p>
-					<p className='mb-4'>
-						Units Contributed: {investmentDetails.unitsContributed}
+						Units Contributed: {investmentDetails.sharesPurchased}
 					</p>
 					<p className='mb-4'>Est. ROI: {investmentDetails.estRoi}%</p>
 					<LinearProgress

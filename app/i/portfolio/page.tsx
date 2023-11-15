@@ -51,8 +51,9 @@ function Portfolio({}: Props) {
 								project={project}
 								key={project.id}
 								investmentDetails={{
-									unitsContributed:
-										(project.unitsContributed as unknown as number) || 0,
+									sharesPurchased:
+										(project.projectFinancials
+											.numOfShares as unknown as number) || 0,
 									estRoi: (project.averageROI as unknown as number) || 0,
 								}}
 							/>
