@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import supabase from "@/utils/supabaseClient";
+import axios from "axios";
 
 const GOAL = 1000; // The goal for total entries
 
@@ -7,17 +8,16 @@ export default function WaitingListGoalTracker() {
 	const [entryCount, setEntryCount] = useState(0);
 	// Function to fetch current count
 	const fetchCurrentCount = async () => {
-		const { data, count, error } = await supabase
-			.from("waiting_list")
-			.select("*", { count: "exact" })
-			.single();
-
-		if (error) {
-			console.error("Error fetching count:", error);
-			return;
-		}
-		console.log("waiting list data >>> ", count);
-		if (count) setEntryCount(count);
+		axios
+			.get("/api/waiting_list_count")
+			.then((res) => {
+				if (res.status === 200) {
+					setEntryCount(res.data.count);
+				}
+			})
+			.catch((err) => {
+				console.error(err);
+			});
 	};
 
 	useEffect(() => {
@@ -32,7 +32,7 @@ export default function WaitingListGoalTracker() {
 			<p className='text-sm mb-[4px]'>Help us reach 1000 waiting list users!</p>
 			<div className='border-green-800 border-[1px] rounded-md'>
 				<div
-					className={`bg-green-400`}
+					className={`bg-green-400 transition-all duration-500 ease-out`}
 					style={{
 						width: `${loadingWidth}%`,
 						height: "8px",

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, use } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import moment from "moment";
 
 export default function RecentRegistrations() {
-	const [registrations, setRegistrations] = useState([]);
-	const [count, setCount] = useState(0);
+	const [registrations, setRegistrations] = useState<any>([]);
 	useEffect(() => {
 		const fetchRegistrations = async () =>
 			axios.get("/api/recent_waiting_list_signups").then((res) => {
@@ -15,25 +15,27 @@ export default function RecentRegistrations() {
 	}, []);
 
 	useEffect(() => {
-		registrations.forEach((registration: any, index: number) => {
-			const toastId = `registration-${registration.id}`; // Assuming each registration has a unique 'id'
-			setTimeout(() => {
+		async function DisplayPopup(index: number, name: string) {
+			await setTimeout(async () => {
 				toast.success(
-					`${registration.name.substring(
-						0,
-						registration.name?.indexOf(" ")
-					)} signed up at ${new Date(
-						registration.created_at
-					).toLocaleTimeString()}`,
+					`${
+						name?.split(" ").length > 1
+							? name.substring(0, name?.indexOf(" "))
+							: name
+					} joined ${moment(registrations[index].created_at).fromNow()}`,
 					{
 						position: "bottom-left",
 						theme: "dark",
-						toastId,
 					}
 				);
-			}, 3333);
-		});
-	}, [registrations, count]);
+			}, index * 5000);
+		}
+		for (let i = 0; i < registrations.length; i++) {
+			const toastId = `registration-${registrations[i].id}`; // Assuming each registration has a unique 'id'
+
+			DisplayPopup(i, registrations[i].name);
+		}
+	}, [registrations]);
 
 	return <></>;
 }
