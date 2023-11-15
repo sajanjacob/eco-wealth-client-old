@@ -75,7 +75,7 @@ const ProjectDetails = ({}: Props) => {
 							project={project}
 						/>
 					</div>
-					{showInvestButton && (
+					{showInvestButton && project.id && (
 						<div className='sticky lg:right-28 md:right-8  top-20 bg-green-900 h-min px-12 py-6 rounded-md'>
 							<InvestButton id={project.id} />
 						</div>
