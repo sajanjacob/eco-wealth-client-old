@@ -4,8 +4,9 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+const cookieStore = cookies();
 export async function POST(req: any) {
-	const supabase = createRouteHandlerClient<any>({ cookies });
+	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 	try {
 		const { projectData, producerId } = await req.json();
 		console.log("projectData >>> ", projectData);
@@ -249,7 +250,7 @@ export async function POST(req: any) {
 }
 
 export async function GET(req: any, res: any) {
-	const supabase = createRouteHandlerClient<any>({ cookies });
+	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 	const { searchParams } = new URL(req.url);
 	const projectType = searchParams.get("type");
 	const nonProfit = searchParams.get("nonProfit") === "true"; // convert string to boolean

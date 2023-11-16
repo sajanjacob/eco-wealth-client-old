@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-// import supabase from "@/utils/supabaseSuperClient";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 export async function POST(req: NextRequest, res: NextResponse) {
 	console.log("req", req);
+	const SUPABASE_SERVICE_ROLE_KEY = process.env.supabase_service_role_key;
 	const cookieStore = cookies();
-	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+	const supabase = createRouteHandlerClient(
+		{ cookies: () => cookieStore },
+		{ supabaseKey: SUPABASE_SERVICE_ROLE_KEY }
+	);
 	const { orderData } = await req.json();
 	const { data, error } = await supabase
 		.from("transactions")

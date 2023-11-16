@@ -2,12 +2,13 @@ import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 	apiVersion: "2022-11-15",
 });
+import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest, res: any) {
 	const { projectId, numOfShares } = await req.json();
-	const supabase = createRouteHandlerClient<any>({ cookies });
+	const cookieStore = cookies();
+	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 	const { data: project, error } = await supabase
 		.from("projects")
 		.select("*, tree_projects(*), energy_projects(*), project_financials(*)")
