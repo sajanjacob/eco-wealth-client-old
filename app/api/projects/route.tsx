@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const cookieStore = cookies();
 export async function POST(req: any) {
+	const cookieStore = cookies();
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 	try {
 		const { projectData, producerId } = await req.json();
@@ -250,6 +250,7 @@ export async function POST(req: any) {
 }
 
 export async function GET(req: any, res: any) {
+	const cookieStore = cookies();
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 	const { searchParams } = new URL(req.url);
 	const projectType = searchParams.get("type");
