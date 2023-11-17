@@ -13,6 +13,8 @@ import HowItWorks from "@/components/home/HowItWorks";
 import Pricing from "@/components/home/Pricing";
 import RecentRegistrations from "@/components/RecentRegistrations";
 import WaitingListGoalTracker from "@/components/WaitingListGoalTracker";
+import Disclaimer from "@/components/home/Disclaimer";
+import Footer from "@/components/home/Footer";
 
 export default function Home() {
 	const backgroundImageUrl =
@@ -143,6 +145,8 @@ export default function Home() {
 				<HowItWorks />
 				<Pricing />
 				<RecentRegistrations />
+				<Disclaimer />
+				<Footer />
 			</div>
 		</>
 	);
