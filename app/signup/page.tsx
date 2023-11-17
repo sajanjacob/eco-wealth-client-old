@@ -2,6 +2,7 @@
 import React, { FormEvent, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { BASE_URL } from "@/constants";
 interface SignUpForm {
 	email: string;
 	password: string;
@@ -63,7 +64,7 @@ const SignUp: React.FC = () => {
 	const handleReturnHome = () => {
 		router.push("/");
 	};
-
+	if (BASE_URL === "https://ecowealth.app") return;
 	return (
 		<div className='flex flex-col items-center justify-center min-h-screen'>
 			<h1

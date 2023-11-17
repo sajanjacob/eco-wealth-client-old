@@ -15,7 +15,7 @@ import RecentRegistrations from "@/components/RecentRegistrations";
 import WaitingListGoalTracker from "@/components/WaitingListGoalTracker";
 import Disclaimer from "@/components/home/Disclaimer";
 import Footer from "@/components/home/Footer";
-
+// TODO: remove guard statements in login & signup pages when launching beta
 export default function Home() {
 	const backgroundImageUrl =
 		"https://storage.googleapis.com/msgsndr/6xhGkq67K123q2R9TMf0/media/644868002b9d838721622a4d.jpeg";

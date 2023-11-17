@@ -8,6 +8,7 @@ import { setUser } from "@/redux/features/userSlice";
 import { toast } from "react-toastify";
 import AuthMFA from "@/components/login/AuthMFA";
 import Image from "next/image";
+import { BASE_URL } from "@/constants";
 export default function Login() {
 	const user = useAppSelector((state: RootState) => state.user);
 	const isLoggedIn = useAppSelector((state: RootState) => state.user?.loggedIn);
@@ -223,6 +224,7 @@ export default function Login() {
 	const handleReturnHome = () => {
 		router.push("/");
 	};
+	if (BASE_URL === "https://ecowealth.app") return;
 	return (
 		<>
 			{showMFA ? (
