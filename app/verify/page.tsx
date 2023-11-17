@@ -17,6 +17,7 @@ import {
 } from "next-share";
 import { MdErrorOutline } from "react-icons/md";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+import SupportLink from "@/components/SupportLink";
 type Props = {};
 
 export default function Verify({}: Props) {
@@ -52,16 +53,9 @@ export default function Verify({}: Props) {
 		return (
 			<div className='flex justify-center flex-col items-center pt-52'>
 				<MdErrorOutline className='text-[208px] mb-4 font-light text-yellow-400' />
-				<h2 className='bold'>
+				<h2 className='font-bold'>
 					There was an error verifying your email. Please submit a support
-					ticket at{" "}
-					<a
-						href='https://ecoappsandautomation.freshdesk.com/'
-						target='_blank'
-						className='text-green-500 hover:text-green-600'
-					>
-						ecoappsandautomation.freshdesk.com.
-					</a>
+					ticket at <SupportLink />
 				</h2>
 			</div>
 		);
