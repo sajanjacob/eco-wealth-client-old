@@ -6,7 +6,8 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 	const { data, count, error } = await supabase
 		.from("waiting_list")
-		.select("*", { count: "exact" });
+		.select("*", { count: "exact" })
+		.eq("email_verified", true);
 	if (error) {
 		console.error("Error fetching count:", error);
 		return NextResponse.json({ message: error.message }, { status: 501 });

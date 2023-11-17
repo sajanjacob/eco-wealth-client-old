@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 export async function PUT(req: NextRequest, res: NextResponse) {
+	const SUPABASE_URL = process.env.supabase_public_url;
 	const SUPABASE_SERVICE_ROLE_KEY = process.env.supabase_service_role_key;
-	const cookieStore = cookies();
-	const supabase = createRouteHandlerClient(
-		{ cookies: () => cookieStore },
-		{ supabaseKey: SUPABASE_SERVICE_ROLE_KEY }
-	);
+	if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
+	const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 	const { token } = await req.json();
 	const { data, error } = await supabase
 		.from("wl_verification_tokens")

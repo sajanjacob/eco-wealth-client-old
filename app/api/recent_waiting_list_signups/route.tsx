@@ -8,6 +8,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 		.from("waiting_list")
 		.select("name, created_at")
 		.order("created_at", { ascending: false })
+		.eq("email_verified", true)
 		.limit(5);
 
 	if (error) {

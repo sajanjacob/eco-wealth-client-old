@@ -69,7 +69,7 @@ function WaitingListForm() {
 				className='w-[300px] mt-8 px-4 py-2 rounded-lg bg-green-700 text-white cursor-pointer hover:bg-green-600 transition-all hover:scale-105'
 				type='submit'
 			>
-				Register now
+				Join waiting list
 			</button>
 		</form>
 	);

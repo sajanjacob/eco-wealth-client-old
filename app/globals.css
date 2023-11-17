@@ -48,29 +48,22 @@ body {
     opacity: 0.9;
   }
 }
-.animation-pulsate {
+.pulsate {
   animation: pulsate 3s ease-in-out infinite;
 }
 
 @keyframes glow {
-  0% {
-      box-shadow: 0 0 0px rgb(88, 221, 55), 0 0 0px rgb(88, 221, 55);
-  }
-  25% {
-    box-shadow: 0 0 1px rgb(88, 221, 55), 0 0 2px rgb(88, 221, 55);
+  0%, 100% {
+      box-shadow: 0 0 1px #31A312, 0 0 3px #31A312;
   }
   50% {
-      box-shadow: 0 0 2px rgb(88, 221, 55), 0 0 4px rgb(88, 221, 55);
+      box-shadow: 0 0 3px #31A312, 0 0 6px #31A312;
   }
-  75% {
-    box-shadow: 0 0 1px rgb(88, 221, 55), 0 0 2px rgb(88, 221, 55);
-  }
-  100% {
-      box-shadow: 0 0 0px rgb(88, 221, 55), 0 0 0px rgb(88, 221, 55);
-  }
+ 
+  
 }
 
-.glow-animation {
+.glow {
   animation: glow 3s ease-in-out infinite;
 }
 

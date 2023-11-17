@@ -28,6 +28,7 @@ import Image from "next/image";
 import { GiSolarPower } from "react-icons/gi";
 import { toast } from "react-toastify";
 import WaitingListMobileMenu from "./WaitingListMobileMenu";
+import Logo from "./Logo";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -185,10 +186,6 @@ const Header = ({}: Props) => {
 		}
 	}, [currentTheme]);
 
-	const handleReturnHome = () => {
-		router.push("/");
-	};
-
 	const handleDashboardClick = () => {
 		if (activeRole === "investor") {
 			router.push("/i/dashboard");
@@ -224,9 +221,10 @@ const Header = ({}: Props) => {
 
 	const [render, setRender] = useState(true);
 	const path = usePathname();
-
+	console.log("path: ", path);
 	useEffect(() => {
 		path !== "/thankyou" &&
+		path !== "/thank-you-for-registering" &&
 		path !== "/register" &&
 		path !== "/login" &&
 		path !== "/signup" &&
@@ -241,13 +239,9 @@ const Header = ({}: Props) => {
 	if (!render) return null;
 	return (
 		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
-			<Image
-				src='/white_logo_transparent_background.png'
-				alt='EcoWealth logo'
+			<Logo
 				width={148}
 				height={60}
-				onClick={handleReturnHome}
-				className='cursor-pointer'
 			/>
 			<div className='flex space-x-4 items-center'>
 				{isLoggedIn ? (
@@ -435,7 +429,7 @@ const Header = ({}: Props) => {
 							Pricing
 						</a>
 						<button
-							className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 animation-pulsate'
+							className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 glow'
 							onClick={handleWaitingListClick}
 						>
 							Join the waiting list today
