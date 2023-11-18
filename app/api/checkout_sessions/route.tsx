@@ -38,6 +38,45 @@ export async function POST(req: NextRequest, res: any) {
 	const feeAmountWithPercentage = feeAmount * merchantFeePercentage;
 	const finalFeeAmountRounded = feeAmountWithPercentage.toFixed(2);
 	console.log("req.url", req.nextUrl.origin);
+	const kwhPerShare =
+		project.energy_projects[0].target_kwh_production_per_year /
+		1000 /
+		project.project_financials.num_of_shares;
+	const treesPerShare =
+		project.tree_projects[0].tree_target /
+		project.project_financials.num_of_shares;
+	let metaData;
+
+	if (type === "energy") {
+		metaData = {
+			projectId: projectId,
+			investorId: investorId,
+			projectOwnerId: project.producerId,
+			productName: `${projectName} - ${type} ${
+				isNonProfit ? "contribution" : "investment"
+			}`,
+			projectType: type,
+			numOfShares: numOfShares,
+			kwhContributedPerYear: kwhPerShare * numOfShares,
+			fundsRequestedPerTree:
+				project.project_financials.funds_requested_per_tree,
+		};
+	} else {
+		metaData = {
+			projectId: projectId,
+			investorId: investorId,
+			projectOwnerId: project.producerId,
+			productName: `${projectName} - ${type} ${
+				isNonProfit ? "contribution" : "investment"
+			}`,
+			projectType: type,
+			numOfShares: numOfShares,
+			treesContributed: treesPerShare * numOfShares,
+			fundsRequestedPerTree:
+				project.project_financials.funds_requested_per_tree,
+		};
+	}
+
 	try {
 		// Create Checkout Sessions from body params.
 		const session = await stripe.checkout.sessions.create({
@@ -81,16 +120,7 @@ export async function POST(req: NextRequest, res: any) {
 				},
 			],
 			customer_email: customerEmail,
-			metadata: {
-				projectId: projectId,
-				investorId: investorId,
-				projectOwnerId: project.producerId,
-				productName: `${projectName} - ${type} ${
-					isNonProfit ? "contribution" : "investment"
-				}`,
-				projectType: type,
-				numOfShares: numOfShares,
-			},
+			metadata: metaData,
 			mode: "payment",
 			success_url: `${req.nextUrl.origin}/i/portfolio?success=true`,
 			cancel_url: `${req.nextUrl.origin}/i/projects/${projectId}/invest?canceled=true`,

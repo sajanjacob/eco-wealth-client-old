@@ -62,6 +62,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			fee_amount: feeAmount,
 			num_of_shares: metadata.numOfShares,
 			project_type: metadata.projectType,
+			funds_requested_per_tree: metadata.fundsRequestedPerTree,
+			kwh_contributed_per_year: metadata.kwhContributedPerYear,
+			trees_contributed: metadata.treesContributed,
 		};
 		console.log(
 			"sending orderData to transaction_completion api route: ",

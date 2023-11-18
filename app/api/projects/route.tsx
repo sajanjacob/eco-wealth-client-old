@@ -145,7 +145,8 @@ export async function POST(req: any) {
 					project_id: project?.[0].id,
 					tree_target: projectData.treeTarget,
 					funds_requested_per_tree: fundsRequestedPerTree,
-					type: projectData.treeProjectType,
+					project_type: projectData.treeProjectType,
+					tree_type: projectData.treeType,
 					tree_count: 0,
 					producer_id: producerId,
 					est_seed_cost: projectData.estSeedCost,
@@ -169,7 +170,8 @@ export async function POST(req: any) {
 				.insert([
 					{
 						project_id: project?.[0].id,
-						energy_production_target: projectData.energyProductionTarget,
+						target_kwh_production_per_year:
+							projectData.target_kwh_production_per_year,
 						type: projectData.energyProjectType,
 						installation_team: projectData.installerType,
 						producer_id: producerId,

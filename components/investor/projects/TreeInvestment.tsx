@@ -97,19 +97,20 @@ export default function TreeInvestment({ project }: Props) {
 		setCheckoutStep(1);
 	};
 
-	const estimatedMaturityDate = moment(treeProjects[0].estMaturityDate).format(
+	const estimatedMaturityDate = moment(treeProjects?.estMaturityDate).format(
 		"MMMM Do, YYYY"
 	); // 'July 15th, 2021
 	switch (checkoutStep) {
 		case 1:
+			if (!treeProjects) return <div>Loading...</div>;
 			return (
 				<div className='flex mx-auto lg:w-[60%]'>
 					<TreeInvestmentLeft
 						title={title}
 						description={description}
 						imageUrl={imageUrl}
-						treeProjectType={treeProjects[0].type}
-						estPlantingDate={treeProjects[0].estPlantingDate}
+						treeProjectType={treeProjects.type}
+						estPlantingDate={treeProjects.estPlantingDate}
 						estimatedMaturityDate={estimatedMaturityDate}
 					/>
 

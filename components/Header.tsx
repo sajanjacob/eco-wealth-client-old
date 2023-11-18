@@ -362,7 +362,7 @@ const Header = ({}: Props) => {
 								</MenuItem>
 							</Link>
 							<Link
-								href='mailto:support@ecowealth.app'
+								href='https://ecoappsandautomation.freshdesk.com/'
 								target='_blank'
 							>
 								<MenuItem className='menu-link'>
@@ -370,7 +370,7 @@ const Header = ({}: Props) => {
 								</MenuItem>
 							</Link>
 							<Link
-								href='mailto:support@ecowealth.app'
+								href='https://ecoappsandautomation.freshdesk.com/'
 								target='_blank'
 							>
 								<MenuItem className='menu-link'>
