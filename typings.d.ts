@@ -203,9 +203,9 @@ interface Project {
 	estRoiAmount?: number;
 
 	// additional details for tree & energy projects
-	treeProjects: TreeProject[];
-	energyProjects: EnergyProject[];
-	solarProjects: SolarProject[];
+	treeProjects: TreeProject;
+	energyProjects: EnergyProject;
+	solarProjects: SolarProject;
 
 	// milestones
 	projectMilestones?: ProjectMilestone;
@@ -263,7 +263,7 @@ interface EnergyProject extends Project {
 	totalFundsRaised?: number;
 
 	// Energy Production
-	energyProductionTarget: number;
+	targetKwhProductionPerYear: number;
 	energyProduced?: number;
 	energyProductionUnit?: string;
 	energyProductionUnitValue?: number;
@@ -306,6 +306,7 @@ interface TreeProject extends Project {
 	treeCount: number;
 	fundsRequestedPerTree: number;
 	treeProjectType: string;
+	treeType: string;
 	estSeedCost: number;
 	estLabourCost: number;
 	estMaintenanceCost: number;
