@@ -30,6 +30,7 @@ interface FormValues {
 	imageFile: FileList | null;
 	imageUrlInput: string;
 	uploadMethod: boolean;
+	treeProjectType: string;
 	treeType: string;
 	energyType: string;
 	totalArea: number;
@@ -105,6 +106,7 @@ function AddProject() {
 			imageUrlInput: "",
 			uploadMethod: true,
 			treeType: "",
+			treeProjectType: "",
 			energyType: "",
 			totalArea: 0,
 			properties: [],
@@ -140,6 +142,7 @@ function AddProject() {
 	const energyType = watch("energyType");
 	const installationTeam = watch("installationTeam");
 	const properties = watch("properties");
+	const treeProjectType = watch("treeProjectType");
 	const treeType = watch("treeType");
 	const [foundProperties, setFoundProperties] = useState<Property[]>([]);
 	const [agreements, setAgreements] = useState<boolean>(false);
@@ -209,11 +212,12 @@ function AddProject() {
 			propertyAddressId: formValues.projectAddressId,
 
 			treeTarget: formValues.numTrees,
-			treeProjectType: formValues.treeType,
+			treeProjectType: formValues.treeProjectType,
+			treeType: formValues.treeType,
 			estMaturityDate: formValues.estimatedMaturityDate,
 			estPlantingDate: formValues.estimatedPlantingDate,
 			totalFundsRequested: formValues.fundsRequested,
-			energyProductionTarget: formValues.energyProductionTarget,
+			targetKwhProductionPerYear: formValues.energyProductionTarget,
 			targetArrays: formValues.numOfArrays,
 			installationTeam: formValues.installationTeam,
 			systemSizeInKw: formValues.installedSystemSize,
@@ -583,7 +587,7 @@ function AddProject() {
 						<label className='flex flex-col mt-[8px] w-[800px]'>
 							<span className='mb-[4px] mt-2'>Tree Project Type:</span>
 							<select
-								{...register("treeType", { required: true })}
+								{...register("treeProjectType", { required: true })}
 								className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 							>
 								<option value=''>Select a tree project type</option>
@@ -608,6 +612,19 @@ function AddProject() {
 								<input
 									type='number'
 									{...register("numTrees", { required: true })}
+									className='w-[96%] outline-none'
+								/>
+							</div>
+						</label>
+						<label className='flex flex-col w-[800px]'>
+							<span className='mb-[4px] mt-2'>
+								What kind of trees are you going to plant?
+							</span>
+							<div className='bg-white border-2 border-gray-300 rounded-md p-2 text-gray-400'>
+								🌳{" "}
+								<input
+									type='text'
+									{...register("treeType", { required: true })}
 									className='w-[96%] outline-none'
 								/>
 							</div>
@@ -660,7 +677,7 @@ function AddProject() {
 										className='bg-white border-2 border-gray-300 rounded-md mt-2 p-2 text-gray-400 w-max'
 									/>
 								</div>
-								{treeType !== "Restoration" && (
+								{treeProjectType !== "Restoration" && (
 									<div>
 										<span className='mb-[4px] mt-2'>
 											When is the estimated harvest date?
