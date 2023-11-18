@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import convertToCamelCase from "@/utils/convertToCamelCase";
+import { NextResponse, NextRequest } from "next/server";
 interface TreeInvestment {
 	id: string;
 	amount?: any;
@@ -12,20 +13,21 @@ interface EnergyInvestment {
 	kwhTarget?: number;
 }
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-): Promise<void> {
-	const userId = req.query.userId;
-	const supabase = createRouteHandlerClient<any>({ cookies });
+export async function GET(req: NextRequest, res: NextResponse): Promise<any> {
+	const { userId } = await req.json();
+	const cookieStore = cookies();
+	const supabase = createRouteHandlerClient<any>({
+		cookies: () => cookieStore,
+	});
 	// Get the investor's unique ID
 	const { data, error } = await supabase
 		.from("investors")
 		.select("*")
 		.eq("user_id", userId)
 		.single();
-	if (!data) return;
-
+	if (error) {
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
 	const investorId = data.id;
 
 	// Fetch the investor's transactions
@@ -34,7 +36,10 @@ export default async function handler(
 		.select("project_id")
 		.eq("investor_id", investorId);
 	if (transactionsError) {
-		return res.status(500).json({ error: "Failed to fetch transactions" });
+		return NextResponse.json(
+			{ error: transactionsError.message },
+			{ status: 500 }
+		);
 	}
 
 	// Get the unique project IDs
@@ -52,7 +57,10 @@ export default async function handler(
 			.single();
 
 		if (projectError) {
-			return res.status(500).json({ error: "Failed to fetch project data" });
+			return NextResponse.json(
+				{ error: projectError.message },
+				{ status: 500 }
+			);
 		}
 
 		const investmentTable =
@@ -69,7 +77,10 @@ export default async function handler(
 			investmentProjects = convertToCamelCase(investments);
 		}
 		if (investmentsError) {
-			return res.status(500).json({ error: "Failed to fetch investment data" });
+			return NextResponse.json(
+				{ error: investmentsError.message },
+				{ status: 500 }
+			);
 		}
 		// Calculate the total investment amount and add it to the project data
 		const totalInvested = investmentProjects.reduce(
@@ -107,5 +118,5 @@ export default async function handler(
 	}
 
 	// Return the portfolio data
-	return res.status(200).json(portfolio);
+	return NextResponse.json(portfolio, { status: 200 });
 }

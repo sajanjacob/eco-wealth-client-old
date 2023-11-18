@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import axios from "axios";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-	apiVersion: "2022-11-15",
+	apiVersion: "2023-10-16",
 });
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			status: 400,
 		});
 	}
-	console.log("webhook event type >>> ", event.type);
+	// console.log("webhook event type >>> ", event.type);
 	// console.log("webhook event data object >>> ", event.data.object);
 	// Handle the checkout.session.completed event
 	if (event.type === "checkout.session.completed") {
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			metadata,
 			currency,
 		} = session;
-		console.log(`Successful purchase! Customer: ${session.customer}`);
+		// console.log("Successful purchase! Customer", session.customer_details);
 		if (!amount_total)
 			return NextResponse.json({ error: "no amount total" }, { status: 503 });
 		if (!metadata)
@@ -66,10 +66,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			kwh_contributed_per_year: metadata.kwhContributedPerYear,
 			trees_contributed: metadata.treesContributed,
 		};
-		console.log(
-			"sending orderData to transaction_completion api route: ",
-			orderData
-		);
+		// console.log(
+		// 	"sending orderData to transaction_completion api route: ",
+		// 	orderData
+		// );
 		// here we are sending orderData to '/api/transaction_completion' to complete the transaction
 		await fetch(`${req.nextUrl.origin}/api/transaction_completion`, {
 			method: "POST",

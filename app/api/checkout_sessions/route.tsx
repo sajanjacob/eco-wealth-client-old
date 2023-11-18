@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-	apiVersion: "2022-11-15",
+	apiVersion: "2023-10-16",
 });
 import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
@@ -24,9 +24,12 @@ export async function POST(req: NextRequest, res: any) {
 		.single();
 	if (userDataError)
 		return NextResponse.json({ error: userDataError.message }, { status: 500 });
+	console.log("project >>> ", project);
 	const customerEmail = userData.email;
 	const investorId = userData.investors.id;
 	const projectName = project.title;
+	const producerId = project.producer_id;
+	const fundsRequestedPerTree = project.tree_projects.funds_requested_per_tree;
 	const type = project.type;
 	const isNonProfit = project.is_non_profit;
 	const amountPerShare = project.project_financials.amount_per_share;
@@ -39,44 +42,51 @@ export async function POST(req: NextRequest, res: any) {
 	const finalFeeAmountRounded = feeAmountWithPercentage.toFixed(2);
 	console.log("req.url", req.nextUrl.origin);
 	const kwhPerShare =
-		project.energy_projects[0].target_kwh_production_per_year /
+		project?.energy_projects?.target_kwh_production_per_year /
 		1000 /
 		project.project_financials.num_of_shares;
+	console.log(
+		"project?.energy_projects?.target_kwh_production_per_year ",
+		project?.energy_projects?.target_kwh_production_per_year
+	);
+	console.log("kwhPerShare", kwhPerShare);
+	console.log(
+		"project?.tree_projects?.tree_target",
+		project?.tree_projects?.tree_target
+	);
 	const treesPerShare =
-		project.tree_projects[0].tree_target /
+		project?.tree_projects?.tree_target /
 		project.project_financials.num_of_shares;
 	let metaData;
-
+	console.log("treesPerShare ", treesPerShare);
 	if (type === "energy") {
 		metaData = {
 			projectId: projectId,
 			investorId: investorId,
-			projectOwnerId: project.producerId,
+			projectOwnerId: producerId,
 			productName: `${projectName} - ${type} ${
 				isNonProfit ? "contribution" : "investment"
 			}`,
 			projectType: type,
 			numOfShares: numOfShares,
 			kwhContributedPerYear: kwhPerShare * numOfShares,
-			fundsRequestedPerTree:
-				project.project_financials.funds_requested_per_tree,
 		};
 	} else {
 		metaData = {
 			projectId: projectId,
 			investorId: investorId,
-			projectOwnerId: project.producerId,
+			projectOwnerId: producerId,
 			productName: `${projectName} - ${type} ${
 				isNonProfit ? "contribution" : "investment"
 			}`,
 			projectType: type,
 			numOfShares: numOfShares,
 			treesContributed: treesPerShare * numOfShares,
-			fundsRequestedPerTree:
-				project.project_financials.funds_requested_per_tree,
+			fundsRequestedPerTree: fundsRequestedPerTree,
 		};
 	}
 
+	console.log("metaData", metaData);
 	try {
 		// Create Checkout Sessions from body params.
 		const session = await stripe.checkout.sessions.create({
