@@ -56,16 +56,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			return NextResponse.json({ message: error.message }, { status: 502 });
 		}
 		//
-		// Here we look for the investor's analytics data and update it if it exists, otherwise we create it.
-		const { data: analyticsData, error: analyticsError } = await supabase
-			.from("investor_analytics")
+		// Here we look for the investor's metrics and update it if it exists, otherwise we create it.
+		const { data: metricsData, error: metricsError } = await supabase
+			.from("investor_metrics")
 			.select("*")
 			.eq("investor_id", orderData.investor_id);
-		if (analyticsError || analyticsData.length === 0) {
+		if (metricsError || metricsData.length === 0) {
 			//
 			// Create new analytics data
-			const { error: analyticsInsertError } = await supabase
-				.from("investor_analytics")
+			const { error: metricsInsertError } = await supabase
+				.from("investor_metrics")
 				.insert([
 					{
 						investor_id: orderData.investor_id,
@@ -73,9 +73,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 							orderData.kwh_contributed_per_year,
 					},
 				]);
-			if (analyticsInsertError) {
+			if (metricsInsertError) {
 				return NextResponse.json(
-					{ message: analyticsInsertError.message },
+					{ message: metricsInsertError.message },
 					{ status: 502 }
 				);
 			}
@@ -84,20 +84,21 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			// Update existing analytics data
 			const totalEstKwhContributedPerYear =
 				parseInt(orderData.kwh_contributed_per_year) +
-				parseInt(analyticsData[0].total_est_kwh_contributed_per_year);
-			const { error: analyticsUpdateError } = await supabase
-				.from("investor_analytics")
+				parseInt(metricsData[0].total_est_kwh_contributed_per_year);
+			const { error: metricsUpdateError } = await supabase
+				.from("investor_metrics")
 				.update({
 					total_est_kwh_contributed_per_year: totalEstKwhContributedPerYear,
 				})
 				.eq("investor_id", orderData.investor_id);
-			if (analyticsUpdateError) {
+			if (metricsUpdateError) {
 				return NextResponse.json(
-					{ message: analyticsUpdateError.message },
+					{ message: metricsUpdateError.message },
 					{ status: 502 }
 				);
 			}
 		}
+		// Update producer metrics
 		return NextResponse.json(
 			{
 				message:
@@ -137,47 +138,47 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		);
 		//
 		// Here we look for the investor's analytics data and update it if it exists, otherwise we create it.
-		const { data: analyticsData, error: analyticsError } = await supabase
-			.from("investor_analytics")
+		const { data: metricsData, error: metricsError } = await supabase
+			.from("investor_metrics")
 			.select("*")
 			.eq("investor_id", orderData.investor_id);
-		console.log("analyticsData.length >>> ", analyticsData?.length);
-		console.log("analyticsError >>> ", analyticsError);
-		if (analyticsError || analyticsData?.length === 0) {
+		console.log("metricsData.length >>> ", metricsData?.length);
+		console.log("metricsError >>> ", metricsError);
+		if (metricsError || metricsData?.length === 0) {
 			//
-			// Create new analytics data
-			const { error: analyticsInsertError } = await supabase
-				.from("investor_analytics")
+			// Create new metrics data
+			const { error: metricsInsertError } = await supabase
+				.from("investor_metrics")
 				.insert([
 					{
 						investor_id: orderData.investor_id,
 						trees_contributed: orderData.trees_contributed,
 					},
 				]);
-			if (analyticsInsertError) {
-				console.log("analyticsInsertError >>> ", analyticsInsertError);
+			if (metricsInsertError) {
+				console.log("metricsInsertError >>> ", metricsInsertError);
 				return NextResponse.json(
-					{ message: analyticsInsertError.message },
+					{ message: metricsInsertError.message },
 					{ status: 502 }
 				);
 			}
 		} else {
 			//
-			// Update existing analytics data
+			// Update existing metrics data
 			const totalTreesContributed =
 				parseInt(orderData.trees_contributed) +
-				parseInt(analyticsData[0].trees_contributed);
-			const { error: analyticsUpdateError } = await supabase
-				.from("investor_analytics")
+				parseInt(metricsData[0].trees_contributed);
+			const { error: metricsUpdateError } = await supabase
+				.from("investor_metrics")
 				.update({
 					trees_contributed: totalTreesContributed,
 				})
 				.eq("investor_id", orderData.investor_id);
-			if (analyticsUpdateError) {
-				console.log("analyticsUpdateError >>> ", analyticsUpdateError);
+			if (metricsUpdateError) {
+				console.log("metricsUpdateError >>> ", metricsUpdateError);
 
 				return NextResponse.json(
-					{ message: analyticsUpdateError.message },
+					{ message: metricsUpdateError.message },
 					{ status: 502 }
 				);
 			}
