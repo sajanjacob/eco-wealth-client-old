@@ -10,7 +10,7 @@ import getBasePath from "@/lib/getBasePath";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 
 interface DashboardProps {}
-type AnalyticData = {
+type MetricData = {
 	data: [
 		{
 			totalTrees: number;
@@ -34,7 +34,7 @@ type AnalyticData = {
 const Dashboard = ({}: DashboardProps) => {
 	const user = useAppSelector((state: RootState) => state.user);
 	const [loading, setLoading] = useState(false);
-	const [analyticData, setAnalyticData] = useState<AnalyticData | null>(null); // [TODO] - type this properly
+	const [metricData, setMetricData] = useState<MetricData | null>(null); // [TODO] - type this properly
 
 	// State for animation
 	const [totalUserTreeContributions, setTotalUserTreeContributions] =
@@ -50,21 +50,19 @@ const Dashboard = ({}: DashboardProps) => {
 		useState(0);
 	const [totalAppTreesContributed, setTotalAppTreesContributed] = useState(0);
 
-	const fetchAnalytics = async () => {
+	const fetchMetrics = async () => {
 		setLoading(true);
 
 		if (user && user.investorId) {
 			await axios
 				.get(
-					`${getBasePath()}/api/investor_analytics?investorId=${
-						user.investorId
-					}`
+					`${getBasePath()}/api/investor_metrics?investorId=${user.investorId}`
 				)
 				.then((res) => {
-					setAnalyticData(convertToCamelCase(res.data));
+					setMetricData(convertToCamelCase(res.data));
 				})
 				.catch((err) => {
-					console.log("analytics err >>> ", err);
+					console.log("metrics err >>> ", err);
 				});
 			setLoading(false);
 		} else {
@@ -73,7 +71,7 @@ const Dashboard = ({}: DashboardProps) => {
 	};
 
 	useEffect(() => {
-		fetchAnalytics();
+		fetchMetrics();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
@@ -119,11 +117,11 @@ const Dashboard = ({}: DashboardProps) => {
 
 	useEffect(() => {
 		const baseDuration = 2000;
-		if (!analyticData) return;
+		if (!metricData) return;
 		animateValue(
 			"totalUserTreeContributions",
 			0,
-			analyticData?.data[0]?.treesContributed || 0,
+			metricData?.data[0]?.treesContributed || 0,
 			baseDuration,
 			setTotalUserTreeContributions
 		);
@@ -131,7 +129,7 @@ const Dashboard = ({}: DashboardProps) => {
 		animateValue(
 			"totalUserTreeCount",
 			0,
-			analyticData?.data[0]?.totalTrees || 0,
+			metricData?.data[0]?.totalTrees || 0,
 			baseDuration,
 			setTotalUserTreeCount
 		);
@@ -139,42 +137,42 @@ const Dashboard = ({}: DashboardProps) => {
 		animateValue(
 			"totalUserEnergyProduction",
 			0,
-			analyticData?.data[0]?.totalEnergyProduced || 0,
+			metricData?.data[0]?.totalEnergyProduced || 0,
 			baseDuration,
 			setTotalUserEnergyProduction
 		);
 		animateValue(
 			"estUserEnergyContributions",
 			0,
-			analyticData?.data[0]?.totalEstKwhContributedPerYear || 0,
+			metricData?.data[0]?.totalEstKwhContributedPerYear || 0,
 			baseDuration,
 			setEstUserEnergyContributions
 		);
 		animateValue(
 			"targetTotalAppTreeCount",
 			0,
-			analyticData?.totalData?.totalTreesPlanted || 0,
+			metricData?.totalData?.totalTreesPlanted || 0,
 			baseDuration,
 			setTotalAppTreeCount
 		);
 		animateValue(
 			"targetTotalAppEnergyProduction",
 			0,
-			analyticData?.totalData?.totalEnergyProduced || 0,
+			metricData?.totalData?.totalEnergyProduced || 0,
 			baseDuration,
 			setTotalAppEnergyProduction
 		);
 		animateValue(
 			"totalAppTreesContributed",
 			0,
-			analyticData?.totalData?.treesContributed || 0,
+			metricData?.totalData?.treesContributed || 0,
 			baseDuration,
 			setTotalAppTreesContributed
 		);
 		animateValue(
 			"totalAppEnergyContribution",
 			0,
-			analyticData?.totalData?.totalEstKwhContributedPerYear || 0,
+			metricData?.totalData?.totalEstKwhContributedPerYear || 0,
 			baseDuration,
 			setTotalAppEnergyContribution
 		);
@@ -183,7 +181,7 @@ const Dashboard = ({}: DashboardProps) => {
 			Object.keys(animationIntervals.current).forEach(clearAnimation);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [analyticData]);
+	}, [metricData]);
 
 	const CO2RemovalRate = 4.5;
 	const ConvertToKGFromTonnes = 1016.04691;
@@ -242,8 +240,6 @@ const Dashboard = ({}: DashboardProps) => {
 							kg of CO²
 						</h2>
 					</div>
-
-					{/* Add two more elements here */}
 				</div>
 				<hr className='my-8' />
 				<div className='grid grid-cols-3 gap-8'>

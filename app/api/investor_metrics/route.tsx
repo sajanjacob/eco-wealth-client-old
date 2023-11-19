@@ -10,13 +10,13 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	const investorId = req.nextUrl.searchParams.get("investorId");
 	console.log("investorId >>> ", investorId);
 	try {
-		// Get individual user analytics
+		// Get individual user metrics
 		const { data, error } = await supabase
-			.from("investor_analytics")
+			.from("investor_metrics")
 			.select("*")
 			.eq("investor_id", investorId);
 		console.log("data >>> ", data);
-		// Get total analytics
+		// Get total metrics
 		const { data: totalData, error: totalErr } = await supabase.rpc(
 			"total_contributions"
 		);
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
 		return NextResponse.json({ data, totalData }, { status: 200 });
 	} catch (error) {
-		console.error(`Error fetching analytics: ${error}`);
+		console.error(`Error fetching metrics: ${error}`);
 		return NextResponse.json({ error: error }, { status: 500 });
 	}
 }

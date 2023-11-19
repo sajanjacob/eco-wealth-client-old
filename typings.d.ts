@@ -172,7 +172,7 @@ interface Project {
 	status: string;
 	type: string;
 	isNonProfit: boolean;
-	projectFinancials: ProjectFinancials;
+	projectFinancials: ProjectFinancials[];
 	// type
 	projectType?: string;
 	treeProjectType: string;
@@ -236,6 +236,12 @@ interface ProjectFinancials {
 	isDeleted: boolean;
 	deletedAt: string;
 	finalEstProjectFundRequestTotal: number;
+	totalAmountRaised: number;
+	totalNumberOfInvestors: number;
+	numOfSharesSold: number;
+	estRoiAmount: number;
+	estRoiPercentage: number;
+	roiAnalysis: string;
 }
 
 interface ProjectMilestone {
