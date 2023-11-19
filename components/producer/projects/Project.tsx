@@ -143,6 +143,7 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 	const handleGoBack = () => {
 		router.back();
 	};
+	console.log("(portfolio) project >>> ", project);
 	return (
 		<div className=''>
 			<p
@@ -306,12 +307,12 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 				</div>
 				{project?.type === "Tree" ? (
 					<TreeProject
-						treeProject={project?.treeProjects[0]}
+						treeProject={project?.treeProjects}
 						project={project}
 						treeInvestments={project?.treeInvestments}
 					/>
 				) : project?.type === "Energy" ? (
-					<EnergyProject project={project?.energyProjects[0]} />
+					<EnergyProject project={project?.energyProjects} />
 				) : null}
 			</div>
 			<Milestones

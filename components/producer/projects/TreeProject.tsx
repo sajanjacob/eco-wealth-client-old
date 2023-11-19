@@ -14,9 +14,9 @@ export default function TreeProject({
 	console.log("project", project);
 	return (
 		<div>
-			<p>Tree Project Type: {treeProject?.type}</p>
+			<p>Tree Project Type: {treeProject?.projectType}</p>
 			<p>Target Trees: {treeProject?.treeTarget?.toLocaleString()}</p>
-			<p>Planted Trees: {treeProject?.treeCount?.toLocaleString()}</p>
+			<p>Planted Trees: {treeProject?.treeCount?.toLocaleString() || 0}</p>
 			<p>Funds requested per tree: ${treeProject?.fundsRequestedPerTree}</p>
 			<p>
 				Total funds requested: $
@@ -29,8 +29,11 @@ export default function TreeProject({
 				Total Number of Investments:{" "}
 				{treeInvestments?.length ? treeInvestments?.length : 0}
 			</p>
-			<p>Total Number of Investors: {project?.totalNumberOfInvestors}</p>
-			<p>Total Funds Raised: ${project?.totalAmountRaised}</p>
+			<p>
+				Total Number of Investors:{" "}
+				{project?.projectFinancials.totalNumberOfInvestors}
+			</p>
+			<p>Total Funds Raised: ${project?.projectFinancials.totalAmountRaised}</p>
 		</div>
 	);
 }

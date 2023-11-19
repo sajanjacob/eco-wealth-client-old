@@ -172,7 +172,7 @@ interface Project {
 	status: string;
 	type: string;
 	isNonProfit: boolean;
-	projectFinancials: ProjectFinancials[];
+	projectFinancials: ProjectFinancials;
 	// type
 	projectType?: string;
 	treeProjectType: string;

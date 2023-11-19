@@ -12,7 +12,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const orderAmount = parseInt(orderData.amount) * 0.01;
 	const feeAmount = parseInt(orderData.fee_amount) * 0.01;
 	const totalRaised = orderAmount - feeAmount;
-
+	function addDays(date: any, days: number) {
+		var result = new Date(date);
+		result.setDate(result.getDate() + days);
+		return result;
+	}
 	const { data, error } = await supabase
 		.from("transactions")
 		.insert([
@@ -20,6 +24,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 				investor_id: orderData.investor_id,
 				amount: totalRaised,
 				order_total: orderAmount,
+				refund_deadline: addDays(new Date(), 28),
 				product: orderData.product,
 				stripe_transaction_id: orderData.stripe_transaction_id,
 				project_id: orderData.project_id,
@@ -57,11 +62,27 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const totalNumOfSharesSold =
 		parseInt(orderData.num_of_shares) +
 		parseInt(projectFinancialsData[0].num_of_shares_sold);
+	let totalNumberOfInvestors = parseInt(
+		projectFinancialsData[0].num_of_investors
+	);
+
+	const { data: uniqueInvestors, error: uniqueInvestorsError } = await supabase
+		.from("view_unique_investors_per_project")
+		.select()
+		.eq("project_id", orderData.project_id);
+	if (uniqueInvestorsError) {
+		console.log("uniqueInvestorsError >>> ", uniqueInvestorsError);
+		return NextResponse.json(
+			{ message: uniqueInvestorsError.message },
+			{ status: 502 }
+		);
+	}
 	await supabase
 		.from("project_financials")
 		.update({
 			total_amount_raised: totalAmountRaised,
 			numOfSharesSold: totalNumOfSharesSold,
+			total_number_of_investors: uniqueInvestors[0].unique_investors_count,
 		})
 		.eq("project_id", orderData.project_id);
 
