@@ -31,7 +31,7 @@ interface FormValues {
 	properties: Property[]; // Replace 'Property' with the actual type
 	projectAddressId: string;
 	projectBannerUrl: string;
-	energyProductionTarget: number;
+	targetKwhProductionPerYear: number;
 	numOfArrays: number;
 	installationTeam: string;
 	installedSystemSize: number;
@@ -76,7 +76,7 @@ function Edit() {
 			properties: [],
 			projectAddressId: "",
 			projectBannerUrl: "",
-			energyProductionTarget: 0,
+			targetKwhProductionPerYear: 0,
 			numOfArrays: 0,
 			installationTeam: "",
 			installedSystemSize: 0,
@@ -117,9 +117,9 @@ function Edit() {
 		if (project) {
 			setValue("title", project.title);
 			setValue("description", project.description);
-			setValue("numTrees", project.treeProjects[0].treeTarget);
+			setValue("numTrees", project.treeProjects.treeTarget);
 			setValue("imageUrlInput", project.imageUrl);
-			setValue("pricePerTree", project.treeProjects[0].fundsRequestedPerTree);
+			setValue("pricePerTree", project.treeProjects.fundsRequestedPerTree);
 			setValue("projectType", project.type);
 
 			setValue("energyType", project.energyProjectType);
@@ -128,46 +128,31 @@ function Edit() {
 			setValue("projectAddressId", project.propertyAddressId);
 			setValue("properties", [project.producerProperties]);
 			setValue("totalArea", project.totalAreaSqkm);
-			if (project.energyProjects[0]) {
+			if (project.energyProjects) {
 				setValue(
-					"energyProductionTarget",
-					project.energyProjects[0].energyProductionTarget
+					"targetKwhProductionPerYear",
+					project.energyProjects.targetKwhProductionPerYear
 				);
-				setValue("numOfArrays", project.energyProjects[0].targetArrays);
-				setValue(
-					"installationTeam",
-					project.energyProjects[0].installationTeam
-				);
-				setValue(
-					"installedSystemSize",
-					project.solarProjects[0].systemSizeInKw
-				);
-				setValue(
-					"photovoltaicCapacity",
-					project.solarProjects[0].systemCapacity
-				);
-				setValue(
-					"estimatedInstallationCost",
-					project.solarProjects[0].labourCost
-				);
-				setValue("estimatedSystemCost", project.solarProjects[0].systemCost);
+				setValue("numOfArrays", project.energyProjects.targetArrays);
+				setValue("installationTeam", project.energyProjects.installationTeam);
+				setValue("installedSystemSize", project.solarProjects.systemSizeInKw);
+				setValue("photovoltaicCapacity", project.solarProjects.systemCapacity);
+				setValue("estimatedInstallationCost", project.solarProjects.labourCost);
+				setValue("estimatedSystemCost", project.solarProjects.systemCost);
 				setValue(
 					"estimatedMaintenanceCost",
-					project.solarProjects[0].maintenanceCost
+					project.solarProjects.maintenanceCost
 				);
 				setValue(
 					"connectWithSolarPartner",
-					project.solarProjects[0].connectWithSolarPartner
+					project.solarProjects.connectWithSolarPartner
 				);
-				setValue(
-					"fundsRequested",
-					project.energyProjects[0].totalFundsRequested
-				);
+				setValue("fundsRequested", project.energyProjects.totalFundsRequested);
 			}
 			if (project.treeProjects) {
-				setValue("numTrees", project.treeProjects[0].treeTarget);
-				setValue("pricePerTree", project.treeProjects[0].fundsRequestedPerTree);
-				setValue("treeType", project.treeProjects[0].type);
+				setValue("numTrees", project.treeProjects.treeTarget);
+				setValue("pricePerTree", project.treeProjects.fundsRequestedPerTree);
+				setValue("treeType", project.treeProjects.type);
 			}
 		}
 	}, [project, setValue]);
@@ -188,7 +173,7 @@ function Edit() {
 	const fundsRequestedPerTree = watch("pricePerTree");
 	const treeType = watch("treeType");
 	const fundsRequested = watch("fundsRequested");
-	const energyProductionTarget = watch("energyProductionTarget");
+	const energyProductionTarget = watch("targetKwhProductionPerYear");
 	const numOfArrays = watch("numOfArrays");
 	const installedSystemSize = watch("installedSystemSize");
 	const photovoltaicCapacity = watch("photovoltaicCapacity");
@@ -527,7 +512,9 @@ function Edit() {
 										(kWh)?
 									</span>
 									<input
-										{...register("energyProductionTarget", { required: true })}
+										{...register("targetKwhProductionPerYear", {
+											required: true,
+										})}
 										className='text-gray-700 p-2 w-[500px] border-2 border-gray-300 rounded-md'
 										type='number'
 									/>
