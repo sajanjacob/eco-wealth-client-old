@@ -21,9 +21,9 @@ type Props = {
 	projectCoordinatorContactName: string;
 	projectCoordinatorContactPhone: string;
 
-	treeProjects?: TreeProject[];
-	energyProjects?: EnergyProject[];
-	solarProjects?: SolarProject[];
+	treeProjects?: TreeProject;
+	energyProjects?: EnergyProject;
+	solarProjects?: SolarProject;
 };
 const ProjectCard = ({
 	role,
@@ -216,14 +216,9 @@ const ProjectCard = ({
 									</h3>
 								</Link>
 								<p className='text-xs'>
-									{treeProjects && treeProjects.length > 0
-										? `${treeProjects[0].type}`
-										: null}
-									{energyProjects &&
-									energyProjects.length > 0 &&
-									solarProjects &&
-									solarProjects.length > 0
-										? `${solarProjects[0].locationType}`
+									{treeProjects ? `${treeProjects.type}` : null}
+									{energyProjects && solarProjects
+										? `${solarProjects.locationType}`
 										: null}
 								</p>
 							</div>
@@ -373,14 +368,9 @@ const ProjectCard = ({
 					<div className='p-4'>
 						<h3 className='mb-2'>{title}</h3>
 						<p className='text-xs'>
-							{treeProjects && treeProjects.length > 0
-								? `${treeProjects[0].type}`
-								: null}
-							{energyProjects &&
-							energyProjects.length > 0 &&
-							solarProjects &&
-							solarProjects.length > 0
-								? `${solarProjects[0].locationType}`
+							{treeProjects ? `${treeProjects.type}` : null}
+							{energyProjects && solarProjects
+								? `${solarProjects.locationType}`
 								: null}
 						</p>
 						<p className='line-clamp-5 overflow-hidden overflow-ellipsis'>
@@ -391,15 +381,15 @@ const ProjectCard = ({
 						<p>{projectCoordinatorContactPhone}</p>
 						<br />
 						<p>Project Type: {projectType}</p>
-						{treeProjects && treeProjects.length > 0 && (
+						{treeProjects && (
 							<>
 								<p>
 									Target:{" "}
-									{Number(treeProjects[0].treeTarget).toLocaleString("en-US")}{" "}
+									{Number(treeProjects.treeTarget).toLocaleString("en-US")}{" "}
 									Trees
 								</p>
 								<p>
-									Funds Requested: ${treeProjects[0].fundsRequestedPerTree}/Tree
+									Funds Requested: ${treeProjects.fundsRequestedPerTree}/Tree
 								</p>
 							</>
 						)}
