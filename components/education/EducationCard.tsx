@@ -35,7 +35,7 @@ const EducationCard: React.FC<EducationCardProps> = ({
 
 	return (
 		<div
-			className={`education-card .${category} bg-green-800 rounded-xl shadow-md m-4 w-72 h-max flex flex-col justify-between`}
+			className={`education-card .${category} bg-transparent rounded-xl shadow-md mr-4 w-[408px] lg:w-[308px] mb-4 h-fit flex flex-col justify-between`}
 			onClick={handleCardClick}
 		>
 			<a
@@ -48,14 +48,13 @@ const EducationCard: React.FC<EducationCardProps> = ({
 					height={150}
 					src={imgUrl}
 					alt={title}
-					style={{ objectFit: "contain" }}
-					className='rounded-t-xl '
+					className='w-full h-48 object-cover rounded-2xl relative'
 				/>
 
-				<div className='card-content p-4'>
-					<h2>{title}</h2>
-					<p className='text-sm'>{category}</p>
-					<p>{shortDescription}</p>
+				<div className='card-content mt-2'>
+					<h2 className='font-semibold'>{title}</h2>
+					<p className='text-sm text-gray-400'>{category}</p>
+					<p className='text-sm text-gray-400'>{shortDescription}</p>
 				</div>
 			</a>
 		</div>
