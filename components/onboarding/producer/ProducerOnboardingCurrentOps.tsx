@@ -97,13 +97,13 @@ export default function ProducerOnboardingCurrentOps({
 			<fieldset className='flex flex-col'>
 				{operationType.includes("Trees") && (
 					<>
-						<legend className='text-xl font-light mb-2'>
+						<legend className='lg:text-xl font-light mb-2'>
 							Do you have trees you&apos;re currently growing to earn income
 							with?
 						</legend>
 						<label
 							htmlFor='hasTreeFarmOperation'
-							className='flex items-center m-3'
+							className='flex items-center mb-2'
 						>
 							<input
 								id='hasTreeFarmOperationYes'
@@ -117,7 +117,7 @@ export default function ProducerOnboardingCurrentOps({
 						</label>
 						<label
 							htmlFor='hasTreeFarmOperationNo'
-							className='flex items-center m-3'
+							className='flex items-center'
 						>
 							<input
 								id='hasTreeFarmOperationNo'
@@ -131,7 +131,7 @@ export default function ProducerOnboardingCurrentOps({
 						</label>
 						{hasTreeFarmOperation === "Yes" && (
 							<>
-								<legend className='text-xl font-light mb-2 mt-3'>
+								<legend className='lg:text-xl font-light mb-2 mt-3'>
 									What types of trees do you currently have on your property?
 								</legend>
 								<label
@@ -155,7 +155,7 @@ export default function ProducerOnboardingCurrentOps({
 									className='flex flex-col mt-3'
 								>
 									<div className='flex justify-between items-center'>
-										<p className='text-xl font-light'>
+										<p className='lg:text-xl font-light'>
 											How many trees do you have on your property?
 										</p>
 										<span className='m-2 text-2xl'>
@@ -182,7 +182,7 @@ export default function ProducerOnboardingCurrentOps({
 				{operationType.includes("Solar Farm") && (
 					<>
 						{" "}
-						<legend className='text-xl font-light mb-2'>
+						<legend className='lg:text-xl font-light mb-2'>
 							Do you have solar panels you&apos;re currently operating to earn
 							income with?
 						</legend>
@@ -216,7 +216,7 @@ export default function ProducerOnboardingCurrentOps({
 						</label>
 						{hasSolarFarmOperation === "Yes" && (
 							<>
-								<legend className='text-xl font-light mb-2 mt-6'>
+								<legend className='lg:text-xl font-light mb-2 mt-6'>
 									What type(s) of solar panel systems do you currently have
 									setup?
 								</legend>
@@ -242,7 +242,7 @@ export default function ProducerOnboardingCurrentOps({
 							className='flex flex-col mt-3'
 						>
 							<div className='flex justify-between items-center'>
-								<p className='text-xl font-light'>
+								<p className='lg:text-xl font-light'>
 									How many solar panels do you have on your property?
 								</p>
 								<span className='m-2 text-2xl'>
