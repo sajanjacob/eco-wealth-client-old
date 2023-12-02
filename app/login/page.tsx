@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import AuthMFA from "@/components/login/AuthMFA";
 import Image from "next/image";
 import { BASE_URL } from "@/constants";
+import { set } from "react-hook-form";
 export default function Login() {
 	const user = useAppSelector((state: RootState) => state.user);
 	const isLoggedIn = useAppSelector((state: RootState) => state.user?.loggedIn);
@@ -18,9 +19,9 @@ export default function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [verified, setVerified] = useState(false);
-	const [loggedInUser, setLoggedInUser] = useState({});
 	const [loading, setLoading] = useState(false);
 	function isOlderThan30Days(timestamp: string) {
+		if (!timestamp) return false;
 		// Parse the input timestamp into a Date object
 		const dateFromTimestamp = new Date(timestamp);
 
@@ -48,15 +49,19 @@ export default function Login() {
 
 				return null;
 			}
-
-			setLoggedInUser(data);
+			console.log("data >> ", data);
+			const userData = {};
+			console.log(
+				"isOlderThan30Days(data.mfa_verified_at) >> ",
+				isOlderThan30Days(data.mfa_verified_at)
+			);
 			if (isOlderThan30Days(data.mfa_verified_at)) {
+				console.log("mfa older than 30 days.");
+
 				await supabase
 					.from("users")
-					.update({
-						mfa_verified: false,
-					})
-					.eq("id", data.id);
+					.update({ mfa_verified: false })
+					.eq("id", userId);
 				dispatch(
 					setUser({
 						loggedIn: true,
@@ -67,7 +72,7 @@ export default function Login() {
 						roles: data.roles,
 						id: data.id,
 						producerId: data.producers.id,
-						investorId: data.producers.id,
+						investorId: data.investors.id,
 						activeRole: data.active_role,
 						onboardingComplete: data.onboarding_complete,
 						investorOnboardingComplete: data.investors.onboarding_complete,
@@ -76,11 +81,32 @@ export default function Login() {
 						smsNotification: data.sms_notification,
 						pushNotification: data.push_notification,
 						mfaEnabled: data.mfa_enabled,
-						mfaVerified: false,
+
 						mfaVerifiedAt: data.mfa_verified_at,
+						mfaVerified: false,
+						loadingUser: false,
 					})
 				); // Dispatch a redux action
-				return setShowMFA(true);
+				setLoading(false);
+				setShowMFA(true);
+				return null;
+			}
+			if (!data.mfa_verified_at) {
+				setLoading(false);
+				setShowMFA(true);
+				return null;
+			}
+			setVerified(true);
+
+			if (!data.onboarding_complete) {
+				console.log("user is not onboarded");
+				router.push("/onboarding");
+			} else {
+				if (data?.active_role === "investor") {
+					router.push("/i/dashboard");
+				} else if (data?.active_role === "producer") {
+					router.push("/p/dashboard");
+				}
 			}
 			dispatch(
 				setUser({
@@ -92,7 +118,7 @@ export default function Login() {
 					roles: data.roles,
 					id: data.id,
 					producerId: data.producers.id,
-					investorId: data.producers.id,
+					investorId: data.investors.id,
 					activeRole: data.active_role,
 					onboardingComplete: data.onboarding_complete,
 					investorOnboardingComplete: data.investors.onboarding_complete,
@@ -103,34 +129,26 @@ export default function Login() {
 					mfaEnabled: data.mfa_enabled,
 					mfaVerified: data.mfa_verified,
 					mfaVerifiedAt: data.mfa_verified_at,
+					loadingUser: false,
 				})
 			); // Dispatch a redux action
+			setLoading(false);
 			return data;
 		} catch (err) {
+			setLoading(false);
 			console.error("Unexpected error fetching user data:", err);
 			return null;
 		}
 	};
 
 	const login = async (user: any) => {
+		setLoading(true);
 		const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
 		await fetchUserData(user.id);
-		if (user.loggedIn) {
-			if (user.mfaVerified) {
-				if (isOlderThan30Days(user.mfaVerifiedAt)) {
-					setShowMFA(true); // This line ensures MFA will be shown
-				} else {
-					setShowMFA(false);
-				}
-			} else {
-				setShowMFA(true); // Show MFA if user.mfaVerified is false
-			}
-		}
-		setLoading(false);
 	};
 
 	const userVerificationRouting = () => {
-		if (verified) {
+		if (verified && !showMFA) {
 			if (isLoggedIn && user?.roles?.length === 0) {
 				router.push("/onboarding");
 			} else {
@@ -146,7 +164,10 @@ export default function Login() {
 	};
 
 	useEffect(() => {
+		console.log("user is logged in >>", isLoggedIn);
+		console.log("user from redux >>", user);
 		if (isLoggedIn) {
+			console.log("user >> ", user);
 			if (!user.mfaVerified || isOlderThan30Days(user.mfaVerifiedAt)) {
 				setShowMFA(true);
 			} else {
@@ -154,7 +175,7 @@ export default function Login() {
 				if (verified) userVerificationRouting();
 			}
 		}
-	}, [isLoggedIn, user.mfaVerifiedAt, verified]);
+	}, [user, isLoggedIn, user.mfaVerifiedAt, verified]);
 
 	useEffect(() => {
 		if (!isLoggedIn) {
@@ -163,7 +184,7 @@ export default function Login() {
 
 		if (isLoggedIn && user.mfaVerified) {
 			setShowMFA(false);
-			if (user.activeRole === undefined) {
+			if (user.activeRole === undefined || user.activeRole === null) {
 				if (user.roles.includes("investor")) {
 					router.push("/i/dashboard");
 					setLoading(false);
@@ -224,23 +245,24 @@ export default function Login() {
 	const handleReturnHome = () => {
 		router.push("/");
 	};
-	if (BASE_URL === "https://ecowealth.app") return;
+	if (BASE_URL === "https://ecowealth.app") return null;
 	return (
 		<>
 			{showMFA ? (
 				<div className='flex flex-col items-center justify-center min-h-screen'>
 					<AuthMFA
+						mfaEnabled={user.mfaEnabled}
 						setVerified={setVerified}
 						setShowMFA={setShowMFA}
 					/>
 				</div>
 			) : (
-				<div className='flex flex-col items-center justify-center min-h-screen'>
+				<div className='flex flex-col items-center justify-center min-h-screen px-12'>
 					<Image
 						src='/white_logo_transparent_background.png'
 						width={300}
 						height={300}
-						alt='EcoWealth Logo'
+						alt='Eco Wealth Logo'
 						onClick={handleReturnHome}
 						className='cursor-pointer'
 					/>
@@ -275,7 +297,7 @@ export default function Login() {
 							className={
 								loading
 									? "p-2 rounded bg-gray-600 text-white font-bold transition-all cursor-default"
-									: "cursor-pointer p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105"
+									: "cursor-pointer p-2 rounded bg-[var(--cta-one)] text-white font-bold transition-all hover:bg-[var(--cta-one-hover)] hover:scale-105"
 							}
 						>
 							{loading ? "Signing you in..." : "Sign in with Email"}
@@ -284,7 +306,7 @@ export default function Login() {
 					<p className='text-gray-500 dark:text-gray-400 mt-4 text-sm'>
 						Need an account?{" "}
 						<span
-							className='text-green-600 cursor-pointer transition-colors hover:text-green-300'
+							className='text-[var(--cta-one)] cursor-pointer transition-colors hover:text-[var(--cta-two-hover)]'
 							onClick={handleCreateAccountLink}
 						>
 							Create one here.
