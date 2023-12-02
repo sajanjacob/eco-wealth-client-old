@@ -16,7 +16,7 @@ function Invest() {
 			const { data, error } = await supabase
 				.from("projects")
 				.select(
-					"*, tree_projects(*), energy_projects(*), project_financials(*), tree_investments(*), energy_investments(*)"
+					"*, tree_projects(*), energy_projects(*), project_financials(*), tree_investments(*), energy_investments(*), solar_projects(*)"
 				)
 				.eq("id", id)
 				.single();
