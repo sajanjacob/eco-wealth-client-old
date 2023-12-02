@@ -179,9 +179,9 @@ export default function InvestorOnboardingCompliance({
 					</p>
 				</div>
 				<legend className='text-xl font-light mb-2'>
-					After reading the above paragraphs, do you understand the risks
-					associated with investing in trees & renewable energy, and agree to
-					continue with creating an investor account despite the risks?
+					After reading the above, do you understand the risks associated with
+					investing in trees & renewable energy, and agree to continue with
+					creating an investor account despite the risks?
 				</legend>
 				<label
 					htmlFor='accreditedInvestor'
