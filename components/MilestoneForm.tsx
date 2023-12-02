@@ -35,6 +35,7 @@ export default function MilestoneForm({
 			setShortDescription(initialData.shortDescription);
 			setBody(initialData.body);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [initialData]);
 
 	return (

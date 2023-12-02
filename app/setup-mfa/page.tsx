@@ -56,6 +56,7 @@ function SetupMfa({}: Props) {
 		toast.success(
 			"You have been logged out.  Please activate MFA to secure your account and login."
 		);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {

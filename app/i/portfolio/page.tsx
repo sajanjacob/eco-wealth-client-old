@@ -44,6 +44,7 @@ function Portfolio({}: Props) {
 		if (user.investorId) {
 			fetchUserPortfolio();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
 	console.log("projects >>> ", projects);

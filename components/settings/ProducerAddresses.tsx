@@ -56,6 +56,7 @@ function ProducerAddresses({ user }: Props) {
 		console.log("producerId >>> ", producerId);
 		if (!producerId) return;
 		fetchAddresses();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [producerId]);
 
 	async function fetchAddresses() {

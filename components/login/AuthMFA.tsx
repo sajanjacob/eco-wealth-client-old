@@ -137,7 +137,7 @@ function AuthMFA({ mfaEnabled, setVerified, setShowMFA }: Props) {
 
 	useEffect(() => {
 		if (!mfaEnabled) router.push("/setup-mfa");
-	}, []);
+	}, [mfaEnabled]);
 
 	return (
 		<div className='flex flex-col'>

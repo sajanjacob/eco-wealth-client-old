@@ -77,6 +77,7 @@ const Dashboard = ({}: DashboardProps) => {
 
 	useEffect(() => {
 		fetchMetrics();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user.investorId]);
 
 	// This is for animation

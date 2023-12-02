@@ -49,6 +49,7 @@ export default function ProducerOnboarding() {
 		if (user.id && user.producerId === "" && user.roles.includes("producer")) {
 			createProducerProfile();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
 	const handleUpdateProducerOnboardingStatus = async (onboardingId: string) => {

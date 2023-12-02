@@ -45,6 +45,7 @@ export default function InvestorOnboarding() {
 		if (user.id && user.investorId === "" && user.roles.includes("investor")) {
 			createInvestorProfile();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user.id]);
 
 	const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {

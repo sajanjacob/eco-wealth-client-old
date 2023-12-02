@@ -175,6 +175,7 @@ export default function Login() {
 				if (verified) userVerificationRouting();
 			}
 		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user, isLoggedIn, user.mfaVerifiedAt, verified]);
 
 	useEffect(() => {

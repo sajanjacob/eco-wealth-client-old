@@ -112,6 +112,7 @@ function Edit() {
 	};
 	useEffect(() => {
 		fetchProject();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	useEffect(() => {
 		if (project) {
@@ -215,6 +216,7 @@ function Edit() {
 		if (user) {
 			fetchProperties(user.producerId || "");
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
 	let fileName = "";

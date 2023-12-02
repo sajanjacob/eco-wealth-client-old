@@ -106,6 +106,7 @@ export default function CityPicker({
 			setSelectedCountry(foundCountry);
 			setCountryCode(foundCountry?.value.isoCode!);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [country]);
 	useEffect(() => {
 		if (stateProvince && selectedCountry) {

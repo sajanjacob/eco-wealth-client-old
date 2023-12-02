@@ -48,6 +48,7 @@ export default function AddressForm({
 		if (initialDetails) {
 			setAddress(initialDetails);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [initialDetails]);
 
 	return (

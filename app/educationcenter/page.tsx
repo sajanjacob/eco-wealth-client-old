@@ -75,6 +75,7 @@ const EducationCenter = () => {
 	useEffect(() => {
 		// Fetch initial data
 		fetchCards("");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {

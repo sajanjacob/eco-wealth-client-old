@@ -180,12 +180,14 @@ function AddProject() {
 		if (foundProperties.length > 0) {
 			setValue("properties", foundProperties);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [foundProperties]);
 
 	useEffect(() => {
 		if (user) {
 			fetchProperties(user.producerId);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
 	let fileName = "";
