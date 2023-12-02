@@ -44,13 +44,13 @@ export default function ProducerOnboardingPropertyZone({
 
 	return (
 		<div>
-			<h2 className='text-2xl'>Submit Property Zone</h2>
-			<h3 className='text-xl my-2'>
+			<h2 className='text-xl lg:text-2xl'>Submit Property Zone</h2>
+			<h3 className='lg:text-xl my-2'>
 				Create a map with your property zone boundaries at{" "}
 				<a
 					href='https://mymaps.google.com/'
 					target='_blank'
-					className='text-green-300'
+					className='text-[var(--cta-one)] hover:text-[var(--cta-one-hover)]'
 				>
 					mymaps.google.com
 				</a>{" "}
@@ -71,14 +71,16 @@ export default function ProducerOnboardingPropertyZone({
 			</button>
 			{showInstructions && (
 				<div className='mt-4'>
-					<h3 className='text-xl my-2'>Example Map using Edmonton:</h3>
+					<h3 className='text-xl my-2'>
+						How to create a Google property zone (2-5 min):
+					</h3>
 					<Image
 						alt=''
 						width={275}
 						height={100}
 						src='https://i.postimg.cc/kGVRybSy/map-example.png'
 					/>
-					<h3 className='text-xl my-2'>
+					<h3 className='lg:text-xl my-2'>
 						Step 1 - On your computer, sign in to{" "}
 						<a
 							href='https://mymaps.google.com/'
@@ -89,62 +91,64 @@ export default function ProducerOnboardingPropertyZone({
 						</a>
 						.
 					</h3>
-					<h3 className='text-xl my-2'>Step 2 - Open or create a map.</h3>
-					<h3 className='text-xl my-2'>
+					<h3 className='lg:text-xl my-2'>Step 2 - Open or create a map.</h3>
+					<h3 className='lg:text-xl my-2'>
 						Step 3 - Find your property on the map by using the search bar at
 						the top.
 					</h3>
-					<h3 className='flex text-xl my-2'>
-						Step 4 - Click Draw a line
+					<h3 className='flex flex-wrap w-[100%] items-center lg:text-xl my-2'>
+						<span className=' '>Step 4 - Click Draw a line</span>
 						<Image
 							alt=''
 							width={25}
 							height={20}
 							src='https://storage.googleapis.com/support-kms-prod/SNP_3024944_en_v0'
-							className='bg-white mx-[4px]'
+							className='bg-white h-[20px] w-[20px] mx-2'
 						/>
-						and then Add line or shape.
+						<span className=' '>and then Add line or shape.</span>
 					</h3>
-					<h3 className='text-xl my-2'>
+					<h3 className='lg:text-xl my-2'>
 						Step 5 - Select a layer and click on the edge of your property zone.
 					</h3>
-					<h3 className='text-xl my-2'>
+					<h3 className='lg:text-xl my-2'>
 						Step 6 - Add lines until you create the boundaries of your property
 						zone.
 					</h3>
-					<h3 className='text-xl my-2'>
+					<h3 className='lg:text-xl my-2'>
 						Step 7 - When you&apos;re finished drawing the property zone
 						boundaries, double-click or complete the shape.
 					</h3>
 
-					<h3 className='text-xl my-2'>
+					<h3 className='lg:text-xl my-2'>
 						Step 8 - Give your line or shape a name.
 					</h3>
-					<h3 className='text-xl my-2'>Step 9 - Save the map.</h3>
-					<h3 className='text-xl my-2'>
+					<h3 className='lg:text-xl my-2'>Step 9 - Save the map.</h3>
+					<h3 className='lg:text-xl my-2'>
 						Step 10 - Click the Share button, make the link accessible to anyone
 						to view, and copy it.
 					</h3>
-					<div className='flex justify-between my-3'>
+					<div className='flex justify-between my-3 w-[50%] md:w-[100%]'>
 						<Image
 							alt=''
+							className=''
 							width={275}
 							height={100}
 							src='https://i.postimg.cc/VLy86wdr/my-map.png'
 						/>
 						<Image
 							alt=''
-							width={325}
+							className=''
+							width={275}
 							height={100}
 							src='https://i.postimg.cc/XY4ht7zW/share-map.png'
 						/>
 					</div>
-					<h3 className='text-xl my-2'>
+					<h3 className='lg:text-xl my-2'>
 						Step 11 - Paste the link in the input at the top of the page and
 						click continue to complete the onboarding.
 					</h3>
 
-					<h3>
+					<h3 className='text-sm lg:text-base'>
 						Note: You can edit the map at anytime in case if you made a mistake
 						and need to update it.
 					</h3>
