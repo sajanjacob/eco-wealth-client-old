@@ -81,8 +81,8 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
 	const supabase = createRouteHandlerClient<any>({
 		cookies: () => cookieStore,
 	});
-	const addressId = req.nextUrl.searchParams.get("addressId");
-	const producerId = req.nextUrl.searchParams.get("producerId");
+	const addressId = req?.nextUrl?.searchParams.get("addressId");
+	const producerId = req?.nextUrl?.searchParams.get("producerId");
 	// Ensure addressId is provided
 	if (!addressId) {
 		return NextResponse.json(
@@ -242,7 +242,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	const supabase = createRouteHandlerClient<any>({
 		cookies: () => cookieStore,
 	});
-	const producerId = req.nextUrl.searchParams.get("producerId");
+	const producerId = req?.nextUrl?.searchParams.get("producerId");
 
 	console.log("received get request", producerId);
 	try {

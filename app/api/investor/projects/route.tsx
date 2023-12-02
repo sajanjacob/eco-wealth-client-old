@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 		cookies: () => cookieStore,
 	});
 	// Get project data
-	const projectId = req.nextUrl.searchParams.get("projectId");
+	const projectId = req?.nextUrl?.searchParams.get("projectId");
 	const { data, error } = await supabase
 		.from("projects")
 		.select(

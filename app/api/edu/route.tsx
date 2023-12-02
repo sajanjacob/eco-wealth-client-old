@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest, res: NextResponse) {
 	// Get category from the request query
 	try {
-		const category = req.nextUrl.searchParams.get("category");
+		const category = req?.nextUrl?.searchParams.get("category");
 		console.log("category >>> ", category);
 		const data = [
 			{

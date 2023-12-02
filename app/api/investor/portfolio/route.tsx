@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	const supabase = createRouteHandlerClient<any>({
 		cookies: () => cookieStore,
 	});
-	const investorId = req.nextUrl.searchParams.get("investorId");
+	const investorId = req?.nextUrl?.searchParams.get("investorId");
 
 	// Check transaction records for all projects the investor has invested in
 	// return projects according to the returned transaction records

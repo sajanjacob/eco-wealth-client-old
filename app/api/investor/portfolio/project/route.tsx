@@ -7,8 +7,8 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	const supabase = createRouteHandlerClient<any>({
 		cookies: () => cookieStore,
 	});
-	const projectId = req.nextUrl.searchParams.get("projectId");
-	const investorId = req.nextUrl.searchParams.get("investorId");
+	const projectId = req?.nextUrl?.searchParams.get("projectId");
+	const investorId = req?.nextUrl?.searchParams.get("investorId");
 	const { data: project, error } = await supabase
 		.from("projects")
 		.select(

@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	const supabase = createRouteHandlerClient<any>({
 		cookies: () => cookieStore,
 	});
-	const producerId = req.nextUrl.searchParams.get("producerId");
+	const producerId = req?.nextUrl?.searchParams.get("producerId");
 	console.log("investorId >>> ", producerId);
 	try {
 		// Get individual investor metrics
