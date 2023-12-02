@@ -24,10 +24,10 @@ function Onboarding() {
 	}, [user, router]);
 
 	return (
-		<div className='h-auto min-h-[100vh] w-[80%] mx-auto'>
+		<div className='h-auto min-h-[100vh] w-[80%] lg:w-[800px] mx-auto pt-8'>
 			<h1 className='text-4xl mt-6 mb-2 font-light'>Eco Wealth</h1>
-			<h2 className='text-2xl mb-6'>Producer Onboarding</h2>
-			<p className='font-light text-base text-gray-400'>
+			<h2 className='text-2xl lg:mb-6 text-gray-400'>Producer Onboarding</h2>
+			<p className='text-gray-400'>
 				Complete your onboarding to activate your Eco Wealth Producer account
 				today.
 			</p>
