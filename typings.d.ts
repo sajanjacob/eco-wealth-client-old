@@ -41,10 +41,11 @@ interface UserState {
 	phoneNumber: string | null;
 
 	// User Status
-	loggedIn: boolean;
+	loggedIn: boolean | null;
 	isVerified: boolean;
 	mfaEnabled: boolean;
 	mfaVerified: boolean;
+	loadingUser: boolean | null;
 
 	// User Roles
 	roles: string[];
@@ -205,14 +206,14 @@ interface Project {
 	// additional details for tree & energy projects
 	treeProjects: TreeProject;
 	energyProjects: EnergyProject;
-	solarProjects: SolarProject;
+	solarProjects: SolarProject[];
 
 	// milestones
 	projectMilestones?: ProjectMilestone;
 
 	// investment transactions
-	treeInvestments?: [];
-	energyInvestments?: [];
+	treeInvestments?: any;
+	energyInvestments?: any;
 
 	// financial kpis
 	totalNumberOfInvestors?: number;
@@ -232,7 +233,8 @@ interface ProjectFinancials {
 	projectId: string;
 	numOfShares: number;
 	amountPerShare: number;
-	estRoiPercentagePerShare: string;
+	estRoiPercentagePerShareBeforeRepayment: number;
+	estRoiPercentagePerShareAfterRepayment: number;
 	isDeleted: boolean;
 	deletedAt: string;
 	finalEstProjectFundRequestTotal: number;
@@ -242,6 +244,8 @@ interface ProjectFinancials {
 	estRoiAmount: number;
 	estRoiPercentage: number;
 	roiAnalysis: string;
+	estReturnPerShareUntilRepayment: number;
+	estReturnPerShareAfterRepayment: number;
 }
 
 interface ProjectMilestone {
@@ -267,6 +271,7 @@ interface EnergyProject extends Project {
 	// Financials
 	totalFundsRequested: number;
 	totalFundsRaised?: number;
+	fundsRequestedPerKwh: number;
 
 	// Energy Production
 	targetKwhProductionPerYear: number;
