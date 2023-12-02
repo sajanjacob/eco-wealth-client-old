@@ -1,39 +1,41 @@
+import moment from "moment";
 import React from "react";
 
 type Props = {
 	project: Project | null | undefined;
-	treeInvestments: [] | null | undefined;
 	treeProject: TreeProject | null | undefined;
 };
 
-export default function TreeProject({
-	project,
-	treeProject,
-	treeInvestments,
-}: Props) {
+export default function TreeProject({ project, treeProject }: Props) {
 	console.log("project", project);
 	return (
 		<div>
-			<p>Tree Project Type: {treeProject?.projectType}</p>
-			<p>Target Trees: {treeProject?.treeTarget?.toLocaleString()}</p>
-			<p>Planted Trees: {treeProject?.treeCount?.toLocaleString() || 0}</p>
-			<p>Funds requested per tree: ${treeProject?.fundsRequestedPerTree}</p>
-			<p>
-				Total funds requested: $
-				{treeProject &&
-					(
-						treeProject?.treeTarget * treeProject?.fundsRequestedPerTree
-					).toLocaleString()}
+			<p className='mb-2'>
+				<span className='text-gray-400'>Tree Project Type:</span>{" "}
+				{treeProject?.projectType}
 			</p>
-			<p>
-				Total Number of Investments:{" "}
-				{treeInvestments?.length ? treeInvestments?.length : 0}
+			<p className='mb-2'>
+				<span className='text-gray-400'>Target Trees:</span>{" "}
+				{treeProject?.treeTarget?.toLocaleString()}
 			</p>
-			<p>
-				Total Number of Investors:{" "}
-				{project?.projectFinancials.totalNumberOfInvestors}
+			<p className='mb-2'>
+				<span className='text-gray-400'>Planted Trees:</span>{" "}
+				{treeProject?.treeCount?.toLocaleString() || 0}
 			</p>
-			<p>Total Funds Raised: ${project?.projectFinancials.totalAmountRaised}</p>
+			<p className='mb-2'>
+				<span className='text-gray-400'>Funds requested per tree:</span> $
+				{treeProject?.fundsRequestedPerTree}
+			</p>
+			<p className='mb-2'>
+				<span className='text-gray-400'>Est planting date:</span>{" "}
+				{moment(treeProject?.estPlantingDate).toDate().toDateString()}
+			</p>
+			{treeProject?.projectType !== "Restoration" && (
+				<p className='mb-2'>
+					<span className='text-gray-400'>Est project maturity date:</span>{" "}
+					{moment(treeProject?.estMaturityDate).toDate().toDateString()}
+				</p>
+			)}
 		</div>
 	);
 }
