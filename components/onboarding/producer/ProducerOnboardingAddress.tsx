@@ -78,7 +78,7 @@ export default function ProducerOnboardingAddress({ handleNextStep }: Props) {
 	return (
 		<div>
 			<fieldset className='flex flex-col'>
-				<legend className='text-xl font-light mb-2'>
+				<legend className='text-xl font-semibold mb-2'>
 					What is the address you will operate your projects on?
 				</legend>
 				<label
@@ -92,7 +92,7 @@ export default function ProducerOnboardingAddress({ handleNextStep }: Props) {
 					type='text'
 					value={producerAddressLineOne}
 					onChange={handleProducerAddressLineOneChange}
-					className='rounded-md  text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+					className='rounded-md  text-lg p-[4px] outline-green-400 transition-colors'
 				/>
 				<label
 					htmlFor='addressLineTwo'
@@ -126,7 +126,7 @@ export default function ProducerOnboardingAddress({ handleNextStep }: Props) {
 							type='text'
 							value={producerPostalCode}
 							onChange={handleProducerPostalCodeChange}
-							className='rounded-md w-[300px] text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+							className='rounded-md text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
 						/>
 						{postalCodeError && (
 							<p className='text-red-500'>
