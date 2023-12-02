@@ -57,14 +57,14 @@ export default function AddressForm({
 					{editing ? "Update address:" : "Add a New Address:"}
 				</h2>
 				<fieldset className='flex flex-col'>
-					<legend className='font-light mb-2'>
+					<legend className='font-light mb-2 text-gray-400'>
 						{editing
 							? "Note: Updating your address will trigger another verification process."
 							: "What is the address you will operate your projects on?"}
 					</legend>
 					<label
 						htmlFor='addressLineOne'
-						className='flex items-center '
+						className='flex items-center mb-[2px]'
 					>
 						Address Line One
 					</label>
@@ -75,11 +75,11 @@ export default function AddressForm({
 						onChange={(e) =>
 							setAddress({ ...address, addressLineOne: e.target.value })
 						}
-						className='rounded-md  text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+						className='rounded-md  text-lg text-gray-700 p-[4px] outline-[var(--cta-one)] transition-colors'
 					/>
 					<label
 						htmlFor='addressLineTwo'
-						className='flex items-center mt-3'
+						className='flex items-center mt-3 mb-[2px]'
 					>
 						Address Line Two
 					</label>
@@ -90,7 +90,7 @@ export default function AddressForm({
 						onChange={(e) =>
 							setAddress({ ...address, addressLineTwo: e.target.value })
 						}
-						className='rounded-md text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+						className='rounded-md text-lg text-gray-700 p-[4px] outline-[var(--cta-one)] transition-colors'
 					/>
 					<CityPicker
 						setCountryCode={setCountryCode}
@@ -103,7 +103,7 @@ export default function AddressForm({
 						<>
 							<label
 								htmlFor='postalCode'
-								className='flex items-center mt-3'
+								className='flex items-center mt-3 mb-[2px]'
 							>
 								{countryCode === "CA"
 									? "Postal Code"
@@ -116,7 +116,7 @@ export default function AddressForm({
 								type='text'
 								value={address.postalCode}
 								onChange={handleProducerPostalCodeChange}
-								className='rounded-md w-[300px] text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+								className='rounded-md w-[300px] text-lg text-gray-700 p-[4px] outline-[var(--cta-one)] transition-colors'
 							/>
 							{postalCodeError && (
 								<p className='text-red-500'>
@@ -134,7 +134,7 @@ export default function AddressForm({
 				<div className='flex justify-end'>
 					<button
 						onClick={handleUpdateAddress}
-						className='bg-green-500 hover:bg-green-600 text-white rounded-md p-2 mt-4'
+						className='bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white rounded-md p-2 mt-4'
 					>
 						Update Address
 					</button>
