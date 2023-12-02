@@ -91,26 +91,26 @@ export default function ProducerOnboardingGoals({
 		<>
 			{/* Investor's Primary Goal */}
 			<fieldset className='flex flex-col'>
-				<legend className='text-xl font-light mb-2'>
+				<legend className='lg:text-xl font-light mb-2'>
 					What are your goals for your property?
 				</legend>
 				<label
 					htmlFor='goals'
-					className='flex items-center m-3'
+					className='flex items-center mb-3'
 				>
 					<textarea
 						id='goals'
 						value={producerGoal}
 						onChange={handleProducerGoalChange}
-						className='rounded-md text-lg text-gray-700 p-[4px] outline-green-400 transition-colors w-[500px] min-h-[150px]'
+						className='rounded-md text-lg text-gray-700 p-[4px] outline-green-400 transition-colors  min-h-[150px] w-[100%]'
 					/>
 				</label>
-				<legend className='text-xl font-light mb-2'>
+				<legend className='lg:text-xl font-light mb-2'>
 					Do you want to primarily grow trees or setup a solar farm?
 				</legend>
 				<label
 					htmlFor='treeOperation'
-					className='flex items-center m-3'
+					className='text-sm flex items-center mb-2 '
 				>
 					<input
 						id='treeOperation'
@@ -124,7 +124,7 @@ export default function ProducerOnboardingGoals({
 				</label>
 				<label
 					htmlFor='solarOperation'
-					className='flex items-center m-3'
+					className='flex items-center mb-2 '
 				>
 					<input
 						id='solarOperation'
@@ -138,7 +138,7 @@ export default function ProducerOnboardingGoals({
 				</label>
 				<label
 					htmlFor='treeAndSolarOperation'
-					className='flex items-center m-3'
+					className='flex items-center mb-2 '
 				>
 					<input
 						id='treeAndSolarOperation'
