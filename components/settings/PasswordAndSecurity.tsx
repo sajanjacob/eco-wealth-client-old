@@ -69,9 +69,9 @@ export default function PasswordAndSecurity({ user }: Props) {
 	};
 
 	return (
-		<div className='mt-6 w-[80%]'>
-			<h2 className='mb-6 text-2xl font-semibold'>Password and Security</h2>
-			<h3 className='mb-3 text-xl font-light'>Update Password</h3>
+		<div className='md:mt-6 md:w-[80%]'>
+			<h2 className='md:mb-2 text-2xl font-semibold'>Security</h2>
+			<h3 className='mb-3 text-xl font-light text-gray-400'>Update Password</h3>
 			<div className='mb-4'>
 				<label
 					className='block text-sm font-bold mb-2'
@@ -125,7 +125,7 @@ export default function PasswordAndSecurity({ user }: Props) {
 			)}
 			<div className='flex justify-end'>
 				<button
-					className='w-[33%] bg-green-500 hover:bg-green-700 transition-colors text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
+					className='md:w-[33%] bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] transition-colors text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
 					type='button'
 					onClick={handlePasswordChange}
 				>
