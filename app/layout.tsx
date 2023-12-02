@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Providers } from "@/redux/provider";
 import Header from "@/components/Header";
+import "react-tooltip/dist/react-tooltip.css";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
