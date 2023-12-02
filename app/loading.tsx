@@ -10,6 +10,10 @@ export default function loading({}: Props) {
 			<CircularProgress
 				className='mb-8'
 				color='success'
+				sx={{
+					width: "48px !important",
+					height: "48px !important",
+				}}
 			/>
 			<h1>Loading App...</h1>
 		</div>
