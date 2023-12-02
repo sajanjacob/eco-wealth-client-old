@@ -13,6 +13,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 		const user = useAppSelector((state: RootState) => state.user);
 		const pathname = usePathname();
 		const dispatch = useAppDispatch();
+
 		function isOlderThan30Days(timestamp: string) {
 			// Parse the input timestamp into a Date object
 			const dateFromTimestamp = new Date(timestamp);
@@ -46,7 +47,6 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 				console.log("user authenticated.");
 				dispatch(
 					setUser({
-						...user,
 						name: data.name,
 						email: data.email,
 						phoneNumber: data.phone_number,
@@ -68,6 +68,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 						mfaVerifiedAt: data.mfa_verified_at,
 						currentTheme:
 							data.current_theme !== null ? data.current_theme : "dark",
+						loadingUser: false,
 					})
 				); // Dispatch a redux action
 
