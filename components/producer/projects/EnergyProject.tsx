@@ -1,35 +1,86 @@
 import React from "react";
 
 type Props = {
-	project: Project;
+	project: any;
 };
 
 export default function EnergyProject({ project }: Props) {
-	const { energyProjects, solarProjects } = project;
-
+	const { entireProject, energyProjects, solarProjects } = project;
+	console.log("project", project);
+	console.log("solar projects", solarProjects);
 	return (
 		<div>
-			<p>Project type: {solarProjects.locationType}</p>
-			<p>Total funds requested: ${project.requestedAmountTotal}</p>
-			<p>
-				Energy production target: {energyProjects.targetKwhProductionPerYear}{" "}
+			{solarProjects?.[0]?.locationType && (
+				<p className='mb-2'>
+					<span className='text-gray-400'>Project type:</span>{" "}
+					{solarProjects?.[0]?.locationType}
+				</p>
+			)}
+			<p className='mb-2'>
+				<span className='text-gray-400'>Total funds requested:</span> $
+				{entireProject?.projectFinancials.finalEstProjectFundRequestTotal.toLocaleString()}
+			</p>
+			<p className='mb-2'>
+				<span className='text-gray-400'>Energy production target:</span>{" "}
+				{energyProjects?.targetKwhProductionPerYear
+					? energyProjects?.targetKwhProductionPerYear
+					: 0}{" "}
 				kWh
 			</p>
-			<p>Actual energy production: {energyProjects.energyProduced} kWh</p>
-			<p>Average yearly production: {energyProjects.avgYearlyProduction} kWh</p>
-			<p>Target number of arrays: {solarProjects.numOfArrays}</p>
-			<p>System size: {solarProjects.systemSizeInKw} kWh</p>
-			<p>System capacity: {solarProjects.systemCapacity} kWh</p>
-			<p>Labour cost: ${solarProjects.labourCost}</p>
-			<p>System cost: ${solarProjects.systemCost}</p>
-			<p>Maintenance cost: ${solarProjects.maintenanceCost}</p>
-			{/* <p>Installer details: {project.installerDetails.name}</p>  */}
-			<p>
-				Installer type:{" "}
-				{energyProjects.installationTeam === "thirdParty"
-					? "Third Party"
-					: "Eco Wealth Partner"}
+			<p className='mb-2'>
+				<span className='text-gray-400'>Actual energy production:</span>{" "}
+				{energyProjects?.energyProduced ? energyProjects?.energyProduced : 0}{" "}
+				kWh
 			</p>
+			<p className='mb-2'>
+				<span className='text-gray-400'>Average yearly production:</span>{" "}
+				{energyProjects?.avgYearlyProduction
+					? energyProjects?.avgYearlyProduction
+					: 0}{" "}
+				kWh
+			</p>
+			<p className='mb-2'>
+				<span className='text-gray-400'>Target number of arrays:</span>{" "}
+				{solarProjects?.[0]?.numOfArrays ? solarProjects?.[0]?.numOfArrays : 0}
+			</p>
+			<p className='mb-2'>
+				<span className='text-gray-400'>System size:</span>{" "}
+				{solarProjects?.[0]?.systemSizeInKw
+					? solarProjects?.[0]?.systemSizeInKw
+					: 0}{" "}
+				kW
+			</p>
+			{solarProjects?.[0]?.systemCapacity ? (
+				<p className='mb-2'>
+					<span className='text-gray-400'>System capacity:</span>{" "}
+					{solarProjects?.[0]?.systemCapacity} kWh
+				</p>
+			) : null}
+			{solarProjects?.[0]?.labourCost ? (
+				<p className='mb-2'>
+					<span className='text-gray-400'>Labour cost:</span> $
+					{solarProjects?.[0]?.labourCost}
+				</p>
+			) : null}
+			{solarProjects?.[0]?.systemCost ? (
+				<p className='mb-2'>
+					<span className='text-gray-400'>System cost:</span> $
+					{solarProjects?.[0]?.systemCost}
+				</p>
+			) : null}
+			{solarProjects?.[0]?.maintenanceCost ? (
+				<p className='mb-2'>
+					<span className='text-gray-400'>Maintenance cost:</span> $
+					{solarProjects?.[0]?.maintenanceCost}
+				</p>
+			) : null}
+			{/* <p className="mb-2">Installer details: {project.installerDetails.name}</p>  */}
+			{energyProjects?.installationTeam ? (
+				<p className='mb-2'>
+					<span className='text-gray-400'>Installer type:</span>{" "}
+					{energyProjects?.installationTeam}
+				</p>
+			) : null}
 		</div>
 	);
 }
