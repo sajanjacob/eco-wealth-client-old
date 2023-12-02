@@ -12,6 +12,7 @@ import { RootState } from "@/redux/store";
 import { BiPencil, BiTrash } from "react-icons/bi";
 import axios from "axios";
 import getBasePath from "@/lib/getBasePath";
+import { IoAddCircle } from "react-icons/io5";
 type Props = {
 	project: Project | null | undefined;
 	adminMode: boolean;
@@ -194,14 +195,15 @@ export default function Milestones({ project, adminMode }: Props) {
 	return (
 		<div className='mt-8'>
 			<div className='flex justify-between mb-2'>
-				<h2 className='font-bold text-2xl mb-2'>Milestones</h2>
+				<h2 className='font-semibold text-xl '>Milestones</h2>
+
 				{adminMode && (
 					<>
 						<button
 							onClick={handleOpenCreateModal}
-							className='p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600'
+							className='flex p-2 rounded bg-[var(--cta-one)] text-white font-bold transition-all hover:bg-[var(--cta-one-hover)]'
 						>
-							+ Milestone
+							<IoAddCircle className='text-2xl mr-2' /> Milestone
 						</button>
 						<Modal
 							open={openCreateModal}
@@ -228,16 +230,17 @@ export default function Milestones({ project, adminMode }: Props) {
 					</>
 				)}
 			</div>
-			<hr />
 			{milestones &&
 				milestones.map((milestone: any) => {
 					if (milestone.isDeleted) return null;
 					const cleanHtml = DOMPurify.sanitize(milestone.body);
 					return (
 						<div key={milestone.id}>
-							<div className='dark:border-white dark:border-[1px] rounded mt-2 p-2 flex justify-between'>
+							<div className='text-gray-300 dark:border-green-900 dark:border-[1px] dark:bg-green-950 dark:bg-opacity-25 rounded  px-4 pt-2 pb-3 flex justify-between'>
 								<div>
-									<h3 className='font-bold text-xl '>{milestone.title}</h3>
+									<h3 className='font-bold text-xl text-gray-500'>
+										{milestone.title}
+									</h3>
 									<p className='text-sm'>{milestone.shortDescription}</p>
 									<div
 										dangerouslySetInnerHTML={{ __html: cleanHtml }}
@@ -322,6 +325,7 @@ export default function Milestones({ project, adminMode }: Props) {
 						</div>
 					);
 				})}
+			{milestones.length === 0 && <p>No milestones found.</p>}
 		</div>
 	);
 }
