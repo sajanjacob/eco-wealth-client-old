@@ -7,11 +7,11 @@ import { toast } from "react-toastify";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import withAuth from "@/utils/withAuth";
-import CircularProgress from "@mui/material/CircularProgress";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import axios from "axios";
 import getBasePath from "@/lib/getBasePath";
+import Loading from "@/components/Loading";
 interface FormValues {
 	title: string;
 	image: File | null;
@@ -135,17 +135,26 @@ function Edit() {
 				);
 				setValue("numOfArrays", project.energyProjects.targetArrays);
 				setValue("installationTeam", project.energyProjects.installationTeam);
-				setValue("installedSystemSize", project.solarProjects.systemSizeInKw);
-				setValue("photovoltaicCapacity", project.solarProjects.systemCapacity);
-				setValue("estimatedInstallationCost", project.solarProjects.labourCost);
-				setValue("estimatedSystemCost", project.solarProjects.systemCost);
+				setValue(
+					"installedSystemSize",
+					project.solarProjects?.[0].systemSizeInKw
+				);
+				setValue(
+					"photovoltaicCapacity",
+					project.solarProjects?.[0].systemCapacity
+				);
+				setValue(
+					"estimatedInstallationCost",
+					project.solarProjects?.[0].labourCost
+				);
+				setValue("estimatedSystemCost", project.solarProjects?.[0].systemCost);
 				setValue(
 					"estimatedMaintenanceCost",
-					project.solarProjects.maintenanceCost
+					project.solarProjects?.[0].maintenanceCost
 				);
 				setValue(
 					"connectWithSolarPartner",
-					project.solarProjects.connectWithSolarPartner
+					project.solarProjects?.[0].connectWithSolarPartner
 				);
 				setValue("fundsRequested", project.energyProjects.totalFundsRequested);
 			}
@@ -182,8 +191,8 @@ function Edit() {
 	const estimatedMaintenanceCost = watch("estimatedMaintenanceCost");
 	const installationTeam = watch("installationTeam");
 	const connectWithSolarPartner = watch("connectWithSolarPartner");
-	// Here we retrieve the properties the user submitted that are verified so
-	// we can list them as options for the user to select from when adding a project.
+	// Here we retrieve the properties the producer submitted that are verified so
+	// we can list them as options for the producer to select from when adding a project.
 	const fetchProperties = async (producerId: string) => {
 		setLoading({ loading: true, message: "Fetching properties..." });
 		const { data: propertyData, error: propertyError } = await supabase
@@ -266,36 +275,50 @@ function Edit() {
 	const onSubmit = async () => {
 		setLoading({ loading: true, message: "Uploading project..." });
 		const formValues = getValues();
+		let uploadedFilePath = "";
 
-		if (formValues.imageFile && (formValues.imageFile as FileList).length > 0) {
-			try {
-				await uploadImage((formValues.imageFile as FileList)[0]);
-			} catch (error) {
-				toast.error(`Error uploading image. ${error}`);
-				console.log("error uploading image: ", error);
+		try {
+			if (formValues.imageFile && formValues.imageFile.length > 0) {
+				await uploadImage(formValues.imageFile[0]);
+				const fileExt = formValues.imageFile[0].name.split(".").pop();
+				uploadedFilePath = `projects/${user.id}/${fileName}`;
 
-				setLoading({ loading: false, message: "" });
-				return;
-			} finally {
-				const fileExt = (formValues.imageFile as FileList)[0].name
-					.split(".")
-					.pop();
-				if (fileName === "") {
-					fileName = `${Math.random()}.${fileExt}`;
-				}
-				const filePath = `projects/${user.id}/${fileName}`;
-				const { data: publicURL } = supabase.storage
+				const { data: publicURL } = await supabase.storage
 					.from("projects")
-					.getPublicUrl(filePath);
+					.getPublicUrl(uploadedFilePath);
+
 				if (!publicURL) {
-					throw new Error("Error uploading image");
+					throw new Error("Error getting public URL of the image");
 				}
+
 				if (publicURL.publicUrl) {
-					updateProject(publicURL.publicUrl);
+					await updateProject(publicURL.publicUrl);
+				}
+			} else if (formValues.imageUrlInput) {
+				await updateProject(formValues.imageUrlInput);
+			}
+			toast.success("Project updated!");
+		} catch (error) {
+			if (error instanceof Error) {
+				toast.error(`Error updating project: ${error.message}`);
+				console.error("Error updating project:", error);
+			} else {
+				toast.error("An unexpected error occurred during project update.");
+				console.error("Error updating project:", error);
+			}
+
+			// Delete the uploaded image if the project update fails
+			if (uploadedFilePath) {
+				const { error: deleteError } = await supabase.storage
+					.from("projects")
+					.remove([uploadedFilePath]);
+
+				if (deleteError) {
+					console.error("Error deleting the uploaded image:", deleteError);
 				}
 			}
-		} else if (formValues.imageUrlInput) {
-			updateProject(formValues.imageUrlInput);
+		} finally {
+			setLoading({ loading: false, message: "" });
 		}
 	};
 	const toggleUploadMethod = () => {
@@ -310,13 +333,7 @@ function Edit() {
 		return (
 			<div className='container mx-auto py-6 px-4 min-h-[100vh]'>
 				<h1 className='text-2xl font-semibold mb-6'>Add Project</h1>
-				<div className='flex justify-center items-center flex-col'>
-					<CircularProgress
-						className='mb-8'
-						color='success'
-					/>
-					<p>{loading.message}</p>
-				</div>
+				<Loading message={loading.message} />
 			</div>
 		);
 	return (
