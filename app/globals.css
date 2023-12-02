@@ -8,6 +8,13 @@
   --background-end-rgb: 255, 255, 255;
   --main-link-color: #598142;
   --main-text-color: #3d6529;
+  --header-border: #1D4F00;
+  --h-one: #34681a;
+  --cta-one: #40821A;
+  --cta-one-hover: #1D4F00;
+  --cta-two-hover: #4CCF00;
+  --bg-one: #000308;
+  --bg-two: #0C2100;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,14 +31,18 @@ html {
 
 
 body {
-  @apply text-gray-700 bg-gradient-to-b from-green-100 to-green-200 min-h-[100vh];
+  /* @apply text-gray-700 bg-gradient-to-b from-green-100 to-green-200 min-h-[100vh]; */
+  /* @apply text-gray-700 bg-gradient-to-b from-green-100 to-green-200 min-h-[100vh]; */
+  @apply text-gray-700 bg-[#0f0f0f] min-h-[100vh];
   
   
  
 }
 @layer base {
   .dark body {
-    @apply text-white bg-gradient-to-b from-green-950 to-black;
+    /* @apply text-white bg-[#0f0f0f]; */
+    /* @apply text-white bg-gradient-to-b from-green-950 to-black; */
+    @apply text-white bg-gradient-to-r from-[#000308] to-[#0C2100];
   }
   .dark input, textarea {
     @apply text-gray-700;
@@ -62,7 +73,35 @@ body {
  
   
 }
+@keyframes slideDown {
+  from {
+      transform: translateY(-100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateY(0);
+      opacity: 1;
+  }
+}
 
+.header-slide-in {
+  animation: slideDown 1s ease forwards;
+}
+
+@keyframes slideHeroImageDown {
+  from {
+      transform: translateY(-10%); /* Adjust the value as needed */
+      opacity: 0;
+  }
+  to {
+      transform: translateY(0);
+      opacity: 1;
+  }
+}
+
+.hero-image-slide-in {
+  animation: slideHeroImageDown 1s ease forwards;
+}
 .glow {
   animation: glow 3s ease-in-out infinite;
 }
@@ -75,24 +114,49 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: bg-green-950;
+  background-color: #1D4F00;
   border-radius: 20px;
   border: 3px solid transparent;
 }
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
 
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+ 
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
 @layer components{
   .menu-link {
-    @apply transition-colors text-gray-800 hover:text-green-300 dark:hover:text-green-400 cursor-pointer dark:text-gray-300 hover:drop-shadow-[0px_8px_8px_rgba(0,0,0,0.222)] dark:hover:drop-shadow-[0px_8px_8px_rgba(244,244,244,0.222)];
+    @apply transition-all text-gray-800 hover:text-[var(--cta-one)] dark:hover:text-[var(--cta-two-hover)] cursor-pointer dark:text-gray-300 hover:drop-shadow-[0px_8px_8px_rgba(0,0,0,0.222)] dark:hover:drop-shadow-[0px_8px_8px_rgba(0,222,0,0.333)];
   }
   .avatar-menu-link {
-    @apply transition-colors text-gray-800 hover:text-green-300 dark:hover:text-green-400 cursor-pointer dark:text-gray-300;
+    @apply transition-all text-gray-800 hover:text-[var(--cta-one)] dark:hover:text-[var(--cta-two-hover)] cursor-pointer dark:text-gray-500 text-2xl hover:drop-shadow-[0px_8px_8px_rgba(0,0,0,0.222)] dark:hover:drop-shadow-[0px_8px_8px_rgba(0,222,0,0.333)];
   }
   .custom-scrollbar::-webkit-scrollbar {
     @apply w-1;
   }
    .custom-scrollbar::-webkit-scrollbar-track 
   {
-    @apply bg-green-950;
+    @apply bg-[#0C2100];
   }
   .custom-scrollbar::-webkit-scrollbar-thumb  {
     @apply bg-green-800 rounded-full;
