@@ -63,9 +63,9 @@ export default function PersonalDetails({ user }: Props) {
 	};
 
 	return (
-		<div className='w-[80%]'>
-			<h2 className='mb-6 text-2xl font-semibold'>Personal Details</h2>
-			<h3 className='mb-3 text-xl font-light'>Contact Info</h3>
+		<div className='md:w-[80%]'>
+			<h2 className='md:mb-2 text-2xl font-semibold'>Personal Details</h2>
+			<h3 className='mb-3 text-xl font-light text-gray-400'>Contact Info</h3>
 			<form onSubmit={handleSubmit}>
 				<div className='mb-4'>
 					<label
@@ -120,7 +120,7 @@ export default function PersonalDetails({ user }: Props) {
 
 				<div className='flex justify-end'>
 					<button
-						className='w-[33%] py-2 px-4 rounded mt-4 bg-green-700 text-white focus:outline-none focus:bg-green-500 hover:bg-green-800 transition-colors'
+						className='md:w-[33%] py-2 px-4 rounded mt-4 bg-[var(--cta-one)] text-white focus:outline-none focus:bg-green-500 hover:bg-[var(--cta-one-hover)] transition-colors'
 						type='submit'
 						disabled={loading}
 					>
@@ -130,7 +130,6 @@ export default function PersonalDetails({ user }: Props) {
 					</button>
 				</div>
 			</form>
-			<hr className='mt-6 border-green-300 dark:border-green-800' />
 		</div>
 	);
 }
