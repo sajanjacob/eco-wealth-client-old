@@ -39,7 +39,7 @@ function WaitingListForm() {
 		>
 			<h1
 				onClick={handleReturnHome}
-				className='mb-2 text-4xl bold lg:text-6xl text-green-700 cursor-pointer transition-colors hover:text-green-600'
+				className='mb-2 text-4xl bold lg:text-6xl text-[var(--cta-one)] cursor-pointer transition-colors hover:text-[var(--cta-one-hover)]'
 			>
 				Eco Wealth
 			</h1>
@@ -66,7 +66,7 @@ function WaitingListForm() {
 				{emailError && <p style={{ color: "red" }}>{emailError}</p>}
 			</div>
 			<button
-				className='w-[300px] mt-8 px-4 py-2 rounded-lg bg-green-700 text-white cursor-pointer hover:bg-green-600 transition-all hover:scale-105'
+				className='w-[300px] mt-8 px-4 py-2 rounded-lg bg-[var(--cta-one)] text-white cursor-pointer hover:bg-[var(--cta-one-hover)] transition-all hover:scale-105'
 				type='submit'
 			>
 				Join waiting list

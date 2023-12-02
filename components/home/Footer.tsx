@@ -8,7 +8,7 @@ export default function Footer({}: Props) {
 			<div>
 				<a
 					href='/privacy-policy'
-					className='text-green-500 hover:text-green-600 text-sm'
+					className='text-[var(--cta-one)] hover:text-[var(--cta-two-hover)] text-sm'
 				>
 					Privacy Policy
 				</a>

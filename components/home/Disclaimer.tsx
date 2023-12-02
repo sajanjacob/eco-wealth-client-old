@@ -9,8 +9,8 @@ export default function Disclaimer({}: Props) {
 			className='pt-[100px] pb-[50px] px-[64px]'
 		>
 			<h3 className='font-bold'>Investment Disclaimer</h3>
-			<div className='mt-8 text-sm'>
-				<p>
+			<div className='md:mt-8 mt-2 text-sm'>
+				<p className='text-gray-400'>
 					Please note that the performance of investments with Eco Wealth is
 					subject to environmental, economic conditions, and the competence of
 					project team members. While we strive to select projects with great

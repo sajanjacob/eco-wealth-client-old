@@ -9,7 +9,7 @@ export default function About({}: Props) {
 			className='py-[100px] px-[64px]'
 		>
 			<h3 className='text-3xl font-bold'>
-				The Vision: Investing in a Greener Tomorrow
+				The Vision: Create a Greener Tomorrow, Today.
 			</h3>
 			<div className='mt-8'>
 				<p>
