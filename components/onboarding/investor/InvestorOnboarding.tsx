@@ -88,7 +88,7 @@ export default function InvestorOnboarding() {
 		}
 	};
 
-	// If the user selects both Trees and Renewable Energy, we add "Both" to the investmentSectors array.
+	// If the investor selects both Trees and Renewable Energy, we add "Both" to the investmentSectors array.
 	useEffect(() => {
 		if (
 			investmentSectors.includes("Trees") &&
@@ -198,8 +198,7 @@ export default function InvestorOnboarding() {
 			);
 			return;
 		}
-		if (data) {
-		}
+
 		dispatch(setUser({ ...user, investorOnboardingComplete: true }));
 	};
 
