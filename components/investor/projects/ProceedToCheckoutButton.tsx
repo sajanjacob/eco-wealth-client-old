@@ -70,7 +70,11 @@ function ProceedToCheckoutButton({
 		<div>
 			<button
 				className={`w-full my-4 p-2 rounded text-white font-bold transition-all 
-				${loading ? "bg-grey-700" : "bg-green-700 hover:bg-green-600 hover:scale-105"}`}
+				${
+					loading
+						? "bg-grey-700"
+						: "bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] hover:scale-105"
+				}`}
 				onClick={(e) => Checkout(e)}
 				disabled={loading}
 			>
