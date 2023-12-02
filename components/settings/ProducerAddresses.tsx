@@ -12,6 +12,10 @@ import AddressForm from "../AddressForm";
 import { toast } from "react-toastify";
 import axios from "axios";
 import getBasePath from "@/lib/getBasePath";
+import { IoCloseCircle, IoExit } from "react-icons/io5";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import VerifyPropertyModal from "./VerifyPropertyModal";
+import Loading from "../Loading";
 type Props = {
 	user: UserState;
 };
@@ -28,12 +32,20 @@ function ProducerAddresses({ user }: Props) {
 	const handleOpenDeleteModal = () => setOpenDeleteModal(true);
 	const handleCloseDeleteModal = () => setOpenDeleteModal(false);
 	const [selectedPropertyId, setSelectedPropertyId] = useState("");
+	const matches = useMediaQuery("(min-width:768px)");
+
+	const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+
+	const openVerifyModal = () => setVerifyModalOpen(true);
+	const closeVerifyModal = () => setVerifyModalOpen(false);
+
+	const [loading, setLoading] = useState(true);
 	const createModalStyle = {
 		position: "absolute" as "absolute",
 		top: "50%",
 		left: "50%",
 		transform: "translate(-50%, -50%)",
-		width: "60vw",
+		width: matches ? "60vw" : "100vw",
 		background: `${theme === "dark" ? "rgb(12 33 0 / 90%)" : "white"}`,
 		border: "2px solid #000",
 		boxShadow: 24,
@@ -48,44 +60,51 @@ function ProducerAddresses({ user }: Props) {
 
 	async function fetchAddresses() {
 		console.log("fetching addresses...");
+		setProperties([]);
+		setLoading(true);
 		const res = await axios.get(
-			`${getBasePath()}/api/properties?producer_id=${producerId}`
+			`${getBasePath()}/api/properties?producerId=${producerId}`
 		);
 		const data = await res.data;
 		const propertyData = convertToCamelCase(data.propertyData);
 		setProperties(convertToCamelCase(propertyData) as Property[]);
+		setLoading(false);
 	}
 
 	async function addAddress() {
-		const { data, error } = await supabase
-			.from("producer_properties")
-			.insert([
-				{
-					producer_id: producerId,
-					address: newAddressDetails,
-					is_verified: false,
-				},
-			])
-			.select();
-
-		if (error) {
-			console.error("Error adding address:", error);
-		} else {
-			// Update local addresses and clear input
-			if (!data) return;
-			setProperties(() => [...properties, convertToCamelCase(data[0])]);
-			setAddressDetails({
-				addressLineOne: "",
-				addressLineTwo: "",
-				city: "",
-				country: "",
-				postalCode: "",
-				stateProvince: "",
+		setLoading(true);
+		await axios
+			.post("/api/properties", {
+				producerId,
+				address: newAddressDetails,
+			})
+			.then((res) => {
+				console.log("res >>> ", res);
+				if (!properties) {
+					setProperties([convertToCamelCase(res.data[0])]);
+				} else {
+					setProperties(() => [...properties, convertToCamelCase(res.data[0])]);
+				}
+				setAddressDetails({
+					addressLineOne: "",
+					addressLineTwo: "",
+					city: "",
+					country: "",
+					postalCode: "",
+					stateProvince: "",
+				});
+				setAddNewAddress(false);
+				toast.success(`Address added successfully`);
+				fetchAddresses();
+				handleCloseCreateModal();
+				setLoading(false);
+			})
+			.catch((err) => {
+				console.log("err >>> ", err);
+				toast.error(`Error adding address: ${err}`);
+				setLoading(false);
 			});
-			setAddNewAddress(false);
-			toast.success(`Address added successfully`);
-			fetchAddresses();
-		}
+		// Update local addresses and clear input
 	}
 	const [newAddressDetails, setNewAddressDetails] = useState<any>({
 		addressLineOne: "",
@@ -136,6 +155,7 @@ function ProducerAddresses({ user }: Props) {
 
 	// Here we validate the postal code
 	const [postalCodeError, setPostalCodeError] = useState(false);
+
 	useEffect(() => {
 		const validPostalCode = postalCodes.validate(
 			countryCode,
@@ -169,10 +189,9 @@ function ProducerAddresses({ user }: Props) {
 
 	const handleDeleteAddress = async (addressId: string) => {
 		await axios
-			.put(`${getBasePath()}/api/properties/delete`, {
-				addressId: addressId,
-				producerId: producerId,
-			})
+			.delete(
+				`${getBasePath()}/api/properties?addressId=${addressId}&producerId=${producerId}`
+			)
 			.then((res) => {
 				console.log("res >>> ", res);
 				setProperties((prev) =>
@@ -185,17 +204,32 @@ function ProducerAddresses({ user }: Props) {
 			});
 	};
 
-	return (
-		<div className='w-[80%]'>
-			<h1>Your Properties</h1>
+	if (loading)
+		return (
+			<div className='md:w-[80%] w-[100%] '>
+				<h1 className='text-2xl font-semibold'>Properties</h1>
+				<div className='flex justify-between items-center'>
+					<Loading />
+				</div>
+			</div>
+		);
 
-			<div className='flex justify-end mt-4'>
-				<button
-					className='bg-green-500 hover:bg-green-600 text-white rounded-md p-2'
-					onClick={() => setAddNewAddress(!addNewAddress)}
-				>
-					{addNewAddress ? "Close" : `+ New Address`}
-				</button>
+	return (
+		<div className='md:w-[80%] w-[100%] '>
+			<div className='flex justify-between items-center'>
+				<h1 className='text-2xl font-semibold'>Properties</h1>
+				<div className='flex justify-end md:mt-4'>
+					<button
+						className={
+							addNewAddress
+								? "text-white text-opacity-25 p-2 text-2xl"
+								: "bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white rounded-md p-2"
+						}
+						onClick={() => setAddNewAddress(!addNewAddress)}
+					>
+						{addNewAddress ? <IoCloseCircle /> : `+ New Address`}
+					</button>
+				</div>
 			</div>
 			{addNewAddress ? (
 				<div className='mb-8'>
@@ -220,7 +254,7 @@ function ProducerAddresses({ user }: Props) {
 									addressLineOne: e.target.value,
 								})
 							}
-							className='rounded-md  text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+							className='rounded-md  text-lg text-gray-700 p-[4px] outline-[var(--cta-one)] transition-colors'
 						/>
 						<label
 							htmlFor='addressLineTwo'
@@ -238,7 +272,7 @@ function ProducerAddresses({ user }: Props) {
 									addressLineTwo: e.target.value,
 								})
 							}
-							className='rounded-md text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+							className='rounded-md text-lg text-gray-700 p-[4px] outline-[var(--cta-one)] transition-colors'
 						/>
 						<CityPicker
 							setCountryCode={setCountryCode}
@@ -261,6 +295,7 @@ function ProducerAddresses({ user }: Props) {
 								<input
 									id='postalCode'
 									type='text'
+									maxLength={countryCode === "CA" ? 6 : 5}
 									value={newAddressDetails.postalCode}
 									onChange={(e) =>
 										setNewAddressDetails({
@@ -268,9 +303,9 @@ function ProducerAddresses({ user }: Props) {
 											postalCode: e.target.value,
 										})
 									}
-									className='rounded-md w-[300px] text-lg text-gray-700 p-[4px] outline-green-400 transition-colors'
+									className='rounded-md w-[300px] text-lg text-gray-700 p-[4px] outline-[var(--cta-one)] transition-colors'
 								/>
-								{/* {postalCodeError && (
+								{postalCodeError && (
 									<p className='text-red-500'>
 										Please enter a valid{" "}
 										{countryCode === "CA"
@@ -279,14 +314,14 @@ function ProducerAddresses({ user }: Props) {
 											? "zip code."
 											: null}
 									</p>
-								)} */}
+								)}
 							</>
 						)}
 					</fieldset>
 					<div className='flex justify-end'>
 						<button
 							onClick={addAddress}
-							className='bg-green-500 hover:bg-green-600 text-white rounded-md p-2 mt-4'
+							className='bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white rounded-md py-2 px-4 mt-4'
 						>
 							Add Address
 						</button>
@@ -294,23 +329,33 @@ function ProducerAddresses({ user }: Props) {
 				</div>
 			) : null}
 
-			<h2>Your Addresses:</h2>
+			<h2 className='text-gray-400 mt-4'>Your Addresses:</h2>
 			{properties &&
 				properties.map(({ id, address, isVerified }) => (
 					<div
 						key={id}
-						className='border-[1px] border-white rounded-md flex justify-between p-4 mt-4'
+						className='border-[1px] border-white rounded-md flex justify-between p-4 mt-2 md:mt-4'
 					>
 						<div>
-							<p
-								className={
-									isVerified
-										? "text-green-400 border-green-400 border-[1px] rounded-md px-3 py-[4px] w-[max-content]"
-										: "text-orange-400 border-orange-400 border-[1px] rounded-md px-3 py-[4px] w-[max-content]"
-								}
-							>
-								{isVerified ? "Address verified" : "Pending verification"}
-							</p>
+							<div className='flex'>
+								<p
+									className={
+										isVerified
+											? "text-[var(--h-one)] border-[var(--h-one)] border-[1px] rounded-md px-3 py-[4px] w-[max-content]"
+											: "text-orange-400 border-orange-400 border-[1px] rounded-md px-3 py-[4px] w-[max-content]"
+									}
+								>
+									{isVerified ? "Address verified" : "Pending verification"}
+								</p>
+								{!isVerified && (
+									<button
+										className='text-xs bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] p-2 transition-colors rounded ml-2'
+										onClick={openVerifyModal}
+									>
+										Verify
+									</button>
+								)}
+							</div>
 							<p className='mt-3'>{address.addressLineOne}</p>
 							<p>{address.addressLineTwo}</p>
 							<p>
@@ -318,13 +363,19 @@ function ProducerAddresses({ user }: Props) {
 							</p>
 							<p>{address.postalCode}</p>
 						</div>
+						<VerifyPropertyModal
+							isOpen={verifyModalOpen}
+							onClose={closeVerifyModal}
+							address={address}
+							fetchAddresses={fetchAddresses}
+						/>
 						<div className='text-right flex flex-col'>
 							<button
 								onClick={() => {
 									setSelectedPropertyId(id);
 									handleOpenCreateModal();
 								}}
-								className='bg-green-500 hover:bg-green-600 text-white rounded-md p-2 mb-2 text-lg'
+								className='bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white rounded-md p-2 mb-2 text-lg'
 							>
 								<BiEdit />
 							</button>
@@ -335,6 +386,12 @@ function ProducerAddresses({ user }: Props) {
 								aria-describedby='modal-modal-description'
 							>
 								<Box sx={createModalStyle}>
+									<div className='flex justify-end w-[100%] mt-4'>
+										<IoCloseCircle
+											onClick={() => handleCloseCreateModal()}
+											className='text-3xl text-gray-400 cursor-pointer'
+										/>
+									</div>
 									<AddressForm
 										handleUpdateAddress={handleUpdateAddress}
 										setAddress={setAddressDetails}
