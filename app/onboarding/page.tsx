@@ -174,14 +174,14 @@ const Onboarding: FC = () => {
 		case 1:
 			return (
 				<div className='flex flex-col items-center justify-center min-h-screen'>
-					<div className='w-[60%]'>
-						<h1 className='mb-2 text-3xl text-gray-500 dark:text-white'>
+					<div className='w-[60%] text-center'>
+						<h1 className='mb-8 text-5xl text-gray-500 dark:text-white font-bold'>
 							👋 Hey {name}, let&apos;s get started!
 						</h1>
-						<h1 className='mb-2 text-xl text-gray-500 dark:text-white'>
-							Which role would you like to begin with on our platform?
+						<h1 className='mb-2 text-2xl text-gray-500 dark:text-white'>
+							Which role do you want to start with?
 						</h1>
-						<p className='mb-10 text-gray-500 dark:text-white'>
+						<p className='mb-10 text-gray-500 dark:text-white text-sm'>
 							<span className='font-semibold'>Note:</span> you can always
 							explore other roles or add more roles to your account later.
 						</p>
@@ -195,8 +195,8 @@ const Onboarding: FC = () => {
 								: "cursor-pointer bg-green-700 transition-all hover:scale-105 hover:bg-green-500"
 						}  `}
 					>
-						<span className='text-xl font-bold'>I&apos;m an Investor:</span>{" "}
-						<br />I want to explore investment opportunities.
+						<span className='text-4xl font-bold'>Investor:</span> <br />I want
+						to explore opportunities to invest in.
 					</button>
 					<button
 						data-account-role='producer'
@@ -207,8 +207,8 @@ const Onboarding: FC = () => {
 								: "cursor-pointer bg-green-700 transition-all hover:scale-105 hover:bg-green-500"
 						}  `}
 					>
-						<span className='text-xl font-bold'>I&apos;m a Producer:</span>{" "}
-						<br />I want to showcase my projects for investment.
+						<span className='text-4xl font-bold'>Producer:</span> <br />I want
+						to operate & raise funds for projects.
 					</button>
 				</div>
 			);
