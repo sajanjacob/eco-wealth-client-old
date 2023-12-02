@@ -13,7 +13,10 @@ import MenuItem from "@mui/material/MenuItem";
 import Image from "next/image";
 import getBasePath from "@/lib/getBasePath";
 import axios from "axios";
-
+import { IoCheckmarkCircle } from "react-icons/io5";
+import { MdOutlineError } from "react-icons/md";
+import { Tooltip } from "react-tooltip";
+import { LinearProgress } from "@mui/material";
 type Props = {
 	project: Project;
 	projectId?: string;
@@ -23,16 +26,19 @@ type Props = {
 
 	treeProjects?: TreeProject;
 	energyProjects?: EnergyProject;
-	solarProjects?: SolarProject;
+	solarProjects?: SolarProject[];
+	fetchProjects?: () => void;
+	percentageFunded?: number;
 };
+function removeUnderscores(str: string) {
+	let newStr = str.replace(/_/g, " ");
+	return newStr;
+}
 const ProjectCard = ({
 	role,
-	projectCoordinatorContactName,
-	projectCoordinatorContactPhone,
 	project,
-	treeProjects,
-	energyProjects,
-	solarProjects,
+	fetchProjects,
+	percentageFunded,
 }: Props) => {
 	const {
 		title,
@@ -40,9 +46,14 @@ const ProjectCard = ({
 		imageUrl,
 		id,
 		status,
-		projectType,
+		type,
 		createdAt,
 		isVerified,
+		isNonProfit,
+		solarProjects,
+		energyProjects,
+		treeProjects,
+		projectFinancials,
 	} = project;
 	const projectId = id;
 	const [isFavorited, setIsFavorited] = useState(false);
@@ -135,11 +146,17 @@ const ProjectCard = ({
 	// Publishes the project with the given ID
 	const publishProject = async (projectId: string) => {
 		if (!isVerified) return;
+		if (!fetchProjects) return;
 		try {
-			axios.put(`${getBasePath()}/api/projects/publish`, {
-				status,
-				projectId,
-			});
+			axios
+				.put(`${getBasePath()}/api/projects/publish`, {
+					status,
+					projectId,
+				})
+				.then(() => {
+					fetchProjects();
+					toast.success("Project published successfully");
+				});
 		} catch (error: any) {
 			// Handle the error appropriately
 			console.error("Error publishing project:", error.message);
@@ -166,29 +183,41 @@ const ProjectCard = ({
 	const handleInvestClick = () =>
 		router.push(`/i/projects/${projectId}/invest`);
 
+	const [requestedDollarsPerKwh, setRequestedDollarsPerKwh] = useState(0);
 	// Initiates the report project flow
-	console.log("project producer id >>> ", project.producerId);
-	console.log("user producer id >>> ", user.producerId);
-	const handleReport = async () => {};
-	const handleOnMouseEnter = () => setIsFavIconHovered(true);
-	const handleOnMouseLeave = () => setIsFavIconHovered(false);
+
+	// const handleReport = async () => {};
+	// const handleOnMouseEnter = () => setIsFavIconHovered(true);
+	// const handleOnMouseLeave = () => setIsFavIconHovered(false);
 	if (role === "investor" && status === "pending_verification") return null;
-	if (role === "investor" && status === "pending_update_review") return null;
+	if (role === "investor" && status === "pending_reverification") return null;
 	if (role === "investor" && status === "not_approved") return null;
 	if (role === "investor" && status === "draft") return null;
 	if (role === "investor" && !isVerified) return null;
 	if (role === "investor" && status === "published")
 		return (
-			<div className='w-72 dark:bg-green-950 bg-white rounded-2xl shadow-md relative mx-8 my-16 z-10 h-fit pb-2 border-[1px] border-green-950 hover:border-green-800 transition-colors'>
+			<div className='mb-8 lg:w-[308px] w-[408px]  bg-transparent rounded-2xl shadow-md relative md:mr-4 z-10 h-fit  '>
 				<a className='block text-inherit no-underline'>
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<Image
-						width={288}
-						height={150}
-						className='w-full h-48 object-cover rounded-t-2xl'
-						src={imageUrl}
-						alt={title}
-					/>
+					<Link
+						href={`/i/projects/${projectId}`}
+						passHref
+					>
+						<div>
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<Image
+								width={288}
+								height={150}
+								className='w-full h-48 object-cover rounded-2xl relative'
+								src={imageUrl}
+								alt={title}
+							/>
+							<div className='absolute inset-2 flex z-10 justify-end h-12 w-[95%]'>
+								{type === "Energy" ? "" : type === "Tree" ? "🌳" : null}
+								{energyProjects && energyProjects.type === "Solar" && "☀️"}
+								{isNonProfit && "💚"}
+							</div>
+						</div>
+					</Link>
 					{/* <button className='bg-transparent absolute top-2 right-1 border-none cursor-pointer text-red-500 text-right mr-2 text-5xl'>
 						{isFavorited || isFavIconHovered ? (
 							<AiFillHeart
@@ -204,25 +233,61 @@ const ProjectCard = ({
 						{favoriteCount}
 					</p> */}
 
-					<div className='p-6'>
+					<div className='pt-[4px]'>
+						{percentageFunded && percentageFunded >= 0 ? (
+							<div className='my-2'>
+								{project?.projectFinancials?.totalAmountRaised &&
+									project?.projectFinancials
+										?.finalEstProjectFundRequestTotal && (
+										<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
+											$
+											{project?.projectFinancials?.totalAmountRaised?.toLocaleString()}{" "}
+											raised out of $
+											{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
+										</p>
+									)}
+								<div>
+									<LinearProgress
+										variant='determinate'
+										color='success'
+										value={percentageFunded}
+									/>
+									<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
+										{percentageFunded.toFixed(2)}% Funded
+									</p>
+								</div>
+							</div>
+						) : (
+							<div className='my-2'>
+								<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
+									$0 raised out of $
+									{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
+								</p>
+
+								<div>
+									<LinearProgress
+										variant='determinate'
+										color='success'
+										value={0}
+									/>
+									<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
+										0.00% Funded
+									</p>
+								</div>
+							</div>
+						)}
 						<div className='flex justify-between'>
-							<div className='flex flex-col pb-4'>
+							<div className='flex flex-col '>
 								<Link
 									href={`/i/projects/${projectId}`}
 									passHref
 								>
-									<h3 className='font-light text-xl overflow-hidden overflow-ellipsis'>
+									<h3 className='font-bold text-xl overflow-hidden overflow-ellipsis'>
 										{title}
 									</h3>
 								</Link>
-								<p className='text-xs'>
-									{treeProjects ? `${treeProjects.type}` : null}
-									{energyProjects && solarProjects
-										? `${solarProjects.locationType}`
-										: null}
-								</p>
 							</div>
-							<div className='flex justify-between mt-[4px]'>
+							<div className='flex justify-between mr-[4px]'>
 								<div
 									onClick={handleClick}
 									className='cursor-pointer text-2xl dark:text-white text-gray-800 mr-[-12px] '
@@ -262,46 +327,94 @@ const ProjectCard = ({
 										View
 									</MenuItem>
 									{/* <MenuItem
-								className='menu-link'
-								onClick={() => router.push(`/i/projects/${projectId}/report`)}
-							>
-								Report
-							</MenuItem> */}
+										className='menu-link'
+										onClick={() =>
+											router.push(`/i/projects/${projectId}/report`)
+										}
+									>
+										Report
+									</MenuItem> */}
 								</Menu>
 							</div>
 						</div>
 
-						<Link
-							href={`/i/projects/${projectId}`}
-							passHref
-						>
-							<p className='overflow-hidden overflow-ellipsis mb-4'>
-								{description}
-							</p>
-						</Link>
-						<div
-							className={
-								project.producerId !== user.producerId
-									? "flex justify-between"
-									: "flex justify-end"
-							}
-						>
-							<button
-								onClick={handleKnowMoreClick}
-								className={`${
-									project.producerId !== user.producerId ? "w-1/2" : "w-[100%]"
-								} p-2 mr-4 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700`}
+						<div className='flex'>
+							<Link
+								href={`/i/projects/${projectId}`}
+								passHref
+								className='flex flex-[3] flex-col '
 							>
-								Know more
-							</button>
-							{project.producerId !== user.producerId ? (
+								<p className='w-[90%] text-xs text-gray-400 overflow-hidden'>
+									{description.substring(0, 30)}
+									<span className='ml-[-2px]'>
+										{description.length > 30 && "..."}
+									</span>
+								</p>
+
+								{treeProjects && (
+									<div className=''>
+										<p className='text-xs text-gray-400 mr-[4px]'>
+											{treeProjects.projectType === "Restoration"
+												? `Non-profit • Restoration •`
+												: `${treeProjects.projectType} •`}{" "}
+											Target →
+											{Number(treeProjects.treeTarget).toLocaleString("en-US")}{" "}
+											Trees • Requested ${treeProjects.fundsRequestedPerTree}{" "}
+											per Tree{" "}
+											{projectFinancials.totalNumberOfInvestors !==
+												undefined && (
+												<>
+													{projectFinancials.totalNumberOfInvestors === 1
+														? "• 1 Investor"
+														: `• ${projectFinancials.totalNumberOfInvestors} Investors`}{" "}
+												</>
+											)}
+										</p>
+									</div>
+								)}
+
+								{energyProjects && solarProjects && (
+									<div className='flex items-center'>
+										<p className='text-xs text-gray-400 mr-[4px]'>
+											{isNonProfit
+												? `Non-profit • ${solarProjects[0].locationType} • `
+												: `${solarProjects[0].locationType} •`}{" "}
+											Target →{" "}
+											{Number(
+												solarProjects[0].estYearlyOutputInKwh
+											).toLocaleString("en-US", {
+												minimumFractionDigits: 2,
+												maximumFractionDigits: 2,
+											})}{" "}
+											kwh/yr •{" "}
+											{projectFinancials.totalNumberOfInvestors !==
+												undefined && (
+												<>
+													{projectFinancials.totalNumberOfInvestors === 1
+														? "1 Investor"
+														: `${projectFinancials.totalNumberOfInvestors} Investors`}{" "}
+												</>
+											)}
+										</p>
+									</div>
+								)}
+							</Link>
+							<div className='flex flex-1 flex-col mt-2'>
 								<button
-									onClick={handleInvestClick}
-									className='w-1/2 p-2 border-none rounded-md bg-green-500 text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-green-700'
+									onClick={handleKnowMoreClick}
+									className={`text-xs w-[100%] px-2 py-[4px] mb-2 border-none rounded-md bg-[var(--cta-one)] text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-[var(--cta-one-hover)]`}
 								>
-									Invest now
+									Details
 								</button>
-							) : null}
+								{project.producerId !== user.producerId ? (
+									<button
+										onClick={handleInvestClick}
+										className='text-xs w-[100%] px-2 py-[4px] border-none rounded-md bg-[var(--cta-one)] text-white cursor-pointer transition-all duration-300 ease-in-out hover:bg-[var(--cta-one-hover)]'
+									>
+										Invest
+									</button>
+								) : null}
+							</div>
 						</div>
 					</div>
 				</a>
@@ -310,25 +423,28 @@ const ProjectCard = ({
 
 	if (role === "owner")
 		return (
-			<div className='w-72 dark:bg-green-900 bg-white rounded-2xl shadow-md relative m-8'>
+			<div className='mb-4 lg:w-[308px] w-[408px]  bg-transparent rounded-2xl shadow-md relative md:mr-4 z-10 h-fit'>
 				<div>
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						src={imageUrl}
-						alt={title}
-						className='w-full h-48 object-cover rounded-t-2xl'
-					/>
-					<div className='flex justify-end w-full items-center'>
-						<p className='bg-transparent border-none cursor-pointer text-red-400 text-right mr-2 mt-1'>
-							{status}
-						</p>
-						<button
-							className='cursor-pointer text-2xl mt-2'
-							onClick={handleClick}
-						>
-							<BsThreeDotsVertical />
-						</button>
-					</div>
+					<Link
+						href={`/p/projects/${projectId}`}
+						passHref
+						className='h-[max-content] w-[max-content]'
+					>
+						<div>
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<Image
+								width={288}
+								height={150}
+								src={imageUrl}
+								alt={title}
+								className='w-full h-48 object-cover rounded-2xl relative'
+							/>
+							<div className='absolute inset-2 flex z-10 justify-end h-12 w-[95%]'>
+								{type === "Energy" ? "⚡" : type === "Tree" ? "🌳" : null}
+								{isNonProfit && "💚"}
+							</div>
+						</div>
+					</Link>
 					<Menu
 						id='basic-menu'
 						anchorEl={anchorEl}
@@ -341,10 +457,15 @@ const ProjectCard = ({
 							theme === "dark"
 								? {
 										"& .MuiPaper-root": {
-											backgroundColor: "rgb(22 163 74/ 95%)",
+											backgroundColor: "#0C2100",
 											borderColor: "rgb(20 83 45 / 90%)",
 											borderWidth: "2px",
 											color: "white",
+										},
+										"& .css-6hp17o-MuiList-root-MuiMenu-list": {
+											paddingTop: "0px",
+											paddingBottom: "0px",
+											padding: "4px",
 										},
 								  }
 								: {
@@ -354,51 +475,181 @@ const ProjectCard = ({
 								  }
 						}
 					>
-						<MenuItem onClick={handleViewProjectClick}>View</MenuItem>
-						{status === "verified" && (
-							<MenuItem onClick={handlePublish}>Publish</MenuItem>
+						<MenuItem
+							onClick={handleViewProjectClick}
+							className='hover:bg-[var(--cta-one)] transition-colors'
+						>
+							View
+						</MenuItem>
+						{status === "approved" && (
+							<MenuItem
+								onClick={handlePublish}
+								className='hover:bg-[var(--cta-one)] transition-colors'
+							>
+								Publish
+							</MenuItem>
 						)}
-						<MenuItem onClick={handleEdit}>Edit</MenuItem>
+						<MenuItem
+							onClick={handleEdit}
+							className='hover:bg-[var(--cta-one)] transition-colors'
+						>
+							Edit
+						</MenuItem>
 					</Menu>
 				</div>
-				<a
-					href={`/p/projects/${project.id}`}
-					className='no-underline'
-				>
-					<div className='p-4'>
-						<h3 className='mb-2'>{title}</h3>
-						<p className='text-xs'>
-							{treeProjects ? `${treeProjects.type}` : null}
-							{energyProjects && solarProjects
-								? `${solarProjects.locationType}`
-								: null}
-						</p>
-						<p className='line-clamp-5 overflow-hidden overflow-ellipsis'>
-							{description.substring(0, 300)}
-						</p>
-						<p>Project Coordinator Contact:</p>
-						<p>{projectCoordinatorContactName}</p>
-						<p>{projectCoordinatorContactPhone}</p>
-						<br />
-						<p>Project Type: {projectType}</p>
-						{treeProjects && (
-							<>
-								<p>
-									Target:{" "}
-									{Number(treeProjects.treeTarget).toLocaleString("en-US")}{" "}
-									Trees
+				<div className='mt-[4px]'>
+					{" "}
+					{percentageFunded && percentageFunded >= 0 ? (
+						<div className='my-2'>
+							{project?.projectFinancials?.totalAmountRaised &&
+								project?.projectFinancials?.finalEstProjectFundRequestTotal && (
+									<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
+										$
+										{project?.projectFinancials?.totalAmountRaised?.toLocaleString()}{" "}
+										raised out of $
+										{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
+									</p>
+								)}
+							<div>
+								<LinearProgress
+									variant='determinate'
+									color='success'
+									value={percentageFunded}
+								/>
+								<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
+									{percentageFunded.toFixed(2)}% Funded
 								</p>
-								<p>
-									Funds Requested: ${treeProjects.fundsRequestedPerTree}/Tree
+							</div>
+						</div>
+					) : (
+						<div className='my-2'>
+							<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
+								$0 raised out of $
+								{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
+							</p>
+
+							<div>
+								<LinearProgress
+									variant='determinate'
+									color='success'
+									value={0}
+								/>
+								<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
+									0.00% Funded
 								</p>
-							</>
-						)}
-						<p>Amount raised: ${project.totalAmountRaised}</p>
-						<br />
-						Created on:
-						<p>{moment(createdAt).format("dddd, MMMM Do YYYY, hh:mm:ss")}</p>
+							</div>
+						</div>
+					)}
+					<div className='flex justify-between items-center w-[100%]'>
+						<h3 className='overflow-hidden overflow-ellipsis flex '>
+							<Link
+								href={`/p/projects/${projectId}`}
+								className='no-underline cursor-pointer h-[max-content] w-[max-content]'
+							>
+								<span className='flex-[10] font-semibold text-lg'>{title}</span>
+							</Link>
+							<span
+								className={`bg-transparent border-none cursor-help ${
+									status === "approved"
+										? "text-green-300 text-2xl"
+										: status === "published"
+										? "text-green-500 text-2xl"
+										: "text-red-400 text-2xl"
+								} ml-2 mt-[2px] font-bold flex-[0.5]`}
+							>
+								{status === "approved" || status === "published" ? (
+									<IoCheckmarkCircle
+										data-tooltip-id='tooltip'
+										data-tooltip-content={removeUnderscores(status)}
+									/>
+								) : (
+									<MdOutlineError
+										data-tooltip-id='tooltip'
+										data-tooltip-content={status}
+									/>
+								)}
+							</span>
+						</h3>
+
+						<Tooltip id='tooltip' />
+						<div>
+							<button
+								className='cursor-pointer text-2xl mt-[2px] mr-[-2px]'
+								onClick={handleClick}
+							>
+								<BsThreeDotsVertical />
+							</button>
+						</div>
 					</div>
-				</a>
+					<Link
+						href={`/p/projects/${projectId}`}
+						className='no-underline cursor-pointer h-[max-content] w-[max-content]'
+					>
+						<p className='text-xs text-gray-400'>
+							{treeProjects
+								? `${
+										treeProjects.projectType === "Restoration"
+											? `Non-profit • Restoration`
+											: treeProjects.projectType
+								  }`
+								: null}
+							{energyProjects && solarProjects
+								? `${
+										isNonProfit
+											? `Non-profit • ${solarProjects[0].locationType}`
+											: solarProjects[0].locationType
+								  }`
+								: null}{" "}
+							{projectFinancials.totalNumberOfInvestors === null ? (
+								`• 0 Investors`
+							) : (
+								<span className='text-xs text-gray-400 mt-[2px]'>
+									{projectFinancials.totalNumberOfInvestors === 1
+										? "• 1 Investor"
+										: `• ${projectFinancials.totalNumberOfInvestors} Investors`}{" "}
+								</span>
+							)}
+						</p>
+
+						{treeProjects && (
+							<div className='flex'>
+								<p className='text-xs text-gray-400 mr-[4px]'>
+									Target →{" "}
+									{Number(treeProjects.treeTarget).toLocaleString("en-US")}{" "}
+									Trees •{" "}
+								</p>
+								<p className='text-xs text-gray-400'>
+									{" "}
+									Requested ${treeProjects.fundsRequestedPerTree} per Tree
+								</p>
+							</div>
+						)}
+						{energyProjects && solarProjects && (
+							<div className='flex'>
+								<p className='text-xs text-gray-400 mr-[4px]'>
+									Target →{" "}
+									{Number(solarProjects[0].estYearlyOutputInKwh).toLocaleString(
+										"en-US",
+										{
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										}
+									)}{" "}
+									kwh/yr •{" "}
+								</p>
+								<p className='text-xs text-gray-400'>
+									{" "}
+									Requested ${energyProjects.fundsRequestedPerKwh.toFixed(2)}
+									/kwh
+								</p>
+							</div>
+						)}
+
+						<span className='text-xs text-gray-400'>
+							Created {moment(createdAt).format("dddd, MMMM Do YYYY")}
+						</span>
+					</Link>
+				</div>
 			</div>
 		);
 };
