@@ -156,7 +156,7 @@ export default function CityPicker({
 					value={selectedCountry}
 					options={options}
 					onChange={handleSelectedCountry}
-					className='text-black'
+					className=' text-black'
 				/>
 			</div>
 			{selectedCountry && (
@@ -171,7 +171,7 @@ export default function CityPicker({
 						</label>
 					</div>
 					<Select
-						className='text-black '
+						className=' text-black '
 						value={selectedState}
 						options={State.getStatesOfCountry(
 							selectedCountry.value.isoCode
@@ -195,7 +195,7 @@ export default function CityPicker({
 						<label>Nearest City/Town</label>
 					</div>
 					<Select
-						className='text-black w-[500px]'
+						className=' text-black'
 						value={selectedCity}
 						options={City.getCitiesOfState(
 							selectedState.value.countryCode,
