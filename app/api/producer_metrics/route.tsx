@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	const producerId = req.nextUrl.searchParams.get("producerId");
 	console.log("investorId >>> ", producerId);
 	try {
-		// Get individual user metrics
+		// Get individual investor metrics
 		const { data, error } = await supabase
 			.from("producer_metrics")
 			.select("*")

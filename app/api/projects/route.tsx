@@ -1,6 +1,6 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -77,19 +77,10 @@ export async function POST(req: any) {
 			projectData.projectType === "Energy" &&
 			projectData.energyProjectType === "Solar"
 		) {
-			const AvgSystemLifeTimeInYears = 25;
-			const estMaintenanceCost =
-				parseInt(projectData.maintenanceCost) * AvgSystemLifeTimeInYears;
-			totalFundsRequested =
-				parseInt(projectData.systemCost) +
-				parseInt(projectData.materialCost) +
-				parseInt(projectData.labourCost) +
-				estMaintenanceCost;
+			totalFundsRequested = parseInt(projectData.totalFundsRequested);
 		}
 		console.log("totalFundsRequested >>> ", totalFundsRequested);
 
-		const netRevenue = parseInt(projectData.estRevenue) - totalFundsRequested;
-		const estRoiAmount = netRevenue * (projectData.estRoiPercentage / 100);
 		// TODO: create function to add project_id to verified_projects table on entry
 		// Insert into projects table
 		const { data: project, error } = await supabase
@@ -107,11 +98,10 @@ export async function POST(req: any) {
 					total_area_sqkm: projectData.totalAreaSqkm,
 					property_address_id: projectData.propertyAddressId,
 					is_non_profit: projectData.isNonProfit,
-					// TODO: store in project_financials table
 					funds_requested: totalFundsRequested,
 					est_revenue: projectData.estRevenue,
 					est_roi_percentage: projectData.estRoiPercentage,
-					est_roi_amount: estRoiAmount,
+					est_long_term_roi_percentage: projectData.estLongTermRoiPercentage,
 				},
 			])
 			.select();
@@ -126,14 +116,20 @@ export async function POST(req: any) {
 				.insert([
 					{
 						project_id: project?.[0].id,
-						funds_requested: totalFundsRequested,
+						final_est_project_fund_request_total: totalFundsRequested,
 						est_revenue: projectData.estRevenue,
 						est_roi_percentage: projectData.estRoiPercentage,
-						est_roi_amount: estRoiAmount,
+						est_long_term_roi_percentage: projectData.estLongTermRoiPercentage,
 					},
 				])
 				.select();
-
+		if (projectFinancialsError) {
+			console.log("projectFinancialsError >>> ", projectFinancialsError);
+			return NextResponse.json(
+				{ error: projectFinancialsError.message },
+				{ status: 501 }
+			);
+		}
 		console.log("project >>> ", project);
 		// Insert into tree_projects table if project type is Tree
 		if (projectData.projectType === "Tree" && project) {
@@ -152,8 +148,8 @@ export async function POST(req: any) {
 					est_seed_cost: projectData.estSeedCost,
 					est_labour_cost: projectData.labourCost,
 					est_maintenance_cost_per_year: projectData.maintenanceCost,
-					est_planting_date: projectData.plantingDate,
-					est_maturity_date: projectData.maturityDate,
+					est_planting_date: projectData.estPlantingDate,
+					est_maturity_date: projectData.estMaturityDate,
 				},
 			]);
 			if (error) {
@@ -164,6 +160,8 @@ export async function POST(req: any) {
 		// Insert into energy_projects table if project type is Energy
 		if (projectData.projectType === "Energy" && project) {
 			// TODO: store installation team in a separate table and provide id to installer_id in solar_projects table
+			const fundsRequestedPerKwh =
+				totalFundsRequested / projectData.targetKwhProductionPerYear;
 
 			const { data, error } = await supabase
 				.from("energy_projects")
@@ -171,36 +169,40 @@ export async function POST(req: any) {
 					{
 						project_id: project?.[0].id,
 						target_kwh_production_per_year:
-							projectData.target_kwh_production_per_year,
-						type: projectData.energyProjectType,
-						installation_team: projectData.installerType,
+							projectData?.targetKwhProductionPerYear,
+						type: projectData?.energyProjectType,
+						installation_team: projectData?.installerType,
 						producer_id: producerId,
+						funds_requested_per_kwh: fundsRequestedPerKwh,
 					},
 				])
 				.select();
 			if (error) {
+				console.log("energy projects error >>> ", error.message);
 				return NextResponse.json({ error: error.message }, { status: 502 });
 			}
 			if (projectData.energyProjectType === "Solar" && data) {
+				console.log("data >>> ", data);
 				const { error } = await supabase.from("solar_projects").insert([
 					{
 						project_id: project?.[0].id,
-						energy_project_id: (data as any).id,
-						num_of_arrays: projectData.targetArrays,
-
-						system_size_in_kw: projectData.systemSize,
-						system_capacity: projectData.systemCapacity,
-						location_type: projectData.locationType,
-						est_labour_cost: projectData.labourCost,
-						est_system_cost: projectData.systemCost,
-						est_maintenance_cost_per_year: projectData.maintenanceCostPerYear,
-						connect_with_solar_partner: projectData.connectWithSolarPartner,
+						energy_project_id: (data as any)?.[0]?.id,
+						num_of_arrays: projectData?.targetArrays,
+						est_yearly_output_in_kwh: projectData?.targetKwhProductionPerYear,
+						system_size_in_kw: projectData?.systemSizeInKw,
+						system_capacity: projectData?.systemCapacity,
+						location_type: projectData?.locationType,
+						est_labour_cost: projectData?.labourCost,
+						est_system_cost: projectData?.systemCost,
+						est_maintenance_cost_per_year: projectData?.maintenanceCostPerYear,
+						connect_with_solar_partner: projectData?.connectWithSolarPartner,
 						producer_id: producerId,
-						est_material_cost: projectData.materialCost,
-						est_installation_date: projectData.installationDate,
+						est_material_cost: projectData?.materialCost,
+						est_installation_date: projectData?.installationDate,
 					},
 				]);
 				if (error) {
+					console.log("solar projects error >>> ", error.message);
 					return NextResponse.json({ error: error.message }, { status: 503 });
 				}
 			}
@@ -270,7 +272,7 @@ export async function GET(req: any, res: any) {
 	query = supabase
 		.from("projects")
 		.select(
-			"*, project_milestones(*), tree_projects(*), energy_projects(*), solar_projects(*)"
+			"*, project_milestones(*), tree_projects(*), energy_projects(*), solar_projects(*), project_financials(*)"
 		)
 		.eq("status", "published")
 		.eq("is_verified", true)
@@ -287,11 +289,13 @@ export async function GET(req: any, res: any) {
 	) {
 		query = supabase
 			.from("projects")
-			.select("*, project_milestones(*), tree_projects!inner(*)")
+			.select(
+				"*, project_milestones(*), tree_projects!inner(*), project_financials(*)"
+			)
 			.eq("status", "published")
 			.eq("is_verified", true)
 			.eq("is_deleted", false)
-			.eq("tree_projects.type", projectType);
+			.eq("tree_projects.project_type", projectType);
 	} else if (
 		projectType === "Solar"
 		// ||
@@ -304,12 +308,12 @@ export async function GET(req: any, res: any) {
 		query = supabase
 			.from("projects")
 			.select(
-				"*, project_milestones(*), energy_projects!inner(*), solar_projects(*)"
+				"*, project_milestones(*), energy_projects!inner(*), solar_projects(*), project_financials(*)"
 			)
 			.eq("status", "published")
 			.eq("is_verified", true)
 			.eq("is_deleted", false)
-			.eq("energy_projects.type", projectType);
+			.eq("energy_projects.project_type", projectType);
 	}
 
 	// Check if nonProfit is true, if so, add a filter on is_non_profit
@@ -317,13 +321,32 @@ export async function GET(req: any, res: any) {
 		query = query.eq("is_non_profit", true);
 	}
 
-	let { data, error } = await query;
-	console.log("data >>> ", data);
+	let { data, error } = await query.order("created_at", { ascending: false });
 	console.log("error >>> ", error);
 	if (error) {
 		console.error(error.message);
-		NextResponse.json({ message: error.message });
-	} else {
-		return NextResponse.json(data);
+		NextResponse.json({ message: error.message }, { status: 500 });
 	}
+
+	if (data) {
+		return NextResponse.json(data, { status: 200 });
+	}
+}
+
+export async function PUT(req: NextRequest, res: NextResponse) {
+	const cookieStore = cookies();
+	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+	const { projectId, status } = await req.json();
+	const { error } = await supabase
+		.from("projects")
+		.update({
+			status,
+		})
+		.eq("id", projectId);
+	if (error) {
+		console.error("Error updating project:", error);
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
+
+	return NextResponse.json({ message: "Project updated successfully" });
 }

@@ -65,6 +65,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			funds_requested_per_tree: metadata.fundsRequestedPerTree,
 			kwh_contributed_per_year: metadata.kwhContributedPerYear,
 			trees_contributed: metadata.treesContributed,
+			total_arrays_installed: metadata.arraysInstalled,
+			homes_powered: metadata.homesPowered,
+			est_kwh_per_share: metadata.estKwhPerShare,
 		};
 		// console.log(
 		// 	"sending orderData to transaction_completion api route: ",

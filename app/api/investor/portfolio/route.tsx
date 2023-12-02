@@ -1,3 +1,4 @@
+import convertToCamelCase from "@/utils/convertToCamelCase";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -7,45 +8,72 @@ export async function GET(req: NextRequest, res: NextResponse) {
 		cookies: () => cookieStore,
 	});
 	const investorId = req.nextUrl.searchParams.get("investorId");
-	console.log("investorId >>> ", investorId);
 
-	function sumOfShares(treeInvestments: any) {
-		console.log("treeInvestments >>> ", treeInvestments);
-		return treeInvestments.reduce(
-			(accumulator: any, currentInvestment: any) => {
-				return accumulator + (currentInvestment.num_of_shares || 0);
-			},
-			0
-		);
-	}
-
-	function sumOfAmountInvested(treeInvestments: any) {
-		console.log("treeInvestments >>> ", treeInvestments);
-		return treeInvestments.reduce(
-			(accumulator: any, currentInvestment: any) => {
-				return accumulator + (currentInvestment.amount || 0);
-			},
-			0
-		);
-	}
 	// Check transaction records for all projects the investor has invested in
 	// return projects according to the returned transaction records
 	try {
-		// Get individual user metrics
-		let { data, error } = await supabase.rpc("get_projects_by_investor", {
-			investor_id_param: investorId,
-		});
-		if (error) console.error(error);
-		else console.log(data);
-		console.log("data >>> ", data);
-		let totalShares = 0;
-		let totalAmountInvested = 0;
-		if (data.length > 0) {
-			totalShares = sumOfShares(data[0].tree_investments);
-			totalAmountInvested = sumOfAmountInvested(data[0].tree_investments);
+		const { data, error } = await supabase
+			.from("transactions")
+			.select("project_id")
+			.eq("investor_id", investorId);
+
+		if (error) {
+			console.error("Error fetching transaction records:", error.message);
+			return NextResponse.json({ error: error }, { status: 500 });
 		}
+		if (data.length === 0) {
+			return NextResponse.json({ data: [] }, { status: 200 });
+		}
+		// Get all projects the investor has invested in
+		const projectIds = data.map((transaction: any) => transaction.project_id);
+		const { data: projects, error: projectsError } = await supabase
+			.from("projects")
+			.select(
+				"*, tree_projects(*), energy_projects(*), project_financials(*), tree_investments(*), energy_investments(*), solar_projects(*)"
+			)
+			.in("id", projectIds)
+			.eq("tree_investments.investor_id", investorId)
+			.eq("energy_investments.investor_id", investorId);
+		if (projectsError) {
+			console.error("Error fetching projects:", projectsError.message);
+			return NextResponse.json({ error: projectsError }, { status: 500 });
+		}
+		// Get each project's total shares (num_of_shares) and append to totalShares array
+		let totalShares: any[] = [];
+		convertToCamelCase(projects).forEach((project: Project) => {
+			let totalProjectShares: any[] = [];
+			if (project?.treeInvestments?.length > 0) {
+				project.treeInvestments.forEach((treeInvestment: any) => {
+					totalProjectShares.push(treeInvestment?.numOfShares);
+				});
+			} else if (project?.energyInvestments?.length > 0) {
+				project.energyInvestments.forEach((energyInvestment: any) => {
+					totalProjectShares.push(energyInvestment?.numOfShares);
+				});
+			}
+			totalShares.push(totalProjectShares.reduce((a, b) => a + b, 0));
+		});
+		let totalAmountInvested: any[] = [];
+		convertToCamelCase(projects).forEach((project: Project) => {
+			let totalProjectAmountInvested: any[] = [];
+			if (project?.energyInvestments?.length > 0) {
+				project.energyInvestments.forEach((energyInvestment: any) => {
+					totalProjectAmountInvested.push(energyInvestment?.amount);
+				});
+			} else if (project?.treeInvestments?.length > 0) {
+				project.treeInvestments.forEach((treeInvestment: any) => {
+					totalProjectAmountInvested.push(treeInvestment?.amount);
+				});
+			}
+			totalAmountInvested.push(
+				totalProjectAmountInvested.reduce((a, b) => a + b, 0)
+			);
+		});
+		console.log("totalShares >>> ", totalShares);
+		console.log("totalAmountInvested >>> ", totalAmountInvested);
+		// console.log("projects >>> ", projects);
 		return NextResponse.json(
-			{ data, totalShares, totalAmountInvested },
+			{ data: projects, totalShares, totalAmountInvested },
 			{ status: 200 }
 		);
 	} catch (error) {

@@ -11,7 +11,9 @@ export async function POST(req: NextRequest, res: any) {
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 	const { data: project, error } = await supabase
 		.from("projects")
-		.select("*, tree_projects(*), energy_projects(*), project_financials(*)")
+		.select(
+			"*, tree_projects(*), energy_projects(*), project_financials(*), solar_projects(*)"
+		)
 		.eq("id", projectId)
 		.single();
 	if (error)
@@ -29,7 +31,8 @@ export async function POST(req: NextRequest, res: any) {
 	const investorId = userData.investors.id;
 	const projectName = project.title;
 	const producerId = project.producer_id;
-	const fundsRequestedPerTree = project.tree_projects.funds_requested_per_tree;
+	const fundsRequestedPerTree =
+		project?.tree_projects?.funds_requested_per_tree;
 	const type = project.type;
 	const isNonProfit = project.is_non_profit;
 	const amountPerShare = project.project_financials.amount_per_share;
@@ -40,26 +43,28 @@ export async function POST(req: NextRequest, res: any) {
 	const feeAmount = numOfShares * amountPerShare + transactionFee;
 	const feeAmountWithPercentage = feeAmount * merchantFeePercentage;
 	const finalFeeAmountRounded = feeAmountWithPercentage.toFixed(2);
+
 	console.log("req.url", req.nextUrl.origin);
-	const kwhPerShare =
-		project?.energy_projects?.target_kwh_production_per_year /
-		1000 /
-		project.project_financials.num_of_shares;
-	console.log(
-		"project?.energy_projects?.target_kwh_production_per_year ",
-		project?.energy_projects?.target_kwh_production_per_year
-	);
-	console.log("kwhPerShare", kwhPerShare);
-	console.log(
-		"project?.tree_projects?.tree_target",
-		project?.tree_projects?.tree_target
-	);
-	const treesPerShare =
-		project?.tree_projects?.tree_target /
-		project.project_financials.num_of_shares;
+
 	let metaData;
-	console.log("treesPerShare ", treesPerShare);
-	if (type === "energy") {
+	if (type === "Energy") {
+		console.log(
+			"project?.energy_projects?.target_kwh_production_per_year ",
+			project?.energy_projects?.target_kwh_production_per_year
+		);
+		const kwhPerShare =
+			parseInt(project?.energy_projects?.target_kwh_production_per_year) /
+			parseInt(project.project_financials.num_of_shares);
+		console.log("kwhPerShare", kwhPerShare);
+
+		const avgKwhPerHousePerYear = 11000;
+		const homesPowered = (kwhPerShare * numOfShares) / avgKwhPerHousePerYear;
+		console.log("homesPowered", homesPowered);
+		const arraysInstalled =
+			(project?.solar_projects[0]?.num_of_arrays /
+				project.project_financials.num_of_shares) *
+			numOfShares;
+		console.log("arraysInstalled", arraysInstalled);
 		metaData = {
 			projectId: projectId,
 			investorId: investorId,
@@ -70,8 +75,19 @@ export async function POST(req: NextRequest, res: any) {
 			projectType: type,
 			numOfShares: numOfShares,
 			kwhContributedPerYear: kwhPerShare * numOfShares,
+			estKwhPerShare: kwhPerShare,
+			homesPowered: homesPowered,
+			arraysInstalled: arraysInstalled,
 		};
 	} else {
+		console.log(
+			"project?.tree_projects?.tree_target",
+			project?.tree_projects?.tree_target
+		);
+		const treesPerShare =
+			project?.tree_projects?.tree_target /
+			project.project_financials.num_of_shares;
+		console.log("treesPerShare ", treesPerShare);
 		metaData = {
 			projectId: projectId,
 			investorId: investorId,
