@@ -10,7 +10,6 @@ import LinearProgress from "@mui/material/LinearProgress";
 
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
 import ProducerOnboardingSubmit from "./ProducerOnboardingSubmit";
 import ProducerOnboardingAddress from "./ProducerOnboardingAddress";
 import ProducerOnboardingGoals from "./ProducerOnboardingGoals";
@@ -50,7 +49,7 @@ export default function ProducerOnboarding() {
 		if (user.id && user.producerId === "" && user.roles.includes("producer")) {
 			createProducerProfile();
 		}
-	}, [user.id]);
+	}, [user]);
 
 	const handleUpdateProducerOnboardingStatus = async (onboardingId: string) => {
 		const { data, error } = await supabase
@@ -67,8 +66,7 @@ export default function ProducerOnboarding() {
 			);
 			return;
 		}
-		if (data) {
-		}
+
 		dispatch(setUser({ ...user, producerOnboardingComplete: true }));
 	};
 
@@ -110,7 +108,7 @@ export default function ProducerOnboarding() {
 			handleUpdateProducerOnboardingStatus(data[0].id);
 
 			await axios
-				.post(`${getBasePath()}/api/properties/create`, {
+				.post(`${getBasePath()}/api/properties`, {
 					producerId: user.producerId,
 					address: address,
 				})
