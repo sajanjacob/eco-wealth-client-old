@@ -4,9 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ProjectCard from "@/components/ProjectCard";
 import withAuth from "@/utils/withAuth";
 import convertToCamelCase from "@/utils/convertToCamelCase";
-import { set } from "react-hook-form";
-import getBasePath from "@/lib/getBasePath";
 import axios from "axios";
+import Loading from "@/components/Loading";
+import { set } from "react-hook-form";
+import { useAppSelector } from "@/redux/hooks";
+import { RootState } from "@/redux/store";
 type Filter = {
 	label: string;
 	value: string;
@@ -18,6 +20,7 @@ function Discover() {
 	const [projects, setProjects] = useState<Projects>([]);
 	const nonProfitFilter = searchParams?.get("nonProfit") ?? "false";
 	const [loading, setLoading] = useState<boolean>(false);
+	const user = useAppSelector((state: RootState) => state.user);
 	const [filters, setFilters] = useState<Filter[]>([
 		{ label: "All", value: "All" },
 		{ label: "🌳 Timber / Lumber", value: "Timber / Lumber" },
@@ -29,6 +32,21 @@ function Discover() {
 		{ label: "🌳 Oil / Chemical", value: "Oil / Chemical" },
 		{ label: "☀️ Solar", value: "Solar" },
 	]);
+	const [percentagesFunded, setPercentagesFunded] = useState<any>([]);
+
+	useEffect(() => {
+		if (projects.length > 0) {
+			setPercentagesFunded(
+				projects.map((project) => {
+					return (
+						(project?.projectFinancials?.totalAmountRaised /
+							project?.projectFinancials?.finalEstProjectFundRequestTotal) *
+						100
+					);
+				})
+			);
+		}
+	}, [projects]);
 	useEffect(() => {
 		if (nonProfitFilter === "true") {
 			setFilters([
@@ -81,7 +99,7 @@ function Discover() {
 
 		fetchProjects(activeFilter, nonProfitFilter);
 	}, [activeFilter, nonProfitFilter]);
-
+	console.log("hi ", user.name?.substring(0, user.name.indexOf(" ")));
 	// Here we handle the filter click by pushing the filter type to the url
 	const handleFilterClick = (e: any) => {
 		const filterType = e.target.value;
@@ -114,22 +132,22 @@ function Discover() {
 	};
 
 	return (
-		<div className='w-3/4 mx-auto py-8 h-[100%]'>
+		<div className='w-[90%] lg:w-3/4 mx-auto py-8 h-[100%]'>
 			<h1 className='text-2xl font-bold'>Discover Projects</h1>
 			<h2 className='font-light text-lg mb-8'>
 				Instantly find tree-based agriculture and renewable energy projects to
 				invest into.
 			</h2>
-			<div className='flex flex-wrap gap-4 mb-8'>
+			<div className='flex flex-wrap gap-2  mb-8'>
 				{filters.map((item, index) => (
 					<button
 						key={index}
 						value={`${item.value}`}
 						onClick={handleFilterClick}
-						className={`px-4 py-2 rounded transition-colors border border-black ${
+						className={`text-xs md:text-base px-4 py-2 rounded transition-colors border border-black ${
 							item.value === activeFilter
-								? "bg-green-500 text-white"
-								: "bg-gray-800 text-white hover:bg-gray-700"
+								? "bg-[var(--cta-one)] text-white"
+								: "bg-gray-800 text-white hover:bg-gray-700 hover:text-[var(--cta-two-hover)]"
 						}`}
 					>
 						{item.label}
@@ -137,23 +155,21 @@ function Discover() {
 				))}
 				<button
 					onClick={handleNonProfitFilterClick}
-					className={`px-4 py-2 rounded transition-colors border border-black ${
+					className={`text-xs md:text-base px-4 py-2 rounded transition-colors border border-black ${
 						nonProfitFilter === "true"
-							? "bg-green-500 text-white"
-							: "bg-gray-800 text-white hover:bg-gray-700"
+							? "bg-[var(--cta-one)] text-white"
+							: "bg-gray-800 text-white hover:bg-gray-700 hover:text-[var(--cta-two-hover)]"
 					}`}
 				>
-					Non-Profit
+					{`💚 Non-Profit`}
 				</button>
 			</div>
 			{loading ? (
-				<div className='mx-auto flex flex-col items-center text-center mt-48'>
-					<h3 className='mb-4'>Loading...</h3>{" "}
-				</div>
+				<Loading />
 			) : (
-				<div className='flex flex-wrap w-full min-h-screen'>
+				<div className='flex flex-wrap'>
 					{projects.length > 0 ? (
-						projects.map((project) => {
+						projects.map((project, index) => {
 							const {
 								id,
 								projectCoordinatorContact,
@@ -172,6 +188,7 @@ function Discover() {
 									}
 									treeProjects={treeProjects}
 									energyProjects={energyProjects}
+									percentageFunded={percentagesFunded[index]}
 								/>
 							);
 						})
