@@ -8,7 +8,7 @@ export default function SupportLink({}: Props) {
 			<a
 				href='https://ecoappsandautomation.freshdesk.com/'
 				target='_blank'
-				className='text-green-500 hover:text-green-600'
+				className='text-[var(--cta-one)] hover:text-[var(--cta-one-hover)]'
 			>
 				ecoappsandautomation.freshdesk.com.
 			</a>
