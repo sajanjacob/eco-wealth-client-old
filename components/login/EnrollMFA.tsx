@@ -130,17 +130,20 @@ function EnrollMFA({
 		<>
 			{error && <div className='error'>{error}</div>}
 			<div className='border-[1px] border-white rounded-md p-4 flex flex-col'>
-				{/* eslint-disable-next-line @next/next/no-img-element */}
-				<img
-					src={qr}
-					alt=''
-					className='w-1/2 h-1/2 mx-auto mb-4'
-				/>
-				<p>{factorId}</p>
-				<p className='text-sm text-center mb-2'>
+				<div className='bg-white w-[60%] h-[60%] mx-auto mb-4'>
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src={qr}
+						alt=''
+						className='w-[100%] h-max'
+					/>
+				</div>
+
+				<p className='text-center mb-2'>
 					Scan the QR code above with an authenticator app and <br />
 					enter the corresponding code that appears in the auth app below.
 				</p>
+
 				<input
 					type='text'
 					className='p-2 mb-4 rounded text-gray-500 border-gray-100 border-2 outline-green-300 transition-colors hover:border-green-200'
@@ -148,13 +151,16 @@ function EnrollMFA({
 					maxLength={6}
 					onChange={(e) => setVerifyCode(e.target.value.trim())}
 				/>
-				<div className={enableLogout ? "flex" : "flex justify-end"}>
+
+				<div
+					className={enableLogout ? "flex justify-around" : "flex justify-end"}
+				>
 					{enableLogout && (
 						<button
-							className='flex items-center px-4 py-2 ml-4 rounded bg-red-900 text-white font-bold transition-all hover:bg-orange-900'
+							className='flex items-center px-4 py-2  rounded bg-red-900 text-white font-bold transition-all hover:bg-orange-900'
 							onClick={onCancelled}
 						>
-							Logout & Cancel MFA Setup
+							Logout & Cancel Setup
 						</button>
 					)}
 					<button
@@ -167,8 +173,14 @@ function EnrollMFA({
 						}
 						onClick={onEnableClicked}
 					>
-						{loading ? "Activating..." : "Activate MF-Auth"}
+						{loading ? "Activating..." : "Activate MFA Now"}
 					</button>
+				</div>
+				<div className='text-center mt-4 text-gray-300'>
+					<p className='text-sm'>
+						Or you can copy this token into your authententicator app:
+					</p>
+					<p>{factorId}</p>
 				</div>
 			</div>
 		</>
