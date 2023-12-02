@@ -15,6 +15,7 @@ import RecentRegistrations from "@/components/RecentRegistrations";
 import WaitingListGoalTracker from "@/components/WaitingListGoalTracker";
 import Disclaimer from "@/components/home/Disclaimer";
 import Footer from "@/components/home/Footer";
+import { setUser } from "@/redux/features/userSlice";
 // TODO: remove guard statements in login & signup pages when launching beta
 export default function Home() {
 	const backgroundImageUrl =
@@ -56,58 +57,64 @@ export default function Home() {
 	const handleLoginClick = () => router.push("/login");
 	const handleSignupClick = () => router.push("/signup");
 	const handleWaitingListClick = () => router.push("/register");
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		dispatch(setUser({ ...user, loadingUser: false }));
+	}, [user, dispatch]);
 
 	return (
 		<>
 			<div
-				className='w-[100%] mx-auto h-[95vh] bg-cover bg-center flex justify-center items-center bg-no-repeat'
+				className='z-[-1000] absolute top-0 w-[100%] mx-auto h-[100vh] bg-cover bg-center flex justify-center items-center bg-no-repeat'
 				style={{
 					backgroundImage: `url(${backgroundImageUrl})`,
 				}}
 			>
-				<div className='w-full h-full flex justify-center flex-col items-center bg-black bg-opacity-50'>
+				<div className='w-full h-full flex justify-center flex-col items-center bg-black bg-opacity-75'>
 					<div className=' w-[80%] m-auto items-center md:w-[50%]'>
 						{/* <h1 className='text-2xl font-light mb-4'>
 						Together, we&apos;ve planted {treeCount} trees & installed{" "}
 						{arrayCount} solar arrays.
 					</h1> */}
-						<h1 className='text-white font-bold text-2xl md:text-3xl md:w-[100%]'>
+						<h1 className='text-white font-bold text-2xl md:text-3xl md:w-[100%] mt-8 md:mt-0'>
 							Together, we can make a positive impact all around the world by{" "}
-							<span className='text-green-400'> planting trees</span>,
-							prioritizing <span className='text-green-400'> soil health</span>,
-							and transitioning to{" "}
-							<span className='text-green-400'> renewable energy</span>.
+							<span className='text-[var(--h-one)]'> planting trees</span>,
+							prioritizing{" "}
+							<span className='text-[var(--h-one)]'> soil health</span>, and
+							transitioning to{" "}
+							<span className='text-[var(--h-one)]'> renewable energy</span>.
 						</h1>
 						{!user.loggedIn && (
-							<div className='flex flex-col mt-6'>
-								<h3 className='text-white text-right font-medium'>
+							<>
+								<h3 className='font-medium tracking-wide text-gray-400 text-lg md:text-2xl mt-4'>
 									By using Eco Wealth, you can help bring balance to the
 									environment and ensure future generations of people thrive.
 								</h3>
 								<button
-									className='pulsate  cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
-									onClick={handleWaitingListClick}
+									className='pulsate mb-4 cursor-pointer transition-all bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
+									onClick={() => handleWaitingListClick()}
 								>
 									Join the waiting list today
 								</button>
 								<WaitingListGoalTracker />
 								{/* <h3 className='text-white text-right font-medium '>
 								<span
-									className='cursor-pointer transition-colors text-green-600 underline hover:text-green-300'
+									className='cursor-pointer transition-colors text-[var(--cta-one)] underline hover:text-[var(--cta-one-hover)]'
 									onClick={handleLoginClick}
 								>
 									Login
 								</span>{" "}
 								or{" "}
 								<span
-									className='cursor-pointer transition-colors text-green-600 underline hover:text-green-300'
+									className='cursor-pointer transition-colors text-[var(--cta-one)] underline hover:text-[var(--cta-one-hover)]'
 									onClick={handleSignupClick}
 								>
 									create an account
 								</span>{" "}
 								today.
 							</h3> */}
-							</div>
+							</>
 						)}
 						{user.loggedIn && (
 							<div className='flex flex-col mt-8'>
@@ -139,11 +146,19 @@ export default function Home() {
 					</div>
 				</div>
 			</div>
-			<div className='lg:w-[800px] lg:mx-auto'>
+			<div className='md:w-[1200px] md:mx-auto mt-[90vh]'>
 				<About />
 				<Strategy />
 				<HowItWorks />
 				<Pricing />
+				<div className='flex justify-center'>
+					<button
+						className='pulsate mb-4 cursor-pointer transition-all bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
+						onClick={() => handleWaitingListClick()}
+					>
+						Join the waiting list today
+					</button>
+				</div>
 				<RecentRegistrations />
 				<Disclaimer />
 				<Footer />
