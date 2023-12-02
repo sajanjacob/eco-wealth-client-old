@@ -49,11 +49,11 @@ export default function Notifications({ user }: Props) {
 		setter(event.target.checked);
 	};
 	return (
-		<div className='w-[80%]'>
+		<div className='md:w-[80%]'>
 			<div>
 				<h2 className='mb-6 text-2xl font-semibold'>Notification Settings</h2>
 
-				<label className='flex items-center cursor-pointer mb-8'>
+				<label className='flex items-center cursor-pointer mb-8 justify-between md:justify-start'>
 					<div className='ml-3 font-medium mr-4 '>Email Notifications</div>
 					<div className='relative'>
 						<input
@@ -81,7 +81,7 @@ export default function Notifications({ user }: Props) {
 			</div>
 
 			<div>
-				<label className='flex items-center cursor-pointer mb-8'>
+				<label className='flex items-center cursor-pointer mb-8 justify-between md:justify-start'>
 					<div className='ml-3 font-medium mr-4'>SMS Notifications</div>
 					<div className='relative'>
 						<input
@@ -109,7 +109,7 @@ export default function Notifications({ user }: Props) {
 			</div>
 
 			<div>
-				<label className='flex items-center cursor-pointer mb-8'>
+				<label className='flex items-center cursor-pointer mb-8 justify-between md:justify-start'>
 					<div className='ml-3 font-medium mr-4'>App Notifications</div>
 					<div className='relative'>
 						<input
@@ -137,7 +137,7 @@ export default function Notifications({ user }: Props) {
 			</div>
 			<div className='flex justify-end'>
 				<button
-					className='bg-green-700 text-white px-4 py-2 rounded w-[33%] hover:bg-green-600 transition-colors'
+					className='bg-[var(--cta-one)] text-white px-4 py-2 rounded md:w-[33%] hover:bg-[var(--cta-one-hover)] transition-colors'
 					onClick={setNotificationSettings}
 				>
 					{loading
