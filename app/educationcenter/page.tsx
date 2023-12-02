@@ -5,7 +5,6 @@ import EducationCard from "@/components/education/EducationCard";
 import categories from "@/lib/getCategories";
 import { useAppSelector } from "@/redux/hooks";
 import withAuth from "@/utils/withAuth";
-import { BASE_URL } from "@/constants";
 type EduCard = {
 	id: string;
 	title: string;
@@ -21,36 +20,14 @@ type Category = {
 	role: "producer" | "investor" | "all";
 	isVisible: boolean;
 };
-export async function getServerSideProps(context: any) {
-	const { query } = context;
-	const { category = "" } = query;
-	const apiUrl = `${BASE_URL}/api/edu/?category=${category}`; // Adjust the URL as needed
-	let cards = [];
 
-	try {
-		const response = await axios.get(apiUrl);
-		cards = response.data;
-	} catch (error) {
-		console.error("Error fetching data: ", error);
-	}
-
-	// Determine which categories to show based on user role or other criteria
-	const categoryLinks = categories; // Adjust this as per your application's logic
-
-	return { props: { initialCards: cards, categoryLinks } };
-}
-const EducationCenter = ({
-	initialCards,
-	categoryLinks,
-}: {
-	initialCards: any;
-	categoryLinks: any;
-}) => {
-	const [cards, setCards] = useState<EduCard[]>(initialCards);
+const EducationCenter = () => {
+	const [cards, setCards] = useState<EduCard[]>([]);
+	const [categoryLinks, setCategoryLinks] = useState<Category[]>([]);
+	const [selectedCategory, setSelectedCategory] = useState("");
 	const activeRole = useAppSelector((state) =>
 		state.user?.activeRole?.toLowerCase()
 	);
-	const [selectedCategory, setSelectedCategory] = useState("");
 	const fetchCards = async (category: string) => {
 		const apiUrl = "/api/edu/";
 		let response: EduCard[] | null = null;
@@ -81,17 +58,23 @@ const EducationCenter = ({
 			setCards(filteredCards);
 		}
 	};
-	// Compute filtered categories directly based on the activeRole
-	const filteredCategoryLinks = React.useMemo(() => {
-		return categoryLinks.filter(
-			(category: any) => category.role === activeRole || category.role === "all"
-		);
-	}, [categoryLinks, activeRole]);
+	useEffect(() => {
+		let filteredCategories = [] as Category[];
+		if (activeRole === "producer") {
+			filteredCategories = categories.filter(
+				(category) => category.role === "producer" || category.role === "all"
+			);
+		} else if (activeRole === "investor") {
+			filteredCategories = categories.filter(
+				(category) => category.role === "investor" || category.role === "all"
+			);
+		}
+		setCategoryLinks(filteredCategories);
+	}, [activeRole]);
 
 	useEffect(() => {
 		// Fetch initial data
 		fetchCards("");
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -117,16 +100,8 @@ const EducationCenter = ({
 	return (
 		<div className='flex md:flex-row flex-col'>
 			<div className='custom-scrollbar flex md:flex-col p-2 md:p-4 lg:w-[14%] bg-[var(--bg-one)] overflow-x-scroll md:overflow-x-hidden md:overflow-y-scroll md:h-screen'>
-				{filteredCategoryLinks.map(
-					({
-						category,
-						isVisible,
-						role,
-					}: {
-						category: any;
-						isVisible: boolean;
-						role: string;
-					}) =>
+				{categoryLinks.map(
+					({ category, isVisible, role }) =>
 						((isVisible && role === activeRole) ||
 							(isVisible && role === "all")) && (
 							<button
