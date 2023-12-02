@@ -24,10 +24,10 @@ function Settings({}: Props) {
 	const links = [
 		"personal-details",
 		"notifications",
-		"password-and-security",
+		"account security",
 		"billing",
 		"roles",
-		`${user?.roles.includes("producer") ? "addresses" : null}`,
+		`${user?.roles.includes("producer") ? "properties" : ""}`,
 	];
 
 	useEffect(() => {
@@ -43,13 +43,13 @@ function Settings({}: Props) {
 				return <PersonalDetails user={user} />;
 			case "notifications":
 				return <Notifications user={user} />;
-			case "password-and-security":
+			case "account security":
 				return <PasswordAndSecurity user={user} />;
 			case "billing":
 				return <Billing user={user} />;
 			case "roles":
 				return <Roles user={user} />;
-			case "addresses":
+			case "properties":
 				return <ProducerAddresses user={user} />;
 			default:
 				return null;
@@ -57,20 +57,20 @@ function Settings({}: Props) {
 	};
 
 	return (
-		<div className='flex h-screen'>
-			<div className='w-1/4 p-4 mr-12'>
-				<h1 className='mb-6 text-2xl font-semibold text-center'>
+		<div className='md:h-screen md:flex'>
+			<div className='md:w-1/4 p-4 md:mr-12 flex overflow-scroll md:overflow-hidden items-center md:flex-col'>
+				<h1 className='mb-2 mr-2 md:mb-6 md:text-2xl font-semibold text-center text-gray-300'>
 					Account Settings
 				</h1>
 
 				{links.map((link) => {
-					if (link === null) return;
+					if (link === null || link === "") return null;
 					return (
 						<button
 							key={link}
-							className={`mb-4 w-full p-2 rounded ${
+							className={`text-sm md:text-base mx-2 mb-2 md:mb-4 h-[10vh] md:h-[max-content] md:w-[100%] py-2 px-4 md:p-2 rounded ${
 								searchParams?.get("tab") === link
-									? "text-white bg-green-700 cursor-default"
+									? "text-white bg-[var(--cta-one)] cursor-default"
 									: "text-white bg-gray-800 hover:bg-gray-700 transition-colors"
 							}`}
 							onClick={() => navigateTo(`/settings?tab=${link}`)}
@@ -84,7 +84,7 @@ function Settings({}: Props) {
 				})}
 			</div>
 
-			<div className='w-3/4 p-4'>
+			<div className='w-[100%] md:w-3/4 p-4'>
 				{renderTabContent(searchParams?.get("tab") as string)}
 			</div>
 		</div>
