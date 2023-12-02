@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
 
-import { useRouter } from "next/navigation";
-import TreeInvestmentLeft from "./TreeInvestmentLeft";
-import TreeInvestmentCheckout from "./TreeInvestmentCheckout";
+import TreeInvestmentLeft from "./InvestmentLeft";
 import ProceedToCheckoutButton from "@/components/investor/projects/ProceedToCheckoutButton";
 import { GiPieChart } from "react-icons/gi";
 import moment from "moment";
+import Loading from "@/components/Loading";
 
 type Props = {
 	project: Project;
@@ -20,15 +19,13 @@ export default function TreeInvestment({ project }: Props) {
 		imageUrl,
 		treeProjects,
 		projectFinancials,
-		treeProjectType,
+		isNonProfit,
 	} = project;
-	const router = useRouter();
 	const [numberOfShares, setNumberOfShares] = useState(1);
 	const [amountPerShare, setAmountPerShare] = useState(
 		projectFinancials.amountPerShare
 	);
 	const [checkoutStep, setCheckoutStep] = useState(1);
-
 	useEffect(() => {
 		if (!project) return;
 
@@ -47,28 +44,28 @@ export default function TreeInvestment({ project }: Props) {
 		}
 	}, [numberOfShares, treeProjects, project, projectFinancials]);
 
-	const handleInvestment = () => {
-		// Perform investment logic here
-	};
-	const calculateROI = () => {
-		const estRoiPercentage =
-			parseInt(projectFinancials.estRoiPercentagePerShare) / 100;
-		const amount = numberOfShares * amountPerShare * estRoiPercentage;
+	const calculateROI = (returnPerShare: number) => {
+		console.log("returnPerShare >>> ", returnPerShare);
+		console.log("numberOfShares >>> ", numberOfShares);
+		const amount = numberOfShares * returnPerShare;
 		return amount.toFixed(2);
 	};
 	const merchantFeePercentage = 0.03;
 	const merchantFeePercentageFinal = 1 + merchantFeePercentage;
 	const transactionFee = 1;
+
 	const calculateInvestmentSubtotalAmount = () => {
 		const amount = numberOfShares * amountPerShare;
 		return amount.toFixed(2);
 	};
+
 	const calculateInvestmentTotalAmount = () => {
 		const amount =
 			(numberOfShares * amountPerShare + transactionFee) *
 			merchantFeePercentageFinal;
 		return amount.toFixed(2).toLocaleString();
 	};
+
 	const calculateProcessingFees = () => {
 		const amount =
 			(numberOfShares * amountPerShare + transactionFee) *
@@ -77,49 +74,43 @@ export default function TreeInvestment({ project }: Props) {
 	};
 
 	if (!project) {
-		return <div>Loading...</div>;
+		return <Loading />;
 	}
 
 	// Rest of the InvestmentPage component code
-	const handleNumberOfTreesChange = (e: any) => {
+	const handleNumberOfSharesChange = (e: any) => {
 		setNumberOfShares(e.target.value);
-	};
-	const handleAmountPerTreeChange = (e: any) => {
-		setAmountPerShare(e.target.value);
-	};
-
-	const handleInvestmentSuccess = () => {
-		toast.success("Investment successful!");
-		router.push("/i/portfolio");
-	};
-
-	const handleGoBack = () => {
-		setCheckoutStep(1);
 	};
 
 	const estimatedMaturityDate = moment(treeProjects?.estMaturityDate).format(
 		"MMMM Do, YYYY"
 	); // 'July 15th, 2021
+
 	switch (checkoutStep) {
 		case 1:
-			if (!treeProjects) return <div>Loading...</div>;
+			if (!treeProjects) return <Loading />;
 			return (
-				<div className='flex mx-auto lg:w-[60%]'>
+				<div className='flex flex-col md:flex-row mx-auto lg:w-[60%]'>
 					<TreeInvestmentLeft
 						title={title}
 						description={description}
 						imageUrl={imageUrl}
-						treeProjectType={treeProjects.type}
+						isNonProfit={isNonProfit}
+						treeProjectType={treeProjects.projectType}
 						estPlantingDate={treeProjects.estPlantingDate}
 						estimatedMaturityDate={estimatedMaturityDate}
 					/>
 
-					<form className='px-8 flex-1'>
+					<form className='mt-4 md:mt-4 md:px-8 flex-1'>
 						<h2 className='text-xl font-semibold'>
-							Choose how many shares to acquire:
+							Choose how many{" "}
+							{isNonProfit ? "trees to contribute" : "shares to acquire"}:
 						</h2>
 						<div className='flex flex-col my-4'>
-							<label htmlFor='numberOfShares'>Number of shares:</label>
+							<label htmlFor='numberOfShares'>
+								{isNonProfit ? "🌳" : ""} Number of{" "}
+								{isNonProfit ? "trees" : "shares"}:
+							</label>
 							<div className='bg-white text-gray-500 p-[4px] rounded flex flex-nowrap items-center mt-[2px]'>
 								<span className='text-lg text-green-600 ml-2'>
 									<GiPieChart />
@@ -128,7 +119,7 @@ export default function TreeInvestment({ project }: Props) {
 									type='number'
 									id='numberOfShares'
 									value={numberOfShares}
-									onChange={handleNumberOfTreesChange}
+									onChange={handleNumberOfSharesChange}
 									min='1'
 									// max={`${treeTarget}`}
 									className='text-left w-full outline-none ml-2 text-2xl font-semibold'
@@ -136,7 +127,9 @@ export default function TreeInvestment({ project }: Props) {
 							</div>
 						</div>
 						<div className='flex justify-between items-center my-2'>
-							<label htmlFor='amountPerShare'>Amount per share:</label>
+							<label htmlFor='amountPerShare'>
+								Amount per {isNonProfit ? "tree" : "share"}:
+							</label>
 							<p>
 								$
 								{Number(projectFinancials.amountPerShare).toLocaleString(
@@ -145,23 +138,76 @@ export default function TreeInvestment({ project }: Props) {
 							</p>
 						</div>
 						<div className='flex justify-between items-center text-green-500'>
-							<span className='text-sm'>Estimated Return ($)</span>{" "}
+							<span className='text-sm'>
+								{treeProjects.projectType !== "Timber / Lumber" &&
+									!isNonProfit && (
+										<span className='text-xs'>(Pre-investment repayment)</span>
+									)}
+								<br />
+								{treeProjects.projectType !== "Timber / Lumber"
+									? "Potential Yearly Return ($)"
+									: "Potential Return ($)"}
+							</span>{" "}
 							<span className='font-bold text-2xl '>
-								${Number(calculateROI()).toLocaleString("en-US")}
+								$
+								{Number(
+									calculateROI(
+										projectFinancials.estReturnPerShareUntilRepayment
+									)
+								).toLocaleString("en-US", {
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2,
+								})}
 							</span>
 						</div>
 						<div className='flex justify-between items-center text-green-500'>
-							<span className='text-sm'>Potential ROI (%)</span>{" "}
+							<span className='text-sm'>
+								{treeProjects.projectType !== "Timber / Lumber"
+									? "Potential Yearly ROI (%)"
+									: "Potential ROI (%)"}
+							</span>{" "}
 							<span className='font-bold'>
-								{projectFinancials.estRoiPercentagePerShare}%
+								{projectFinancials.estRoiPercentagePerShareBeforeRepayment ||
+									0.0}
+								%
 							</span>
 						</div>
+						{treeProjects.projectType !== "Timber / Lumber" && !isNonProfit && (
+							<div>
+								<div className='flex justify-between items-center text-green-500 mt-4'>
+									<span className='text-sm'>
+										<span className='text-xs'>(Post-investment repayment)</span>
+										<br />
+										Potential Yearly Return ($)
+									</span>{" "}
+									<span className='font-bold text-2xl '>
+										$
+										{Number(
+											calculateROI(
+												projectFinancials.estReturnPerShareAfterRepayment
+											)
+										).toLocaleString("en-US", {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										})}
+									</span>
+								</div>
+								<div className='flex justify-between items-center text-green-500'>
+									<span className='text-sm'>Potential Yearly ROI (%)</span>{" "}
+									<span className='font-bold'>
+										{projectFinancials.estRoiPercentagePerShareAfterRepayment}%
+									</span>
+								</div>
+							</div>
+						)}
 
 						<hr className='mt-2' />
 						{numberOfShares > 0 && (
 							<>
 								<div className='flex justify-between items-center mt-2'>
-									<span className='text-sm'>Investment Subtotal: </span>
+									<span className='text-sm'>
+										{isNonProfit ? "Contribution" : "Investment"} Subtotal:{" "}
+									</span>
 									<span className='text-sm'>
 										$
 										{Number(calculateInvestmentSubtotalAmount()).toLocaleString(
@@ -170,7 +216,7 @@ export default function TreeInvestment({ project }: Props) {
 									</span>
 								</div>
 								<div className='my-2'>
-									<span>Processing Fees: </span>
+									<span>Processing Fees </span>
 									<div className='flex justify-between items-center'>
 										<span className='text-sm'>Merchant Fee:</span>
 										<span className='text-sm'>
@@ -187,7 +233,9 @@ export default function TreeInvestment({ project }: Props) {
 								</div>
 								<hr className='my-2' />
 								<div className='flex justify-between items-center'>
-									<span>Total Investment Today: </span>
+									<span>
+										Total {isNonProfit ? "Contribution" : "Investment"} Today:{" "}
+									</span>
 									<span className='font-bold'>
 										$
 										{Number(calculateInvestmentTotalAmount()).toLocaleString(
