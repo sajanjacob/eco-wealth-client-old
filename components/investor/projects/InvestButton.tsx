@@ -14,7 +14,7 @@ export default function InvestButton({ id }: Props) {
 		<div className=''>
 			<button
 				onClick={handleInvestButtonClick}
-				className='py-2 px-6 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
+				className='py-2 px-6 rounded bg-[var(--cta-one)] text-white font-bold transition-all hover:bg-[var(--cta-one-hover)] hover:scale-105'
 			>
 				Invest Now
 			</button>
