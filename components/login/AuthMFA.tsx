@@ -11,9 +11,10 @@ import { FaLock } from "react-icons/fa";
 type Props = {
 	setVerified: (verified: boolean) => void;
 	setShowMFA: (showMFA: boolean) => void;
+	mfaEnabled: boolean;
 };
 
-function AuthMFA({ setVerified, setShowMFA }: Props) {
+function AuthMFA({ mfaEnabled, setVerified, setShowMFA }: Props) {
 	const [verifyCode, setVerifyCode] = useState("");
 	const [error, setError] = useState("");
 	const [disabled, setDisabled] = useState(true);
@@ -121,6 +122,7 @@ function AuthMFA({ setVerified, setShowMFA }: Props) {
 				emailNotification: false,
 				smsNotification: false,
 				pushNotification: false,
+				loadingUser: false,
 			})
 		);
 		await supabase
@@ -132,6 +134,11 @@ function AuthMFA({ setVerified, setShowMFA }: Props) {
 		setShowMFA(false);
 		router.push("/login");
 	};
+
+	useEffect(() => {
+		if (!mfaEnabled) router.push("/setup-mfa");
+	}, []);
+
 	return (
 		<div className='flex flex-col'>
 			<Image
@@ -168,7 +175,7 @@ function AuthMFA({ setVerified, setShowMFA }: Props) {
 			</button>
 			<p
 				onClick={handleLogoutClick}
-				className='mt-4 text-center text-sm cursor-pointer text-gray-400 hover:text-green-400 transition-colors'
+				className='mt-4 text-center text-sm cursor-pointer text-gray-400 hover:text-[var(--cta-two-hover)] transition-colors'
 			>
 				Sign out
 			</p>
