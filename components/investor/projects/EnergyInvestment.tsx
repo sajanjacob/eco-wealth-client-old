@@ -3,183 +3,248 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
-import InvestPopup from "@/components/investor/projects/ProceedToCheckoutButton";
-
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import ProceedToCheckoutButton from "@/components/investor/projects/ProceedToCheckoutButton";
+import { GiPieChart } from "react-icons/gi";
+import moment from "moment";
+import InvestmentLeft from "./InvestmentLeft";
+import Loading from "@/components/Loading";
 type Props = {
 	project: Project;
 };
 
 export default function EnergyInvestment({ project }: Props) {
-	const router = useRouter();
-	const [numberOfTrees, setNumberOfTrees] = useState(1);
-	const [amountPerTree, setAmountPerTree] = useState(1);
-	const { title, description, imageUrl, energyProjects } = project;
+	const {
+		title,
+		description,
+		imageUrl,
+		energyProjects,
+		solarProjects,
+		projectFinancials,
+	} = project;
+	const [numberOfShares, setNumberOfShares] = useState(1);
+	const [amountPerShare, setAmountPerShare] = useState(
+		projectFinancials?.amountPerShare
+	);
+	const [checkoutStep, setCheckoutStep] = useState(1);
 
-	// useEffect(() => {
-	// 	if (!project) return;
-	// 	if (project && numberOfTrees > treeProjects[0].treeTarget) {
-	// 		setNumberOfTrees(treeProjects[0].treeTarget);
-	// 		toast.info(
-	// 			`Note: The maximum number of trees you can invest in for this project is ${treeProjects[0].treeTarget}`
-	// 		);
-	// 	}
-	// }, [numberOfTrees, treeProjects, project]);
-	// useEffect(() => {
-	// 	if (!project) return;
-	// 	if (amountPerTree > treeProjects[0].fundsRequestedPerTree) {
-	// 		setAmountPerTree(treeProjects[0].fundsRequestedPerTree);
-	// 		toast.info(
-	// 			`Note: The maximum investment amount per tree for this project is $${treeProjects[0].fundsRequestedPerTree}`
-	// 		);
-	// 	}
-	// }, [amountPerTree, treeProjects, project]);
+	useEffect(() => {
+		if (!project) return;
 
-	const handleInvestment = () => {
-		// Perform investment logic here
-	};
-	const calculateROI = () => {
-		const amount = (amountPerTree / 10) * 0.01 * 100;
+		setAmountPerShare(projectFinancials.amountPerShare);
+	}, [project, projectFinancials]);
+
+	// TODO: get number of shares acquired by all investors and subtract from total number of shares to get
+	// remaining # of shares that can be acquired.
+	useEffect(() => {
+		if (!project) return;
+		if (project && numberOfShares > projectFinancials.numOfShares) {
+			setNumberOfShares(projectFinancials.numOfShares);
+			toast.info(
+				`Note: The maximum number of trees you can invest in for this project is ${projectFinancials.numOfShares}`
+			);
+		}
+	}, [numberOfShares, energyProjects, project, projectFinancials]);
+
+	const calculateROI = (returnPerShare: number) => {
+		const amount = numberOfShares * returnPerShare;
 		return amount.toFixed(2);
 	};
 	const merchantFeePercentage = 0.03;
 	const merchantFeePercentageFinal = 1 + merchantFeePercentage;
 	const transactionFee = 1;
+
 	const calculateInvestmentSubtotalAmount = () => {
-		const amount = numberOfTrees * amountPerTree;
+		const amount = numberOfShares * amountPerShare;
 		return amount.toFixed(2);
 	};
+
 	const calculateInvestmentTotalAmount = () => {
 		const amount =
-			(numberOfTrees * amountPerTree + transactionFee) *
+			(numberOfShares * amountPerShare + transactionFee) *
 			merchantFeePercentageFinal;
-		return amount.toFixed(2);
+		return amount.toFixed(2).toLocaleString();
 	};
+
 	const calculateProcessingFees = () => {
 		const amount =
-			(numberOfTrees * amountPerTree + transactionFee) * merchantFeePercentage;
+			(numberOfShares * amountPerShare + transactionFee) *
+			merchantFeePercentage;
 		return amount.toFixed(2);
 	};
 
 	if (!project) {
-		return <div>Loading...</div>;
+		return <Loading />;
 	}
 
 	// Rest of the InvestmentPage component code
-	const handleNumberOfTreesChange = (e: any) => {
-		setNumberOfTrees(e.target.value);
-	};
-	const handleAmountPerTreeChange = (e: any) => {
-		setAmountPerTree(e.target.value);
+	const handleNumberOfSharesChange = (e: any) => {
+		setNumberOfShares(e.target.value);
 	};
 
-	const onInvestmentSuccess = () => {
-		toast.success("Investment successful!");
-		router.push("/i/portfolio");
-	};
+	const estInstallationDate = moment(
+		solarProjects?.[0].estInstallationDate
+	).format("MMMM Do, YYYY"); // 'July 15th, 2021
 
-	return (
-		<div className='flex mx-auto lg:w-[60%]'>
-			<div>
-				<span className='flex justify-center mb-2'>
-					<Image
-						width={400}
-						height={150}
-						src={imageUrl}
-						alt={title}
-						className='rounded-xl'
+	switch (checkoutStep) {
+		case 1:
+			if (!energyProjects) return <Loading />;
+			return (
+				<div className='flex mx-auto lg:w-[60%]'>
+					<InvestmentLeft
+						title={title}
+						description={description}
+						imageUrl={imageUrl}
+						energyProjectType={energyProjects.type}
+						estInstallationDate={solarProjects?.[0].estInstallationDate}
+						projectLocationType={solarProjects?.[0].locationType}
 					/>
-				</span>
-				<h1 className='text-3xl font-light'>{title}</h1>
-				<p className='text-lg font-light mb-4'>{description}</p>
-			</div>
 
-			<form className='px-8 flex-1'>
-				<h2 className='text-xl font-semibold'>
-					Choose how much to invest in this project:
-				</h2>
-				<div className='flex flex-col my-4'>
-					<label htmlFor='numberOfTrees'>Number of trees:</label>
-					<div className='bg-white text-gray-500 p-[4px] rounded flex flex-nowrap'>
-						<span className='text-lg'>🌳</span>
-						<input
-							type='number'
-							id='numberOfTrees'
-							value={numberOfTrees}
-							onChange={handleNumberOfTreesChange}
-							min='1'
-							// max={`${treeTarget}`}
-							className='text-left w-full outline-none ml-2'
-						/>
-					</div>
-				</div>
-				<div className='flex flex-col my-4'>
-					<label htmlFor='amountPerTree'>Amount per tree:</label>
-					<div className='bg-white text-gray-500 p-[4px] rounded  flex flex-nowrap'>
-						<span className='font-bold text-lg'>$</span>
-						<input
-							type='number'
-							id='amountPerTree'
-							value={amountPerTree}
-							onChange={handleAmountPerTreeChange}
-							min='1'
-							// max={`${treeProjects[0].fundsRequestedPerTree}`}
-							className='text-left w-full outline-none ml-2'
-						/>
-					</div>
-				</div>
-				<div className='flex justify-between items-center'>
-					<span className='text-sm'>Potential ROI on produce sales:</span>{" "}
-					<span className='font-bold'>{calculateROI()}%</span>
-				</div>
-				{numberOfTrees > 0 && (
-					<>
-						<div className='flex justify-between items-center'>
-							<span className='text-sm'>Investment Subtotal: </span>
-							<span className='text-sm'>
-								$
-								{Number(calculateInvestmentSubtotalAmount()).toLocaleString(
-									"en-US"
-								)}
-							</span>
-						</div>
-						<div className='my-2'>
-							<span>Processing Fees: </span>
-							<div className='flex justify-between items-center'>
-								<span className='text-sm'>Merchant Fees:</span>
-								<span className='text-sm'>
-									${Number(calculateProcessingFees()).toLocaleString("en-US")}
+					<form className='px-8 flex-1'>
+						<h2 className='text-xl font-semibold'>
+							Choose how many shares to acquire:
+						</h2>
+						<div className='flex flex-col my-4'>
+							<label htmlFor='numberOfShares'>Number of shares:</label>
+							<div className='bg-white text-gray-500 p-[4px] rounded flex flex-nowrap items-center mt-[2px]'>
+								<span className='text-lg text-green-600 ml-2'>
+									<GiPieChart />
 								</span>
-							</div>
-							<div className='flex justify-between items-center'>
-								<span className='text-sm'>Administrative Fees:</span>{" "}
-								<span>$1.00</span>
+								<input
+									type='number'
+									id='numberOfShares'
+									value={numberOfShares}
+									onChange={handleNumberOfSharesChange}
+									min='1'
+									// max={`${treeTarget}`}
+									className='text-left w-full outline-none ml-2 text-2xl font-semibold'
+								/>
 							</div>
 						</div>
-						<hr className='my-2' />
-						<div className='flex justify-between items-center'>
-							<span>Total Investment Today: </span>
-							<span className='font-bold'>
+						<div className='flex justify-between items-center my-2'>
+							<label htmlFor='amountPerShare'>Amount per share:</label>
+							<p>
 								$
-								{Number(calculateInvestmentTotalAmount()).toLocaleString(
+								{Number(projectFinancials.amountPerShare).toLocaleString(
 									"en-US"
 								)}
+							</p>
+						</div>
+						<div className='flex justify-between items-center text-green-500'>
+							<span className='text-sm'>
+								<span className='text-xs'>(Pre-investment repayment)</span>{" "}
+								<br />
+								Potential Yearly Return ($)
+							</span>{" "}
+							<span className='font-bold text-2xl '>
+								$
+								{Number(
+									calculateROI(
+										projectFinancials.estReturnPerShareUntilRepayment
+									)
+								).toLocaleString("en-US", {
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2,
+								})}
 							</span>
 						</div>
-					</>
-				)}
-				{/* <ProceedToCheckoutButton
-					numOfUnits={}
-					amountPerUnit={}
-					isNonProfit={}
-					projectName={}
-					type={}
-					projectId={}
-					project={}
-				/> */}
-			</form>
-		</div>
-	);
+						<div className='flex justify-between items-center text-green-500'>
+							<span className='text-sm'>Potential Yearly ROI (%)</span>{" "}
+							<span className='font-bold'>
+								{projectFinancials.estRoiPercentagePerShareBeforeRepayment}%
+							</span>
+						</div>
+						<div className='flex justify-between items-center text-green-500 mt-4'>
+							<span className='text-sm'>
+								<span className='text-xs'>(Post-investment repayment)</span>
+								<br />
+								Potential Yearly Return ($)
+							</span>{" "}
+							<span className='font-bold text-2xl '>
+								$
+								{Number(
+									calculateROI(
+										projectFinancials.estReturnPerShareAfterRepayment
+									)
+								).toLocaleString("en-US", {
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2,
+								})}
+							</span>
+						</div>
+						<div className='flex justify-between items-center text-green-500'>
+							<span className='text-sm'>Potential Yearly ROI (%)</span>{" "}
+							<span className='font-bold'>
+								{projectFinancials.estRoiPercentagePerShareAfterRepayment}%
+							</span>
+						</div>
+						<hr className='mt-2' />
+						{numberOfShares > 0 && (
+							<>
+								<div className='flex justify-between items-center mt-2'>
+									<span className='text-sm'>Investment Subtotal: </span>
+									<span className='text-sm'>
+										$
+										{Number(calculateInvestmentSubtotalAmount()).toLocaleString(
+											"en-US"
+										)}
+									</span>
+								</div>
+								<div className='my-2'>
+									<span>Processing Fees </span>
+									<div className='flex justify-between items-center'>
+										<span className='text-sm'>Merchant Fee:</span>
+										<span className='text-sm'>
+											$
+											{Number(calculateProcessingFees()).toLocaleString(
+												"en-US"
+											)}
+										</span>
+									</div>
+									<div className='flex justify-between items-center'>
+										<span className='text-sm'>Administrative Fee:</span>{" "}
+										<span>$1.00</span>
+									</div>
+								</div>
+								<hr className='my-2' />
+								<div className='flex justify-between items-center'>
+									<span>Total Investment Today: </span>
+									<span className='font-bold'>
+										$
+										{Number(calculateInvestmentTotalAmount()).toLocaleString(
+											"en-US"
+										)}
+									</span>
+								</div>
+							</>
+						)}
+						<ProceedToCheckoutButton
+							setCheckoutStep={setCheckoutStep}
+							numOfShares={numberOfShares}
+							projectId={project.id}
+							project={project}
+						/>
+					</form>
+				</div>
+			);
+
+		// TODO: bring payment step in-house
+		// case 2:
+		// 	return (
+		// 		<div className='flex mx-auto lg:w-[60%]'>
+		// 			<TreeInvestmentLeft
+		// 				title={title}
+		// 				description={description}
+		// 				imageUrl={imageUrl}
+		// 			/>
+		// 			<TreeInvestmentCheckout
+		// 				calculateInvestmentTotalAmount={parseFloat(
+		// 					calculateInvestmentTotalAmount()
+		// 				)}
+		// 				handleInvestmentSuccess={handleInvestmentSuccess}
+		// 				handleGoBack={handleGoBack}
+		// 			/>
+		// 		</div>
+		// 	);
+	}
 }
