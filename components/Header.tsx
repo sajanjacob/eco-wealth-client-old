@@ -1,14 +1,6 @@
 "use client";
-import React, {
-	useState,
-	useEffect,
-	useContext,
-	useRef,
-	useCallback,
-	Ref,
-} from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { BsFillMoonFill, BsFillSunFill } from "react-icons/bs";
 import { supabaseClient } from "@/utils/supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
@@ -24,11 +16,12 @@ import {
 } from "react-icons/md";
 import { AiOutlineUserSwitch } from "react-icons/ai";
 import Link from "next/link";
-import Image from "next/image";
 import { GiSolarPower } from "react-icons/gi";
-import { toast } from "react-toastify";
 import WaitingListMobileMenu from "./WaitingListMobileMenu";
 import Logo from "./Logo";
+import { useMediaQuery } from "@mui/material";
+import { FaFolder, FaGraduationCap, FaHome } from "react-icons/fa";
+import { RiCompassDiscoverFill } from "react-icons/ri";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -39,9 +32,25 @@ const Header = ({}: Props) => {
 	const currentTheme = useAppSelector((state) => state.user?.currentTheme);
 	const user = useAppSelector((state) => state.user);
 	const isLoggedIn = useAppSelector((state) => state.user?.loggedIn);
-
+	const [render, setRender] = useState(false);
 	const [theme, setTheme] = useState<string>(currentTheme || "dark");
-
+	const path = usePathname();
+	const loadingUser = useAppSelector((state) => state.user?.loadingUser);
+	const matches = useMediaQuery("(min-width:768px)");
+	useEffect(() => {
+		path !== "/thankyou" &&
+		path !== "/thank-you-for-registering" &&
+		path !== "/register" &&
+		path !== "/login" &&
+		path !== "/signup" &&
+		path !== "/forgot-password" &&
+		path !== "/onboarding" &&
+		path !== "/i/onboarding" &&
+		path !== "/p/onboarding" &&
+		path !== "/setup-mfa"
+			? setRender(true)
+			: setRender(false);
+	}, [path]);
 	// Avatar Menu
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
@@ -53,7 +62,7 @@ const Header = ({}: Props) => {
 	};
 
 	const switchRole = (role: String) => {
-		fetch("/api/switchActiveRole", {
+		fetch("/api/switch_active_role", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -107,14 +116,16 @@ const Header = ({}: Props) => {
 		await supabase.auth.signOut();
 		dispatch(
 			setUser({
-				roles: [],
+				roles: [""],
 				loggedIn: false,
-				id: null,
-				activeRole: null,
-				currentTheme: null,
-				email: null,
-				name: null,
-				phoneNumber: null,
+				id: "",
+				producerId: "",
+				investorId: "",
+				activeRole: "",
+				currentTheme: "dark",
+				email: "",
+				name: "",
+				phoneNumber: "",
 				isVerified: false,
 				totalUserTreeCount: 0,
 				userTreeCount: 0,
@@ -124,6 +135,10 @@ const Header = ({}: Props) => {
 				emailNotification: false,
 				smsNotification: false,
 				pushNotification: false,
+				mfaEnabled: false,
+				mfaVerified: false,
+				mfaVerifiedAt: "",
+				loadingUser: true,
 			})
 		);
 		await supabase
@@ -133,6 +148,7 @@ const Header = ({}: Props) => {
 			})
 			.eq("id", user.id);
 		router.push("/login");
+		router.refresh();
 	};
 	const handleUpdateTheme = async (theme: string) => {
 		const { data, error } = await supabase
@@ -219,26 +235,9 @@ const Header = ({}: Props) => {
 
 	const handleWaitingListClick = () => router.push("/register");
 
-	const [render, setRender] = useState(true);
-	const path = usePathname();
-	console.log("path: ", path);
-	useEffect(() => {
-		path !== "/thankyou" &&
-		path !== "/thank-you-for-registering" &&
-		path !== "/register" &&
-		path !== "/login" &&
-		path !== "/signup" &&
-		path !== "/forgot-password" &&
-		path !== "/onboarding" &&
-		path !== "/i/onboarding" &&
-		path !== "/p/onboarding" &&
-		path !== "/setup-mfa"
-			? setRender(true)
-			: setRender(false);
-	}, [path]);
-	if (!render) return null;
+	if (!render || loadingUser) return null;
 	return (
-		<div className='z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-green-950 dark:to-[#0C2100] border-b border-b-green-400 dark:border-b-green-900 sticky top-0'>
+		<div className='header-slide-in md:h-[9vh] z-[1000] flex justify-between items-center p-4 bg-gradient-to-r from-green-600 to-green-500 dark:bg-gradient-to-r dark:from-[#000308] dark:to-[#0C2100] dark:border-b-[var(--header-border)] border-b border-b-green-400 sticky top-0'>
 			<Logo
 				width={148}
 				height={60}
@@ -250,7 +249,14 @@ const Header = ({}: Props) => {
 							className='menu-link'
 							onClick={handleDashboardClick}
 						>
-							Dashboard
+							{!matches ? (
+								<FaHome className='text-3xl' />
+							) : (
+								<span className='flex items-center'>
+									<FaHome className='text-2xl mr-2' />
+									Dashboard
+								</span>
+							)}
 						</a>
 						{activeRole === "investor" && (
 							<>
@@ -258,13 +264,26 @@ const Header = ({}: Props) => {
 									className='menu-link'
 									onClick={handleDiscoverClick}
 								>
-									Discover
+									{!matches ? (
+										<RiCompassDiscoverFill className='text-3xl' />
+									) : (
+										<span className='flex items-center'>
+											<RiCompassDiscoverFill className='text-2xl mr-2' />
+											Discover
+										</span>
+									)}
 								</a>
 								<a
 									className='menu-link'
 									onClick={handlePortfolioClick}
 								>
-									My Portfolio
+									{!matches ? (
+										<FaFolder className='text-3xl' />
+									) : (
+										<span className='flex items-center'>
+											<FaFolder className='text-2xl mr-2' /> Portfolio
+										</span>
+									)}
 								</a>
 							</>
 						)}
@@ -272,15 +291,15 @@ const Header = ({}: Props) => {
 							<>
 								<a
 									className='menu-link'
-									onClick={handleAddProjectClick}
-								>
-									Add Project
-								</a>
-								<a
-									className='menu-link'
 									onClick={handleMyProjectsClick}
 								>
-									My Projects
+									{!matches ? (
+										<FaFolder className='text-3xl' />
+									) : (
+										<span className='flex items-center'>
+											<FaFolder className='text-lg mr-2' /> Projects
+										</span>
+									)}
 								</a>
 							</>
 						)}
@@ -288,7 +307,14 @@ const Header = ({}: Props) => {
 							className='menu-link'
 							onClick={handleEducationCenterClick}
 						>
-							Education Center
+							{!matches ? (
+								<FaGraduationCap className='text-3xl' />
+							) : (
+								<span className='flex items-center'>
+									<FaGraduationCap className='text-2xl mr-2' />
+									Education Center
+								</span>
+							)}
 						</a>
 						<div
 							className='cursor-pointer'
@@ -298,7 +324,7 @@ const Header = ({}: Props) => {
 							aria-expanded={open ? "true" : undefined}
 							onClick={handleClick}
 						>
-							<RxAvatar className='text-2xl menu-link' />
+							<RxAvatar className='avatar-menu-link' />
 						</div>
 						<Menu
 							id='basic-menu'
@@ -405,45 +431,45 @@ const Header = ({}: Props) => {
 				) : (
 					<>
 						<a
-							className='hidden md:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden md:block scroll-smooth cursor-pointer hover:text-[var(--cta-two-hover)] transition-all text-gray-300 font-medium'
 							onClick={handleAboutClick}
 						>
 							About
 						</a>
 						<a
-							className='hidden md:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden md:block scroll-smooth cursor-pointer hover:text-[var(--cta-two-hover)] transition-all text-gray-300 font-medium'
 							onClick={handleStrategyClick}
 						>
 							Strategy
 						</a>
 						<a
-							className='hidden md:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden md:block scroll-smooth cursor-pointer hover:text-[var(--cta-two-hover)] transition-all text-gray-300 font-medium'
 							onClick={handleHowItWorksClick}
 						>
 							How it works
 						</a>
 						<a
-							className='hidden md:block scroll-smooth cursor-pointer hover:text-green-400 transition-all text-green-600 font-medium'
+							className='hidden md:block scroll-smooth cursor-pointer hover:text-[var(--cta-two-hover)] transition-all text-gray-300 font-medium'
 							onClick={handlePricingClick}
 						>
 							Pricing
 						</a>
 						<button
-							className='cursor-pointer transition-all hover:scale-105 bg-green-600 text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 glow'
+							className='cursor-pointer transition-all hover:scale-105 bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-xs md:text-lg lg:px-8 px-4 py-2 glow'
 							onClick={handleWaitingListClick}
 						>
 							Join the waiting list today
 						</button>
 						<WaitingListMobileMenu />
 						{/* <a
-							className='cursor-pointer hover:underline text-green-600 font-medium'
+							className='cursor-pointer hover:underline text-[var(--cta-one)] font-medium'
 							onClick={handleLoginClick}
 						>
 							Login
 						</a>
 
 						<a
-							className='cursor-pointer hover:underline text-green-600 font-medium'
+							className='cursor-pointer hover:underline text-[var(--cta-one)] font-medium'
 							onClick={handleSignupClick}
 						>
 							Signup
