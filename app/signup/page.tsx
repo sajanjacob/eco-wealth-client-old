@@ -3,6 +3,7 @@ import React, { FormEvent, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { BASE_URL } from "@/constants";
+import Image from "next/image";
 interface SignUpForm {
 	email: string;
 	password: string;
@@ -34,12 +35,13 @@ const SignUp: React.FC = () => {
 			email,
 			password,
 			options: {
-				emailRedirectTo: `${location.origin}/auth/callback`,
+				emailRedirectTo: `${BASE_URL}/auth/callback`,
 			},
 		})) as { error: any; data: any };
 		if (error) {
 			console.error("Error signing up:", error.message);
 		} else if (userData) {
+			console.log("new account user data >>> ", userData);
 			router.push(`/thankyou?email=${email}`);
 		}
 	}
@@ -64,15 +66,20 @@ const SignUp: React.FC = () => {
 	const handleReturnHome = () => {
 		router.push("/");
 	};
+	const handleGoToLogin = () => {
+		router.push("/login");
+	};
 	if (BASE_URL === "https://ecowealth.app") return;
 	return (
-		<div className='flex flex-col items-center justify-center min-h-screen'>
-			<h1
+		<div className='flex flex-col items-center justify-center min-h-screen px-12'>
+			<Image
+				src='/white_logo_transparent_background.png'
+				width={300}
+				height={300}
+				alt='Eco Wealth Logo'
 				onClick={handleReturnHome}
-				className='mb-2 text-6xl text-green-700 cursor-pointer transition-colors hover:text-green-600'
-			>
-				Eco Wealth
-			</h1>
+				className='cursor-pointer'
+			/>
 			<h2 className='mb-12 text-xl text-gray-400'>Create an Account</h2>
 			<form
 				className='flex flex-col space-y-4'
@@ -111,12 +118,21 @@ const SignUp: React.FC = () => {
 					<p className='text-red-500'>Passwords do not match.</p>
 				)}
 				<button
-					className='px-2 py-2 rounded-lg bg-green-700 text-white cursor-pointer hover:bg-green-600 transition-all hover:scale-105'
+					className='px-2 py-2 rounded-lg bg-[var(--cta-one)] text-white cursor-pointer hover:bg-[var(--cta-one-hover)] transition-all hover:scale-105'
 					type='submit'
 				>
 					Sign up with Email
 				</button>
 			</form>
+			<p className='text-gray-500 dark:text-gray-400 mt-4 text-sm'>
+				Have an account already?{" "}
+				<span
+					className='text-[var(--cta-one)] cursor-pointer transition-colors hover:text-[var(--cta-two-hover)]'
+					onClick={handleGoToLogin}
+				>
+					Login here.
+				</span>
+			</p>
 		</div>
 	);
 };
