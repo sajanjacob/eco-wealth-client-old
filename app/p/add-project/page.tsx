@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import withAuth from "@/utils/withAuth";
-import CircularProgress from "@mui/material/CircularProgress";
 import { useForm } from "react-hook-form";
 import axios, { all } from "axios";
 import Box from "@mui/material/Box";
@@ -17,6 +16,9 @@ import Switch from "react-switch";
 import UrgentNotification from "@/components/UrgentNotification";
 import { setProducer } from "@/redux/features/producerSlice";
 import getBasePath from "@/lib/getBasePath";
+import Loading from "@/components/Loading";
+import { HiSwitchHorizontal } from "react-icons/hi";
+import { IoIosCheckmarkCircle } from "react-icons/io";
 interface FormValues {
 	title: string;
 	image: File | null;
@@ -54,6 +56,7 @@ interface FormValues {
 	isNonProfit: boolean;
 	estRevenue: number;
 	estRoiPercentage: number;
+	estLongTermRoiPercentage: number;
 
 	estimatedSeedCost: number;
 	estimatedLabourCost: number;
@@ -67,7 +70,7 @@ const style = {
 	transform: "translate(-50%, -50%)",
 	width: "50vw",
 	height: "70vh",
-	bgcolor: "rgb(20 83 45 / 100%)",
+	bgcolor: "#0C2100",
 	border: "2px solid #000",
 	boxShadow: 24,
 	p: 4,
@@ -132,6 +135,7 @@ function AddProject() {
 			estimatedLabourCost: 0,
 			estimatedPlantingDate: "",
 			estimatedMaturityDate: "",
+			estLongTermRoiPercentage: 0,
 		},
 	});
 	const formValues = getValues();
@@ -144,6 +148,12 @@ function AddProject() {
 	const properties = watch("properties");
 	const treeProjectType = watch("treeProjectType");
 	const treeType = watch("treeType");
+	const estLongTermRoiPercentage = watch("estLongTermRoiPercentage");
+	const estRoiPercentage = watch("estRoiPercentage");
+	const fundsRequested = watch("fundsRequested");
+	const connectWithSolarPartner = watch("connectWithSolarPartner");
+	const estimatedPlantingDate = watch("estimatedPlantingDate");
+	const estimatedMaturityDate = watch("estimatedMaturityDate");
 	const [foundProperties, setFoundProperties] = useState<Property[]>([]);
 	const [agreements, setAgreements] = useState<boolean>(false);
 	// Here we retrieve the properties the user submitted that are verified so
@@ -214,9 +224,10 @@ function AddProject() {
 			treeTarget: formValues.numTrees,
 			treeProjectType: formValues.treeProjectType,
 			treeType: formValues.treeType,
-			estMaturityDate: formValues.estimatedMaturityDate,
-			estPlantingDate: formValues.estimatedPlantingDate,
-			totalFundsRequested: formValues.fundsRequested,
+			estMaturityDate: estimatedMaturityDate,
+			estPlantingDate: estimatedPlantingDate,
+			totalFundsRequested: fundsRequested,
+
 			targetKwhProductionPerYear: formValues.energyProductionTarget,
 			targetArrays: formValues.numOfArrays,
 			installationTeam: formValues.installationTeam,
@@ -229,8 +240,10 @@ function AddProject() {
 					: formValues.estimatedInstallationCost,
 			maintenanceCost: formValues.estimatedMaintenanceCost,
 			energyProjectType: energyType,
-			connectWithSolarPartner: formValues.connectWithSolarPartner,
+			connectWithSolarPartner:
+				connectWithSolarPartner === "Connect with partner" ? true : false,
 			systemCost: formValues.estimatedSystemCost,
+			locationType: locationType,
 
 			createdAt: Date.now().toString(),
 			updatedAt: Date.now().toString(),
@@ -258,13 +271,16 @@ function AddProject() {
 			solarProjects: [],
 
 			isVerified: false,
-			locationType: locationType,
 
 			isNonProfit: isNonProfit,
 
 			estRevenue: formValues.estRevenue,
-			estRoiPercentage: formValues.estRoiPercentage,
+			estRoiPercentage: estRoiPercentage,
+			estLongTermRoiPercentage: estLongTermRoiPercentage,
 		};
+
+		if (projectData.totalAreaSqkm === 0)
+			return toast.error("Please enter a valid project area size.");
 
 		await axios
 			.post("/api/projects", { projectData, producerId })
@@ -361,29 +377,38 @@ function AddProject() {
 		message: string;
 		actionUrl: string;
 		actionType: string;
+		dismiss?: boolean;
 	}>({ message: "", actionUrl: "", actionType: "" });
 	const [allPropertiesUnverified, setAllPropertiesUnverified] = useState(false);
 
 	useEffect(() => {
 		if (producer && producer.id) {
+			console.log(
+				"producer.producerProperties >>> ",
+				producer.producerProperties.length === 0
+			);
 			if (producer.producerProperties.length === 0) {
-				setUrgentNotification({
+				return setUrgentNotification({
 					message: "You need to submit an address to create new projects.",
-					actionUrl: "/settings?tab=addresses",
+					actionUrl: "/settings?tab=properties",
 					actionType: "Resolve",
+					dismiss: false,
 				});
-			} else {
-				setUrgentNotification({ message: "", actionUrl: "", actionType: "" });
 			}
 		}
 
 		let numUnverifiedAddresses = 0;
 		for (let i = 0; i < producer.producerProperties.length; i++) {
+			console.log(
+				"producer.producerProperties[i] >>> ",
+				producer.producerProperties[i]
+			);
 			if (producer.producerProperties[i].isVerified === false) {
 				setUrgentNotification({
 					message: `Your submitted property at ${producer.producerProperties[i].address.addressLineOne} in or near ${producer.producerProperties[i].address.city} is pending verification.`,
-					actionUrl: "/settings?tab=addresses",
+					actionUrl: "/settings?tab=properties",
 					actionType: "View",
+					dismiss: true,
 				});
 				setAllPropertiesUnverified(false);
 				numUnverifiedAddresses++;
@@ -393,8 +418,9 @@ function AddProject() {
 			setAllPropertiesUnverified(true);
 			setUrgentNotification({
 				message: `You cannot submit a project until a submitted property of yours is verified.`,
-				actionUrl: "/settings?tab=addresses",
+				actionUrl: "/settings?tab=properties",
 				actionType: "View",
+				dismiss: false,
 			});
 		}
 
@@ -408,13 +434,7 @@ function AddProject() {
 		return (
 			<div className='container mx-auto py-6 px-4 min-h-[100vh]'>
 				<h1 className='text-2xl font-semibold mb-6'>Add Project</h1>
-				<div className='flex justify-center items-center flex-col'>
-					<CircularProgress
-						className='mb-8'
-						color='success'
-					/>
-					<p>{loading.message}</p>
-				</div>
+				<Loading message={loading.message} />
 			</div>
 		);
 	if (allPropertiesUnverified || producer.producerProperties.length === 0)
@@ -432,19 +452,19 @@ function AddProject() {
 		);
 	return (
 		<div className='container mx-auto py-6 px-4 min-h-[100vh] '>
-			<div className='w-[71%] mx-auto'>
+			<div className='md:w-[71%] mx-auto'>
 				{urgentNotification.message !== "" && (
 					<UrgentNotification urgentNotification={urgentNotification} />
 				)}
 			</div>
 			<form
 				onSubmit={handleSubmit(onSubmit)}
-				className='flex flex-col w-[800px] mx-auto'
+				className='flex flex-col md:w-[800px] mx-auto'
 			>
 				<h1 className='text-3xl font-semibold mb-6 flex justify-start text-left'>
 					Add Project
 				</h1>
-				<label className='flex flex-col w-[800px]'>
+				<label className='flex flex-col md:w-[800px]'>
 					<span className='mb-[4px] mt-2'>Project Title:</span>
 					<input
 						type='text'
@@ -452,11 +472,10 @@ function AddProject() {
 						{...register("title", { required: true })}
 					/>
 				</label>
-				<br />
-				<label className='flex flex-col w-[800px]'>
+				<label className='flex flex-col md:w-[800px] mt-4'>
 					{properties.length > 0 && (
 						<>
-							<span className='mb-[4px] mt-2'>Project Location:</span>
+							<span className='mb-[4px]'>Project Location:</span>
 							<select
 								{...register("projectAddressId", { required: true })}
 								className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
@@ -540,9 +559,8 @@ function AddProject() {
 					)}
 				</label>
 
-				<br />
-				<label className='flex flex-col w-[800px]'>
-					<span className='mb-[4px] mt-2'>Project Type:</span>
+				<label className='flex flex-col md:w-[800px] mt-4'>
+					<span className='mb-[4px] '>Project Type:</span>
 					<select
 						{...register("projectType", { required: true })}
 						className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
@@ -552,7 +570,7 @@ function AddProject() {
 						<option value='Energy'>Renewable Energy</option>
 					</select>
 				</label>
-				<label className='flex flex-col mt-[8px] w-[800px]'>
+				<label className='flex flex-col mt-[8px] md:w-[800px]'>
 					<span className='mb-[4px] mt-2'>
 						Is this a non-profit initiative?
 					</span>
@@ -563,7 +581,7 @@ function AddProject() {
 							className='react-switch mr-2'
 							id='isNonProfit'
 							offColor='#808080'
-							onColor='#66bb6a'
+							onColor='#40821A'
 							height={20}
 							width={48}
 							uncheckedIcon={false}
@@ -572,7 +590,7 @@ function AddProject() {
 						{isNonProfit ? "Yes" : "No"}
 					</div>
 				</label>
-				<label className='flex flex-col w-[800px]	'>
+				<label className='flex flex-col md:w-[800px]'>
 					<span className='mb-[4px] mt-2'>Total Project Area (km²)</span>
 					<input
 						type='number'
@@ -584,7 +602,7 @@ function AddProject() {
 
 				{projectType === "Tree" && (
 					<>
-						<label className='flex flex-col mt-[8px] w-[800px]'>
+						<label className='flex flex-col mt-[8px] md:w-[800px]'>
 							<span className='mb-[4px] mt-2'>Tree Project Type:</span>
 							<select
 								{...register("treeProjectType", { required: true })}
@@ -603,7 +621,7 @@ function AddProject() {
 								<option value='Oil / Chemical'>Oils / Chemicals</option>
 							</select>
 						</label>
-						<label className='flex flex-col w-[800px]'>
+						<label className='flex flex-col md:w-[800px]'>
 							<span className='mb-[4px] mt-2'>
 								How many trees are you aiming to plant for this project?
 							</span>
@@ -612,11 +630,11 @@ function AddProject() {
 								<input
 									type='number'
 									{...register("numTrees", { required: true })}
-									className='w-[96%] outline-none'
+									className='w-[90%] md:w-[96%] outline-none'
 								/>
 							</div>
 						</label>
-						<label className='flex flex-col w-[800px]'>
+						<label className='flex flex-col md:w-[800px]'>
 							<span className='mb-[4px] mt-2'>
 								What kind of trees are you going to plant?
 							</span>
@@ -625,11 +643,11 @@ function AddProject() {
 								<input
 									type='text'
 									{...register("treeType", { required: true })}
-									className='w-[96%] outline-none'
+									className='w-[90%] md:w-[96%] outline-none'
 								/>
 							</div>
 						</label>
-						<label className='flex flex-col w-[800px]'>
+						<label className='flex flex-col md:w-[800px]'>
 							<span className='mb-[4px] mt-2'>
 								How much do you want to raise for seeds/saplings?
 							</span>
@@ -639,7 +657,7 @@ function AddProject() {
 									type='number'
 									step='1'
 									{...register("estimatedSeedCost", { required: true })}
-									className='w-[97%] outline-none'
+									className='w-[90%] md:w-[97%] outline-none'
 								/>
 							</div>
 							<span className='mb-[4px] mt-2'>
@@ -651,7 +669,7 @@ function AddProject() {
 									type='number'
 									step='1'
 									{...register("estimatedLabourCost", { required: true })}
-									className='w-[97%] outline-none'
+									className='w-[90%] md:w-[97%] outline-none'
 								/>
 							</div>
 							<span className='mb-[4px] mt-2'>
@@ -663,7 +681,7 @@ function AddProject() {
 									type='number'
 									step='1'
 									{...register("estimatedMaintenanceCost", { required: true })}
-									className='w-[97%] outline-none'
+									className='w-[90%] md:w-[97%] outline-none'
 								/>
 							</div>
 							<div className='flex mt-12'>
@@ -695,7 +713,7 @@ function AddProject() {
 				)}
 				{projectType === "Energy" && (
 					<>
-						<label className='flex flex-col mt-[8px] w-[800px]'>
+						<label className='flex flex-col mt-[8px] md:w-[800px]'>
 							<span className='mb-[4px] mt-2'>
 								Renewable Energy Project Type:
 							</span>
@@ -709,27 +727,44 @@ function AddProject() {
 						</label>
 						{energyType === "Solar" && (
 							<>
-								<label className='flex flex-col mt-[8px] w-[800px]'>
-									<span className='mb-[4px] mt-2'>
-										Is this a residential, commercial, or rural project?
-									</span>
-									<select
-										{...register("locationType", { required: true })}
-										className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
-									>
-										<option value=''>Select the project location type</option>
-										<option value='Residential'>Residential</option>
-										<option value='Commercial'>Commercial</option>
-										<option value='Rural'>Acreage/Rural</option>
-									</select>
-								</label>
+								{isNonProfit ? (
+									<label className='flex flex-col mt-[8px] md:w-[800px]'>
+										<span className='mb-[4px] mt-2'>
+											Is this an urban, or rural project?
+										</span>
+										<select
+											{...register("locationType", { required: true })}
+											className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
+										>
+											<option value=''>Select the project location type</option>
+											<option value='Urban'>Urban</option>
+
+											<option value='Rural'>Rural</option>
+										</select>
+									</label>
+								) : (
+									<label className='flex flex-col mt-[8px] md:w-[800px]'>
+										<span className='mb-[4px] mt-2'>
+											Is this a residential, commercial, or rural project?
+										</span>
+										<select
+											{...register("locationType", { required: true })}
+											className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
+										>
+											<option value=''>Select the project location type</option>
+											<option value='Residential'>Residential</option>
+											<option value='Commercial'>Commercial</option>
+											<option value='Rural'>Rural</option>
+										</select>
+									</label>
+								)}
 								{locationType === "Residential" && (
 									<div className='mt-4'>
 										We encourage you to connect with a solar partner to help you
 										with installing a residential solar system.
 										<p>
 											<a
-												className='text-green-500 hover:text-green-400 transition-colors'
+												className='text-[var(--cta-one)] hover:text-[var(--cta-one-hover)] transition-colors'
 												href='https://forms.gle/Q5bXYmVca6qQLXuY9'
 												target='_blank'
 											>
@@ -742,7 +777,7 @@ function AddProject() {
 								)}
 								{locationType !== "Residential" && (
 									<>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												What is the target yearly energy production of this
 												project (kWh)?
@@ -755,7 +790,7 @@ function AddProject() {
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												How many arrays will be setup?
 											</span>
@@ -765,7 +800,7 @@ function AddProject() {
 												type='text'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												Are you contracting a company to install the system,
 												doing this with your own team of installers, or are you
@@ -788,9 +823,10 @@ function AddProject() {
 										</label>
 									</>
 								)}
-								{installationTeam === ("Has company" || "Has team") ? (
+								{installationTeam === "Has company" ||
+								installationTeam === "Has team" ? (
 									<>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												What will the size of the installed system be? (in kW)
 											</span>
@@ -800,7 +836,7 @@ function AddProject() {
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										{/* <label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-4px] mt-2'>
 												If known, what is the photovoltaic capacity of the
 												system?
@@ -811,7 +847,7 @@ function AddProject() {
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												What is the estimated cost of the system installation?
 											</span>
@@ -822,7 +858,7 @@ function AddProject() {
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												What is the total cost of the system (do not include
 												labour charges)?
@@ -833,7 +869,7 @@ function AddProject() {
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												If discussed, what are the estimated maintenance costs
 												for the system?
@@ -845,7 +881,7 @@ function AddProject() {
 											/>
 										</label>
 
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												If discussed, what&apos;s the estimated material cost?
 												(any materials beyond the arrays, inverters, and
@@ -857,7 +893,7 @@ function AddProject() {
 												type='number'
 											/>
 										</label>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												When is the estimated installation date?
 											</span>
@@ -866,11 +902,11 @@ function AddProject() {
 												className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 												type='number'
 											/>
-										</label>
+										</label> */}
 									</>
 								) : installationTeam === "Needs team" ? (
 									<>
-										<label className='flex flex-col mt-[8px] w-[800px]'>
+										<label className='flex flex-col mt-[8px] md:w-[800px]'>
 											<span className='mb-[4px] mt-2'>
 												Do you want us to connect you with a trusted solar
 												installation partner in your area to handle the
@@ -894,12 +930,13 @@ function AddProject() {
 								) : null}
 
 								{locationType !== "Residential" && (
-									<label className='flex flex-col mt-[8px] w-[800px]'>
+									<label className='flex flex-col mt-[8px] md:w-[800px]'>
 										<span className='mb-[4px] mt-2'>
 											How much do you want to raise for this project?
 										</span>
 										<input
 											{...register("fundsRequested")}
+											value={fundsRequested.toLocaleString()}
 											className='text-gray-700 p-2 w-full border-2 border-gray-300 rounded-md'
 											type='number'
 										/>
@@ -912,39 +949,47 @@ function AddProject() {
 				<br />
 				{locationType !== "Residential" && (
 					<>
-						<label className='flex flex-col mt-[8px] w-[800px]'>
-							<span className='mt-2'>Project Banner Image:</span>
-							<br />
-							<button
-								type='button'
-								onClick={toggleUploadMethod}
-								className='mb-4 mt-2 text-left mr-2 w-fit bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
-							>
-								{uploadMethod
-									? "Switch to image URL"
-									: "Switch to image upload"}
-							</button>
-							<br />
-							{uploadMethod ? (
-								<input
-									{...register("imageFile")}
-									type='file'
-									accept='image/png, image/jpeg'
-									className='border-2 border-gray-300 rounded-md p-2 w-full cursor-pointer'
-								/>
-							) : (
-								<label className='flex flex-col w-[800px]'>
-									<span className='mb-[4px] mt-2'>Paste direct image URL:</span>
+						<label className='my-4 md:w-[800px]'>
+							<span className=''>Project Banner Image:</span>
+							<div className='flex flex-col'>
+								<button
+									type='button'
+									onClick={toggleUploadMethod}
+									className='text-xs mb-[4px] my-2 text-left mr-2 w-fit bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-bold p-1 rounded transition-colors cursor-pointer'
+								>
+									{uploadMethod ? (
+										<span className='flex items-center'>
+											<HiSwitchHorizontal className='mr-[4px] text-xl' />
+											Enter URL
+										</span>
+									) : (
+										<span className='flex items-center'>
+											<HiSwitchHorizontal className='mr-[4px] text-xl' />
+											Upload Image
+										</span>
+									)}
+								</button>
+								{uploadMethod ? (
 									<input
-										{...register("imageUrlInput")}
-										type='text'
-										className='border-2 border-gray-300 rounded-md p-2 w-full'
+										{...register("imageFile")}
+										type='file'
+										accept='image/png, image/jpeg'
+										className='w-[max-content] border-2 border-gray-300 mt-[2px] rounded-md p-2 cursor-pointer !text-gray-200 tracking-wide file:cursor-pointer file:bg-[var(--cta-one)] file:hover:bg-[var(--cta-one-hover)] file:px-4 file:py-2 file:text-white file:rounded file:font-semibold file:transition-colors'
 									/>
-								</label>
-							)}
+								) : (
+									<label className='flex flex-col md:w-[800px]'>
+										<span className='mb-[4px] '>Paste direct image URL:</span>
+										<input
+											{...register("imageUrlInput")}
+											type='text'
+											className='border-2 border-gray-300 rounded-md p-2 w-full'
+										/>
+									</label>
+								)}
+							</div>
 						</label>
 						<br />
-						<label className='flex flex-col w-[800px]'>
+						<label className='flex flex-col md:w-[800px]'>
 							<span className='mb-[4px] mt-2'>Project Coordinator Name:</span>
 							<input
 								{...register("coordinatorName", { required: true })}
@@ -952,7 +997,7 @@ function AddProject() {
 								className='border-2 border-gray-300 rounded-md p-2 w-full'
 							/>
 						</label>
-						<label className='flex flex-col w-[800px]'>
+						<label className='flex flex-col md:w-[800px]'>
 							<span className='mb-[4px] mt-2'>Project Coordinator Phone:</span>
 							<input
 								{...register("coordinatorPhone", { required: true })}
@@ -961,7 +1006,7 @@ function AddProject() {
 							/>
 						</label>
 						<br />
-						<label className='flex flex-col w-[800px]'>
+						<label className='flex flex-col md:w-[800px]'>
 							<span className='mb-[4px] mt-2'>Project Description:</span>
 							<textarea
 								{...register("description", { required: true })}
@@ -973,11 +1018,12 @@ function AddProject() {
 				<br />
 				{!isNonProfit && locationType !== "Residential" && (
 					<>
-						<label className='flex flex-col w-[800px]'>
+						<label className='flex flex-col md:w-[800px]'>
 							{projectType === "Tree" ? (
 								<span className='mb-[4px] mt-2'>
 									What do you estimate the revenue{" "}
-									{treeType === "Timber / Lumber" ? "" : "per year"} will be?
+									{treeProjectType === "Timber / Lumber" ? "" : "per year"} will
+									be?
 								</span>
 							) : (
 								<span className='mb-[4px] mt-2'>
@@ -994,22 +1040,64 @@ function AddProject() {
 							</div>
 						</label>
 						<br />
-						<label className='flex flex-col w-[800px]'>
-							<span className='mb-[4px] mt-2'>
-								What percentage of the profits will you offer investors for
-								investing into your project?
-							</span>
-							<div className='border-2 border-gray-300 rounded-md p-2 bg-white text-gray-400'>
-								%{" "}
-								<input
-									{...register("estRoiPercentage", { required: true })}
-									type='number'
-									className='w-[97%] outline-none'
-									min={0}
-									max={100}
-								/>
-							</div>
-						</label>
+						{treeProjectType === "Timber / Lumber" ? (
+							<>
+								<label className='flex flex-col md:w-[800px]'>
+									<span className='mb-[4px] mt-2'>
+										What percentage of the profits will you offer investors when
+										the trees are ready to harvest?
+									</span>
+									<div className='border-2 border-gray-300 rounded-md p-2 bg-white text-gray-400'>
+										%{" "}
+										<input
+											{...register("estRoiPercentage", { required: true })}
+											type='number'
+											className='w-[90%] md:w-[97%] outline-none'
+											min={0}
+											max={100}
+										/>
+									</div>
+								</label>
+							</>
+						) : (
+							<>
+								<label className='flex flex-col md:w-[800px]'>
+									<span className='mb-[4px] mt-2'>
+										What percentage of the profits will you offer investors
+										until the investment is repaid?
+									</span>
+									<div className='border-2 border-gray-300 rounded-md p-2 bg-white text-gray-400'>
+										%{" "}
+										<input
+											{...register("estRoiPercentage", { required: true })}
+											type='number'
+											className='w-[90%] md:w-[97%] outline-none'
+											min={0}
+											max={100}
+										/>
+									</div>
+								</label>
+								<br />
+								<label className='flex flex-col md:w-[800px]'>
+									<span className='mb-[4px] mt-2'>
+										What percentage of the profits will you offer investors
+										after the investment is repaid?
+									</span>
+									<div className='border-2 border-gray-300 rounded-md p-2 bg-white text-gray-400'>
+										%{" "}
+										<input
+											{...register("estLongTermRoiPercentage", {
+												required: true,
+											})}
+											type='number'
+											className='w-[90%] md:w-[97%] outline-none'
+											min={0}
+											max={100}
+										/>
+									</div>
+								</label>
+							</>
+						)}
 						<br />
 					</>
 				)}
@@ -1017,10 +1105,15 @@ function AddProject() {
 					<div className='flex justify-between '>
 						{!agreements ? (
 							<div>
-								<h3>Agreements:</h3>{" "}
+								<h3>Agreement:</h3>{" "}
+								<p className='text-gray-400'>
+									You must agree to the following agreement before you can
+									create this project.
+								</p>
 								<button
-									onClick={handleOpen}
-									className='my-2 text-left w-[300px] bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
+									type='button'
+									onClick={() => handleOpen()}
+									className='my-2 text-left w-[300px] bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
 								>
 									View agreement
 								</button>
@@ -1033,13 +1126,17 @@ function AddProject() {
 									<Box sx={style}>
 										<Agreement
 											handleAgreementButtonClick={handleAgreementButtonClick}
+											isNonProfit={isNonProfit}
 										/>
 									</Box>
 								</Modal>
 							</div>
 						) : (
 							<>
-								<h3>✅ Agreements</h3>
+								<h3 className='flex items-center text-gray-400'>
+									<IoIosCheckmarkCircle className='!text-[var(--cta-one)] text-2xl mr-2 mt-[2px]' />{" "}
+									Agreements
+								</h3>
 							</>
 						)}
 					</div>
@@ -1049,11 +1146,13 @@ function AddProject() {
 					<button
 						type='submit'
 						className={
-							locationType !== "Residential"
-								? "mt-[16px] bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer w-full"
-								: "bg-gray-500 text-white font-bold py-2 px-4 rounded w-full"
+							locationType !== "Residential" && agreements
+								? "mt-[16px] bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer w-full"
+								: "bg-gray-500 text-white font-bold py-2 px-4 rounded w-full cursor-default"
 						}
-						disabled={locationType === "Residential"}
+						disabled={
+							locationType !== "Residential" && agreements ? false : true
+						}
 					>
 						Submit Project
 					</button>
