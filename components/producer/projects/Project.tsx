@@ -13,15 +13,23 @@ import { BiPencil, BiTrashAlt } from "react-icons/bi";
 import Milestones from "./Milestones";
 import { useRouter } from "next/navigation";
 import Modal from "@mui/material/Modal";
-import { Box } from "@mui/material";
+import { Box, LinearProgress } from "@mui/material";
 import { RootState } from "@/redux/store";
+import { FaAngleDown } from "react-icons/fa";
+import axios from "axios";
 type Props = {
 	project: Project | null | undefined;
 	fetchProject?: () => void;
 	adminMode: boolean;
+	percentageFunded?: number;
 };
 
-export default function Project({ project, fetchProject, adminMode }: Props) {
+export default function Project({
+	project,
+	fetchProject,
+	adminMode,
+	percentageFunded,
+}: Props) {
 	// Visibility Menu
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
@@ -58,20 +66,21 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 	const toggleProjectVisibility = async () => {
 		if (!project?.isVerified) return;
 		if (!fetchProject) return;
-		const { data, error } = await supabase
-			.from("projects")
-			.update({
-				status: `${project?.status === "draft" ? "published" : "draft"}`,
+		axios
+			.put("/api/projects/", {
+				projectId: project?.id,
+				status: project?.status === "approved" ? "published" : "approved",
 			})
-			.eq("id", project?.id);
-		if (error) {
-			console.error("Error updating project:", error);
-			toast.error(error.message);
-		}
-		if (data) {
-			toast.success("Project visibility toggled");
-			fetchProject();
-		}
+			.then((res) => {
+				handleClose();
+				toast.success("Project updated");
+				fetchProject();
+			})
+			.catch((err) => {
+				handleClose();
+				console.log("error updating project >>> ", err);
+				toast.error("Error updating project");
+			});
 	};
 	const handleEdit = () => {
 		router.push(`/p/projects/${project?.id}/edit`);
@@ -114,9 +123,10 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 			((!project?.treeInvestments || project.treeInvestments.length === 0) &&
 				(project?.status === "draft" ||
 					project?.status === "pending_verification" ||
-					project?.status === "pending_update_review" ||
-					project?.status === "published" ||
-					project?.status === "not_approved"))
+					project?.status === "pending_reverification" ||
+					project?.status === "not_approved" ||
+					project?.status === "approved" ||
+					project?.status === "published"))
 		) {
 			return true;
 		} else {
@@ -143,70 +153,73 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 	const handleGoBack = () => {
 		router.back();
 	};
-	console.log("(portfolio) project >>> ", project);
 	return (
-		<div className=''>
-			<p
-				onClick={handleGoBack}
-				className='cursor-pointer mb-4 text-sm font-semibold transition-all hover:text-green-700'
-			>
-				{role === "investor"
-					? `← Back to projects`
-					: role === "producer"
-					? `← Back to my projects`
-					: `← Back`}
-			</p>
-			{adminMode && (
-				<div className='flex justify-end mb-2'>
-					<button
-						onClick={handleEdit}
-						className='p-2 rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600'
-					>
-						<BiPencil className='text-2xl' />
-					</button>
-					<button
-						onClick={handleOpenModal}
-						className='p-2 rounded bg-red-700 text-white font-bold transition-all hover:bg-red-600 ml-2'
-					>
-						<BiTrashAlt className='text-2xl' />
-					</button>
-					<Modal
-						open={openModal}
-						onClose={handleCloseModal}
-						aria-labelledby='modal-modal-title'
-						aria-describedby='modal-modal-description'
-					>
-						<Box sx={style}>
-							<p>Are you sure you want to delete this project?</p>
-							<p>
-								Note: Any project investments made by investors must be returned
-								to the original investor before deleting.
-							</p>
-							<div className='flex flex-col mt-4'>
-								<p>Type &quot;{project?.title}&quot; to delete this project.</p>
-								<input
-									value={deleteConfirm}
-									onChange={handleDeleteConfirm}
-									className='border-2 border-gray-300 rounded-md p-2 w-auto my-2'
-								/>
-								<button
-									disabled={deleteButtonDisabled}
-									className={
-										deleteButtonDisabled
-											? "text-sm p-2 rounded bg-gray-400 text-white font-bold transition-all cursor-default"
-											: "text-sm p-2 rounded bg-red-700 text-white font-bold transition-all hover:bg-red-600"
-									}
-									onClick={handleDelete}
-								>
-									Delete project
-								</button>
-							</div>
-						</Box>
-					</Modal>
-				</div>
-			)}
+		<div>
+			<div className='flex items-center justify-between'>
+				<p
+					onClick={handleGoBack}
+					className='cursor-pointer mb-4 text-sm font-semibold transition-colors text-gray-400 hover:text-[var(--cta-two-hover)] w-[max-content]'
+				>
+					{role === "investor"
+						? `← Back to projects`
+						: role === "producer"
+						? `← Back to my projects`
+						: `← Back`}
+				</p>
+				{adminMode && (
+					<div className='flex justify-end mb-2'>
+						<button
+							onClick={handleEdit}
+							className='p-2 rounded bg-[var(--cta-one)] text-white font-bold transition-colors hover:bg-[var(--cta-one-hover)]'
+						>
+							<BiPencil className='text-2xl' />
+						</button>
+						<button
+							onClick={handleOpenModal}
+							className='p-2 rounded bg-red-700 text-white font-bold transition-colors hover:bg-red-600 ml-2'
+						>
+							<BiTrashAlt className='text-2xl' />
+						</button>
+						<Modal
+							open={openModal}
+							onClose={handleCloseModal}
+							aria-labelledby='modal-modal-title'
+							aria-describedby='modal-modal-description'
+						>
+							<Box sx={style}>
+								<p>Are you sure you want to delete this project?</p>
+								<p>
+									Note: Any project investments made by investors must be
+									returned to the original investor before deleting.
+								</p>
+								<div className='flex flex-col mt-4'>
+									<p>
+										Type &quot;{project?.title}&quot; to delete this project.
+									</p>
+									<input
+										value={deleteConfirm}
+										onChange={handleDeleteConfirm}
+										className='border-2 border-gray-300 rounded-md p-2 w-auto my-2'
+									/>
+									<button
+										disabled={deleteButtonDisabled}
+										className={
+											deleteButtonDisabled
+												? "text-sm p-2 rounded bg-gray-400 text-white font-bold transition-colors cursor-default"
+												: "text-sm p-2 rounded bg-red-700 text-white font-bold transition-colors hover:bg-red-600"
+										}
+										onClick={handleDelete}
+									>
+										Delete project
+									</button>
+								</div>
+							</Box>
+						</Modal>
+					</div>
+				)}
+			</div>
 			<Image
-				className='w-full h-64 object-cover object-top mb-4'
+				className='w-full h-64 object-cover object-top mb-4 rounded-xl'
 				src={
 					project?.imageUrl
 						? project?.imageUrl
@@ -216,25 +229,48 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 				width={1500}
 				height={500}
 			/>
-
+			{percentageFunded && percentageFunded >= 0 && (
+				<div className='my-8'>
+					{project?.projectFinancials?.totalAmountRaised &&
+						project?.projectFinancials?.finalEstProjectFundRequestTotal && (
+							<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
+								$
+								{project?.projectFinancials?.totalAmountRaised.toLocaleString()}{" "}
+								raised out of $
+								{project?.projectFinancials?.finalEstProjectFundRequestTotal.toLocaleString()}
+							</p>
+						)}
+					<div>
+						<LinearProgress
+							variant='determinate'
+							color='success'
+							value={percentageFunded}
+						/>
+						<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
+							{percentageFunded.toFixed(2)}% Funded
+						</p>
+					</div>
+				</div>
+			)}
 			<div className='flex items-center justify-between'>
-				<h2 className='text-2xl font-bold mb-2'>
+				<h2 className='text-2xl font-semibold tracking-wide '>
 					{project?.title} - {project?.type} Project
 				</h2>
 				{adminMode && (
-					<h4 className='text-sm px-6 py-2 border-white rounded border-[1px]'>
-						{(project?.status === "draft" || project?.status === "published") &&
-						project?.isVerified ? (
-							<>
+					<div>
+						{(project?.isVerified && project?.status === "approved") ||
+						(project?.isVerified && project?.status === "published") ? (
+							<div className='cursor-pointer text-sm px-6 py-2 border-white rounded border-[1px]'>
 								<div
-									className='cursor-pointer'
+									className=' flex'
 									id='basic-button'
 									aria-controls={open ? "basic-menu" : undefined}
 									aria-haspopup='true'
 									aria-expanded={open ? "true" : undefined}
 									onClick={handleClick}
 								>
-									{removeUnderscores(project?.status)}
+									{removeUnderscores(project?.status)}{" "}
+									<FaAngleDown className='text-2xl ml-2' />
 								</div>
 								<Menu
 									id='basic-menu'
@@ -266,53 +302,74 @@ export default function Project({ project, fetchProject, adminMode }: Props) {
 										className='menu-link'
 										onClick={toggleProjectVisibility}
 									>
-										{project?.status === "draft"
-											? "Make Public"
-											: "Make Private"}
+										{project?.status === "approved" ? "Publish" : "Unpublish"}
 									</MenuItem>
 								</Menu>
-							</>
+							</div>
+						) : (project?.status === "pending_verification" &&
+								!project?.isVerified) ||
+						  (project?.status === "pending_reverification" &&
+								!project?.isVerified) ? (
+							<div className='cursor-pointer text-xs px-6 py-2 border-white rounded border-[1px]'>
+								{removeUnderscores(project?.status)} & strategy call
+							</div>
 						) : project?.status === "pending_verification" ||
-						  project?.status === "pending_update_review" ? (
-							removeUnderscores(project?.status)
+						  project?.status === "pending_reverification" ? (
+							<div className='cursor-pointer text-xs px-6 py-2 border-white rounded border-[1px]'>
+								{removeUnderscores(project?.status)}
+							</div>
 						) : null}
-					</h4>
+					</div>
 				)}
 			</div>
-			<hr className='dark:border-green-800 my-4' />
+			<hr className='dark:border-gray-700 my-3' />
 			<div className='flex justify-between'>
 				<div>
-					<p>
-						Created at: {moment(project?.createdAt).format("MMMM DD, yyyy LT")}
-					</p>
-					<p>
-						Last updated at:{" "}
-						{project?.updatedAt
-							? moment(project?.updatedAt).format("MMMM DD, yyyy LT")
-							: moment(project?.createdAt).format("MMMM DD, yyyy LT")}
-					</p>
-
-					<p>
-						Coordinator: {project?.projectCoordinatorContact?.name},{" "}
+					<p className='mb-2'>
+						<span className='text-gray-400'>Coordinator:</span>{" "}
+						{project?.projectCoordinatorContact?.name},{" "}
 						{project?.projectCoordinatorContact?.phone}
 					</p>
-					<p>Address: {project?.producerProperties?.address?.addressLineOne}</p>
-					<p>Area: {project?.totalAreaSqkm} sq ft</p>
-					<p>
-						Description: <br />
+					<p className='mb-2'>
+						<span className='text-gray-400'>Address:</span>{" "}
+						{project?.producerProperties?.address?.addressLineOne}
+					</p>
+					<p className='mb-2'>
+						<span className='text-gray-400'>Area:</span>{" "}
+						{project?.totalAreaSqkm} sq km
+					</p>
+					<p className='mb-2'>
+						<span className='text-gray-400'>Description:</span> <br />
 						{project?.description}
 					</p>
 					{/* <p>Funds collected: ${project?.fundsCollected}</p> */}
 					{/* <p>Investors: {project?.investorCount}</p> */}
+					<p className='mb-2 text-gray-400 text-xs'>
+						Created at{" "}
+						{moment(project?.createdAt).format("LT on MMMM DD, yyyy")}
+					</p>
+					<p className='mb-2 text-gray-400 text-xs'>
+						Last updated at{" "}
+						{project?.updatedAt
+							? moment(project?.updatedAt).format("LT on MMMM DD, yyyy")
+							: moment(project?.createdAt).format("LT on MMMM DD, yyyy")}
+					</p>
 				</div>
 				{project?.type === "Tree" ? (
 					<TreeProject
 						treeProject={project?.treeProjects}
 						project={project}
-						treeInvestments={project?.treeInvestments}
 					/>
 				) : project?.type === "Energy" ? (
-					<EnergyProject project={project?.energyProjects} />
+					<>
+						<EnergyProject
+							project={{
+								entireProject: project,
+								energyProjects: project?.energyProjects,
+								solarProjects: project?.solarProjects,
+							}}
+						/>
+					</>
 				) : null}
 			</div>
 			<Milestones
