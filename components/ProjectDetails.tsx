@@ -1,62 +1,40 @@
 import React, { useState, useEffect, FC } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { supabaseClient as supabase } from "@/utils/supabaseClient";
+import { useParams } from "next/navigation";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import Project from "./producer/projects/Project";
 import InvestButton from "./investor/projects/InvestButton";
 import { RootState } from "@/redux/store";
 import { useAppSelector } from "@/redux/hooks";
+import Loading from "./Loading";
+import axios from "axios";
 
 type Props = {};
 
 const ProjectDetails = ({}: Props) => {
-	const router = useRouter();
 	const path: any = useParams();
 	const { id } = path;
 	const [project, setProject] = useState(
 		{} as Project | TreeProject | EnergyProject
 	);
-
+	const [uniqueInvestors, setUniqueInvestors] = useState<any>(0);
+	const [percentageFunded, setPercentageFunded] = useState<any>(0);
 	useEffect(() => {
 		if (!id) {
-			// The id is not available yet; wait for it to be populated.
 			return;
 		}
 
 		const fetchProject = async () => {
-			try {
-				const { data, error } = await supabase
-					.from("projects")
-					.select(
-						"*, tree_projects(*), energy_projects(*), project_milestones(*), tree_investments(*), energy_investments(*)"
-					)
-					.eq("id", id)
-					.single();
-
-				if (error) {
-					throw new Error(error.message);
-				}
-				setProject(convertToCamelCase(data as Project));
-			} catch (error: any) {
-				console.error(
-					"(ProjectDetails.js) Error fetching project: ",
-					error.message
-				);
-			}
+			axios.get(`/api/investor/projects?projectId=${id}`).then((res) => {
+				console.log("res.data >>> ", res.data);
+				setProject(convertToCamelCase(res.data.data));
+				setUniqueInvestors(res.data.uniqueInvestors);
+				setPercentageFunded(res.data.percentageFunded);
+			});
 		};
 
 		fetchProject();
 	}, [id]);
 
-	// Handle the back button click event
-	const handleBackButtonClick = () => {
-		router.back();
-	};
-
-	// Handle the invest button click event
-	const handleInvestButtonClick = () => {
-		router.push(`/i/projects/${id}/invest`);
-	};
 	const user = useAppSelector((state: RootState) => state.user);
 	const [showInvestButton, setShowInvestButton] = useState(true);
 	useEffect(() => {
@@ -67,24 +45,34 @@ const ProjectDetails = ({}: Props) => {
 	// Render the project details or a loading message if the data is not yet available
 	return (
 		<div className='mt-4 h-[1000px]'>
-			{project ? (
-				<div className='flex'>
-					<div className='w-[60%] mx-auto'>
+			{Object.entries(project).length > 0 ? (
+				<div className='flex flex-col md:flex-row justify-center   lg:w-[1200px] lg:mx-auto'>
+					<div className='w-[800px]'>
 						<Project
 							adminMode={false}
 							project={project}
+							percentageFunded={percentageFunded}
 						/>
 					</div>
 					{showInvestButton && project.id && (
-						<div className='sticky lg:right-28 md:right-8  top-20 bg-green-900 h-min px-12 py-6 rounded-md'>
+						<div className='flex flex-col items-center border-green-400 border-[1px] border-opacity-20 h-min  transition-all p-6 rounded-md ml-8 sticky top-28'>
+							{uniqueInvestors && uniqueInvestors === 1 ? (
+								<p className='mb-4 text-sm'>
+									<span className='font-bold'>{uniqueInvestors} investor</span>{" "}
+									has backed this project.
+								</p>
+							) : (
+								<p className='mb-4 text-sm'>
+									<span className='font-bold'>{uniqueInvestors} investors</span>{" "}
+									have backed this project.
+								</p>
+							)}
 							<InvestButton id={project.id} />
 						</div>
 					)}
 				</div>
 			) : (
-				<>
-					<p>Loading project details...</p>
-				</>
+				<Loading message='Loading project details...' />
 			)}
 		</div>
 	);
