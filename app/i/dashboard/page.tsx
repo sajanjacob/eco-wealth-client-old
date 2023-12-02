@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import axios from "axios";
 import getBasePath from "@/lib/getBasePath";
 import convertToCamelCase from "@/utils/convertToCamelCase";
+import Loading from "@/components/Loading";
 
 interface DashboardProps {}
 type MetricData = {
@@ -19,6 +20,7 @@ type MetricData = {
 			totalEstKwhContributedPerYear: number;
 			totalEnergyProduced: number;
 			totalArraysInstalled: number;
+			totalHomesPowered: number;
 		}
 	];
 	totalData: {
@@ -28,6 +30,7 @@ type MetricData = {
 		totalArraysInstalled: number;
 		totalEstKwhContributedPerYear: number;
 		treesContributed: number;
+		totalHomesPowered: number;
 	};
 };
 
@@ -43,12 +46,14 @@ const Dashboard = ({}: DashboardProps) => {
 	const [totalAppTreeCount, setTotalAppTreeCount] = useState(0);
 	const [estUserEnergyContributions, setEstUserEnergyContributions] =
 		useState(0);
-
 	const [totalUserEnergyProduction, setTotalUserEnergyProduction] = useState(0);
+	const [totalUserHomesPowering, setTotalUserHomesPowering] = useState(0);
+
 	const [totalAppEnergyProduction, setTotalAppEnergyProduction] = useState(0);
 	const [totalAppEnergyContribution, setTotalAppEnergyContribution] =
 		useState(0);
 	const [totalAppTreesContributed, setTotalAppTreesContributed] = useState(0);
+	const [totalAppHomesPowering, setTotalAppHomesPowering] = useState(0);
 
 	const fetchMetrics = async () => {
 		setLoading(true);
@@ -72,8 +77,7 @@ const Dashboard = ({}: DashboardProps) => {
 
 	useEffect(() => {
 		fetchMetrics();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user]);
+	}, [user.investorId]);
 
 	// This is for animation
 	// Refs to keep track of intervals
@@ -114,7 +118,6 @@ const Dashboard = ({}: DashboardProps) => {
 			}
 		}, stepTime) as unknown as number;
 	};
-
 	useEffect(() => {
 		const baseDuration = 2000;
 		if (!metricData) return;
@@ -149,6 +152,13 @@ const Dashboard = ({}: DashboardProps) => {
 			setEstUserEnergyContributions
 		);
 		animateValue(
+			"totalUserHomesPowering",
+			0,
+			metricData?.data[0]?.totalHomesPowered || 0,
+			metricData?.data[0]?.totalHomesPowered > 1 ? baseDuration : 75,
+			setTotalUserHomesPowering
+		);
+		animateValue(
 			"targetTotalAppTreeCount",
 			0,
 			metricData?.totalData?.totalTreesPlanted || 0,
@@ -176,8 +186,17 @@ const Dashboard = ({}: DashboardProps) => {
 			baseDuration,
 			setTotalAppEnergyContribution
 		);
+
+		animateValue(
+			"totalHomesPowering",
+			0,
+			metricData?.totalData?.totalHomesPowered || 0,
+			metricData?.totalData?.totalHomesPowered > 1 ? baseDuration : 75,
+			setTotalAppHomesPowering
+		);
 		return () => {
 			// Clear all animations on component unmount
+			// eslint-disable-next-line react-hooks/exhaustive-deps
 			Object.keys(animationIntervals.current).forEach(clearAnimation);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -185,15 +204,21 @@ const Dashboard = ({}: DashboardProps) => {
 
 	const CO2RemovalRate = 4.5;
 	const ConvertToKGFromTonnes = 1016.04691;
-	const averageHomeEnergyConsumption = 11000;
-	if (loading) return <div>Loading...</div>;
+
+	if (loading)
+		return (
+			<div className='lg:w-[1200px] w-[90%] h-[100vh] mx-auto'>
+				<h1 className='text-3xl font-bold mt-8'>Investor Dashboard</h1>
+				<Loading />
+			</div>
+		);
 
 	return (
-		<div className='h-[100vh] w-[100%]'>
-			<h1 className='mb-12 pt-12 ml-8 text-2xl'>
+		<div className='h-[100vh] lg:w-[1200px] mx-auto w-[90%]'>
+			<h1 className='text-3xl font-bold my-8 lg:ml-0'>
 				Investor Dashboard | Hello {user.name}!
 			</h1>
-			<div className='w-3/4 mx-auto border border-gray-700  rounded-lg p-8 text-center'>
+			<div className='mx-auto border border-[var(--header-border)] rounded-lg p-8 text-center'>
 				<div className='grid grid-cols-3 gap-8'>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
 						<p className='mb-2'>You&apos;ve Contributed</p>
@@ -209,19 +234,19 @@ const Dashboard = ({}: DashboardProps) => {
 						</h2>
 					</div>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collective Planted</p>
+						<p className='mb-2'>Collectively We&apos;ve Planted</p>
 						<h2 className='mt-0'>
 							🌳 {totalAppTreeCount?.toLocaleString("en-CA")}
 						</h2>
 					</div>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collective Contributed</p>
+						<p className='mb-2'>Collectively We&apos;ve Contributed</p>
 						<h2 className='mt-0'>
 							🌳 {totalAppTreesContributed?.toLocaleString("en-CA")}
 						</h2>
 					</div>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Together We&apos;ve Offset:</p>
+						<p className='mb-2'>Collectively We&apos;ve Offset</p>
 						<h2 className='mt-0'>
 							☁️{" "}
 							{Math.floor(
@@ -231,7 +256,7 @@ const Dashboard = ({}: DashboardProps) => {
 						</h2>
 					</div>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;ve Offset:</p>
+						<p className='mb-2'>You&apos;ve Offset</p>
 						<h2 className='mt-0'>
 							☁️{" "}
 							{Math.floor(
@@ -241,57 +266,51 @@ const Dashboard = ({}: DashboardProps) => {
 						</h2>
 					</div>
 				</div>
-				<hr className='my-8' />
+				<hr className='my-8 border-[var(--header-border)]' />
 				<div className='grid grid-cols-3 gap-8'>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;ve Contributed:</p>
+						<p className='mb-2'>You&apos;ve Contributed</p>
 						<h2 className='mt-0'>
-							⚡ {estUserEnergyContributions?.toLocaleString("en-CA")} KWH
+							⚡ {estUserEnergyContributions?.toFixed(2).toLocaleString()} KWH
 						</h2>
 					</div>
 
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;ve Generated:</p>
+						<p className='mb-2'>You&apos;ve Generated</p>
 						<h2 className='mt-0'>
-							⚡ {totalUserEnergyProduction?.toLocaleString()} KWH
+							⚡ {totalUserEnergyProduction?.toFixed(2).toLocaleString()} KWH
 						</h2>
 					</div>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collective Generated:</p>
+						<p className='mb-2'>Collectively We&apos;ve Generated</p>
 						<h2 className='mt-0'>
-							⚡ {totalAppEnergyProduction?.toLocaleString("en-CA")} KWH
+							⚡ {totalAppEnergyProduction?.toFixed(2).toLocaleString()} KWH
 						</h2>
 					</div>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collective Contributed:</p>
+						<p className='mb-2'>Collectively We&apos;ve Contributed</p>
 						<h2 className='mt-0'>
-							⚡ {totalAppEnergyContribution?.toLocaleString("en-CA")} KWH
+							⚡ {totalAppEnergyContribution?.toFixed(2).toLocaleString()} KWH
 						</h2>
 					</div>
 					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Together We&apos;re Powering:</p>
+						<p className='mb-2'>Collectively We&apos;re Powering</p>
 						<h2 className='mt-0'>
-							🏡{" "}
-							{Math.floor(
-								totalAppEnergyProduction / averageHomeEnergyConsumption
-							).toLocaleString("en-CA")}{" "}
-							Homes for an entire year
-						</h2>
-					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;re Powering:</p>
-						<h2 className='mt-0'>
-							🏡{" "}
-							{totalUserEnergyProduction / averageHomeEnergyConsumption < 10
-								? (
-										totalUserEnergyProduction / averageHomeEnergyConsumption
-								  ).toFixed(2)
-								: Math.floor(
-										totalUserEnergyProduction / averageHomeEnergyConsumption
-								  ).toLocaleString("en-CA")}{" "}
-							{totalUserEnergyProduction / averageHomeEnergyConsumption < 1
+							🏡 {totalAppHomesPowering.toFixed(2)}{" "}
+							{totalAppHomesPowering < 1
 								? "of a home for an entire year"
-								: totalUserEnergyProduction / averageHomeEnergyConsumption === 1
+								: totalAppHomesPowering === 1
+								? "home for an entire year"
+								: "homes for an entire year"}{" "}
+						</h2>
+					</div>
+					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<p className='mb-2'>You&apos;re Powering</p>
+						<h2 className='mt-0'>
+							🏡 {totalUserHomesPowering.toFixed(2)}{" "}
+							{totalUserHomesPowering < 1
+								? "of a home for an entire year"
+								: totalUserHomesPowering === 1
 								? "home for an entire year"
 								: "homes for an entire year"}{" "}
 						</h2>
