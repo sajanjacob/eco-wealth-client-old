@@ -229,15 +229,15 @@ export default function Project({
 				width={1500}
 				height={500}
 			/>
-			{percentageFunded && percentageFunded >= 0 && (
-				<div className='my-8'>
+			{percentageFunded && percentageFunded >= 0 ? (
+				<div className='my-2'>
 					{project?.projectFinancials?.totalAmountRaised &&
 						project?.projectFinancials?.finalEstProjectFundRequestTotal && (
 							<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
 								$
-								{project?.projectFinancials?.totalAmountRaised.toLocaleString()}{" "}
+								{project?.projectFinancials?.totalAmountRaised?.toLocaleString()}{" "}
 								raised out of $
-								{project?.projectFinancials?.finalEstProjectFundRequestTotal.toLocaleString()}
+								{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
 							</p>
 						)}
 					<div>
@@ -248,6 +248,24 @@ export default function Project({
 						/>
 						<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
 							{percentageFunded.toFixed(2)}% Funded
+						</p>
+					</div>
+				</div>
+			) : (
+				<div className='my-2'>
+					<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
+						$0 raised out of $
+						{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
+					</p>
+
+					<div>
+						<LinearProgress
+							variant='determinate'
+							color='success'
+							value={0}
+						/>
+						<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
+							0.00% Funded
 						</p>
 					</div>
 				</div>
