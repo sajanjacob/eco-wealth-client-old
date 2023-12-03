@@ -13,7 +13,7 @@ import { BiPencil, BiTrashAlt } from "react-icons/bi";
 import Milestones from "./Milestones";
 import { useRouter } from "next/navigation";
 import Modal from "@mui/material/Modal";
-import { Box, LinearProgress } from "@mui/material";
+import { Box, LinearProgress, useMediaQuery } from "@mui/material";
 import { RootState } from "@/redux/store";
 import { FaAngleDown } from "react-icons/fa";
 import axios from "axios";
@@ -40,7 +40,7 @@ export default function Project({
 	const handleClose = () => {
 		setAnchorEl(null);
 	};
-
+	const matches = useMediaQuery("(min-width: 768px)");
 	const role = useAppSelector((state: RootState) => state.user?.activeRole);
 	const theme = useAppSelector((state: RootState) => state.user?.currentTheme);
 	const [openModal, setOpenModal] = useState(false);
@@ -218,17 +218,31 @@ export default function Project({
 					</div>
 				)}
 			</div>
-			<Image
-				className='w-full h-64 object-cover object-top mb-4 rounded-xl'
-				src={
-					project?.imageUrl
-						? project?.imageUrl
-						: "https://via.placeholder.com/1500x500"
-				}
-				alt='Banner'
-				width={1500}
-				height={500}
-			/>
+			{matches ? (
+				<Image
+					className='w-full h-64 object-cover object-top mb-4 rounded-xl'
+					src={
+						project?.imageUrl
+							? project?.imageUrl
+							: "https://via.placeholder.com/1500x500"
+					}
+					alt='Banner'
+					width={1500}
+					height={500}
+				/>
+			) : (
+				<Image
+					src={
+						project?.imageUrl
+							? project?.imageUrl
+							: "https://via.placeholder.com/1500x500"
+					}
+					alt='Banner'
+					width={288}
+					height={150}
+					className='w-full h-48 object-cover rounded-2xl relative'
+				/>
+			)}
 			{percentageFunded && percentageFunded >= 0 ? (
 				<div className='my-2'>
 					{project?.projectFinancials?.totalAmountRaised &&
@@ -341,8 +355,8 @@ export default function Project({
 				)}
 			</div>
 			<hr className='dark:border-gray-700 my-3' />
-			<div className='flex justify-between'>
-				<div>
+			<div className='flex flex-col md:flex-row justify-between'>
+				<div className='mb-4 md:mb-0'>
 					<p className='mb-2'>
 						<span className='text-gray-400'>Coordinator:</span>{" "}
 						{project?.projectCoordinatorContact?.name},{" "}

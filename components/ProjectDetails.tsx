@@ -46,8 +46,8 @@ const ProjectDetails = ({}: Props) => {
 	return (
 		<div className='mt-4 h-[1000px]'>
 			{Object.entries(project).length > 0 ? (
-				<div className='flex flex-col md:flex-row justify-center   lg:w-[1200px] lg:mx-auto'>
-					<div className='w-[800px]'>
+				<div className='flex flex-col md:flex-row justify-center lg:w-[1200px] lg:mx-auto'>
+					<div className='mb-4 w-[90vw] mx-auto md:w-[800px]'>
 						<Project
 							adminMode={false}
 							project={project}
@@ -55,7 +55,7 @@ const ProjectDetails = ({}: Props) => {
 						/>
 					</div>
 					{showInvestButton && project.id && (
-						<div className='flex flex-col items-center border-green-400 border-[1px] border-opacity-20 h-min  transition-all p-6 rounded-md ml-8 sticky top-28'>
+						<div className='mb-4 w-[90vw] mx-auto flex flex-col items-center border-green-400 border-[1px] border-opacity-20 h-min  transition-all p-6 rounded-md md:ml-8 md:sticky md:top-28'>
 							{uniqueInvestors && uniqueInvestors === 1 ? (
 								<p className='mb-4 text-sm'>
 									<span className='font-bold'>{uniqueInvestors} investor</span>{" "}
