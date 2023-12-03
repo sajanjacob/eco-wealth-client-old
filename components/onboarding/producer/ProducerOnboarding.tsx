@@ -109,7 +109,7 @@ export default function ProducerOnboarding() {
 			handleUpdateProducerOnboardingStatus(data[0].id);
 
 			await axios
-				.post(`${getBasePath()}/api/properties`, {
+				.post(`/api/properties`, {
 					producerId: user.producerId,
 					address: address,
 				})

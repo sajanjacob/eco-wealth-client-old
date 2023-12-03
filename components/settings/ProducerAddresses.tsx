@@ -63,9 +63,7 @@ function ProducerAddresses({ user }: Props) {
 		console.log("fetching addresses...");
 		setProperties([]);
 		setLoading(true);
-		const res = await axios.get(
-			`${getBasePath()}/api/properties?producerId=${producerId}`
-		);
+		const res = await axios.get(`/api/properties?producerId=${producerId}`);
 		const data = await res.data;
 		const propertyData = convertToCamelCase(data.propertyData);
 		setProperties(convertToCamelCase(propertyData) as Property[]);
@@ -127,7 +125,7 @@ function ProducerAddresses({ user }: Props) {
 
 	async function updateAddress(addressId: string) {
 		await axios
-			.put(`${getBasePath()}/api/properties/update`, {
+			.put(`/api/properties/update`, {
 				addressId: addressId,
 				newAddressDetails: newAddressDetails,
 				producerId: producerId,
@@ -190,9 +188,7 @@ function ProducerAddresses({ user }: Props) {
 
 	const handleDeleteAddress = async (addressId: string) => {
 		await axios
-			.delete(
-				`${getBasePath()}/api/properties?addressId=${addressId}&producerId=${producerId}`
-			)
+			.delete(`/api/properties?addressId=${addressId}&producerId=${producerId}`)
 			.then((res) => {
 				console.log("res >>> ", res);
 				setProperties((prev) =>

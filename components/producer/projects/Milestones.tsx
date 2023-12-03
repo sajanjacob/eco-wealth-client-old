@@ -96,7 +96,7 @@ export default function Milestones({ project, adminMode }: Props) {
 	const createMilestone = async (projectId: string) => {
 		const cleanBody = DOMPurify.sanitize(body);
 		await axios
-			.post(`${getBasePath()}/api/milestones/create`, {
+			.post(`/api/milestones/create`, {
 				projectId,
 				title,
 				shortDescription,

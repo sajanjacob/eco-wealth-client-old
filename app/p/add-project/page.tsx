@@ -352,9 +352,7 @@ function AddProject() {
 	const userId = user.id;
 
 	const fetchProducerData = async () => {
-		const res = await axios.get(
-			`${getBasePath()}/api/producer?user_id=${userId}`
-		);
+		const res = await axios.get(`/api/producer?user_id=${userId}`);
 		const data = await res.data;
 		const producerData = convertToCamelCase(data.producerData[0]);
 		dispatch(

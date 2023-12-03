@@ -237,7 +237,7 @@ function Edit() {
 	const updateProject = async (bannerUrl: string) => {
 		const status = "pending_update_review";
 		await axios
-			.post(`${getBasePath()}/api/projects/update`, {
+			.post(`/api/projects/update`, {
 				title: title,
 				bannerUrl: bannerUrl,
 				coordinatorName: coordinatorName,

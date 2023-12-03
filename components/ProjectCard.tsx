@@ -149,7 +149,7 @@ const ProjectCard = ({
 		if (!fetchProjects) return;
 		try {
 			axios
-				.put(`${getBasePath()}/api/projects/publish`, {
+				.put(`/api/projects/publish`, {
 					status,
 					projectId,
 				})

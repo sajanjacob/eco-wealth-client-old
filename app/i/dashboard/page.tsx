@@ -60,9 +60,7 @@ const Dashboard = ({}: DashboardProps) => {
 
 		if (user && user.investorId) {
 			await axios
-				.get(
-					`${getBasePath()}/api/investor_metrics?investorId=${user.investorId}`
-				)
+				.get(`/api/investor_metrics?investorId=${user.investorId}`)
 				.then((res) => {
 					setMetricData(convertToCamelCase(res.data));
 				})

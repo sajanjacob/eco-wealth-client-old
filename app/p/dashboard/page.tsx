@@ -26,9 +26,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 	const dispatch = useAppDispatch();
 	const producer = useAppSelector((state) => state.producer);
 	const fetchProducerData = async () => {
-		const res = await axios.get(
-			`${getBasePath()}/api/producer?user_id=${userId}`
-		);
+		const res = await axios.get(`/api/producer?user_id=${userId}`);
 		const data = await res.data;
 		const producerData = convertToCamelCase(data?.producerData[0]);
 		dispatch(
@@ -116,9 +114,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 	const fetchMetrics = async () => {
 		if (!user.producerId || user.producerId === "") return;
 		axios
-			.get(
-				`${getBasePath()}/api/producer_metrics?producerId=${user.producerId}`
-			)
+			.get(`/api/producer_metrics?producerId=${user.producerId}`)
 			.then((res) => {
 				const data = res.data;
 				setMetricData(convertToCamelCase(data));
