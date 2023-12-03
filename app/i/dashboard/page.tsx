@@ -207,112 +207,140 @@ const Dashboard = ({}: DashboardProps) => {
 	if (loading)
 		return (
 			<div className='lg:w-[1200px] w-[90%] h-[100vh] mx-auto'>
-				<h1 className='text-3xl font-bold mt-8'>Investor Dashboard</h1>
+				<h1 className='text-3xl font-semibold mt-8'>Investor Dashboard</h1>
 				<Loading />
 			</div>
 		);
 
 	return (
 		<div className='h-[100vh] lg:w-[1200px] mx-auto w-[90%]'>
-			<h1 className='text-3xl font-bold my-8 lg:ml-0'>
+			<h1 className='text-2xl md:text-3xl font-bold my-4 md:my-8 md::ml-0'>
 				Investor Dashboard | Hello {user.name}!
 			</h1>
-			<div className='mx-auto border border-[var(--header-border)] rounded-lg p-8 text-center'>
-				<div className='grid grid-cols-3 gap-8'>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;ve Contributed</p>
-						<h2 className='mt-0'>
+			<div className='mx-auto border border-[var(--header-border)] rounded-lg p-4 md:p-8 text-center'>
+				<div className='grid grid-cols-3 gap-4 md:gap-8'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							You&apos;ve Contributed
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							🌳 {totalUserTreeContributions?.toLocaleString("en-CA")}
-						</h2>
+						</p>
 					</div>
 
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;ve Planted</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							You&apos;ve Planted
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							🌳 {totalUserTreeCount?.toLocaleString("en-CA")}
-						</h2>
+						</p>
 					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collectively We&apos;ve Planted</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							Collectively We&apos;ve Planted
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							🌳 {totalAppTreeCount?.toLocaleString("en-CA")}
-						</h2>
+						</p>
 					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collectively We&apos;ve Contributed</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							Collectively We&apos;ve Contributed
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							🌳 {totalAppTreesContributed?.toLocaleString("en-CA")}
-						</h2>
+						</p>
 					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collectively We&apos;ve Offset</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							Collectively We&apos;ve Offset
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							☁️{" "}
 							{Math.floor(
 								totalAppTreeCount * CO2RemovalRate * ConvertToKGFromTonnes
 							)?.toLocaleString("en-CA")}{" "}
 							kg of CO²
-						</h2>
+						</p>
 					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;ve Offset</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							You&apos;ve Offset
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							☁️{" "}
 							{Math.floor(
 								totalUserTreeCount * CO2RemovalRate * ConvertToKGFromTonnes
 							)?.toLocaleString("en-CA")}{" "}
 							kg of CO²
-						</h2>
+						</p>
 					</div>
 				</div>
-				<hr className='my-8 border-[var(--header-border)]' />
-				<div className='grid grid-cols-3 gap-8'>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;ve Contributed</p>
-						<h2 className='mt-0'>
+				<hr className='my-4 md:my-8 border-[var(--header-border)]' />
+				<div className='grid grid-cols-3 gap-4 md:gap-8'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							You&apos;ve Contributed
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							⚡ {estUserEnergyContributions?.toFixed(2).toLocaleString()} KWH
-						</h2>
+						</p>
 					</div>
 
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;ve Generated</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							You&apos;ve Generated
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							⚡ {totalUserEnergyProduction?.toFixed(2).toLocaleString()} KWH
-						</h2>
+						</p>
 					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collectively We&apos;ve Generated</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							Collectively We&apos;ve Generated
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							⚡ {totalAppEnergyProduction?.toFixed(2).toLocaleString()} KWH
-						</h2>
+						</p>
 					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collectively We&apos;ve Contributed</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							Collectively We&apos;ve Contributed
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							⚡ {totalAppEnergyContribution?.toFixed(2).toLocaleString()} KWH
-						</h2>
+						</p>
 					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>Collectively We&apos;re Powering</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							Collectively We&apos;re Powering
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							🏡 {totalAppHomesPowering.toFixed(2)}{" "}
-							{totalAppHomesPowering < 1
-								? "of a home for an entire year"
-								: totalAppHomesPowering === 1
-								? "home for an entire year"
-								: "homes for an entire year"}{" "}
-						</h2>
+							{totalAppHomesPowering < 1 ? (
+								<span className='text-xs'>per home each year</span>
+							) : totalAppHomesPowering === 1 ? (
+								<span className='text-xs'>home per year</span>
+							) : (
+								<span className='text-xs'>homes per year</span>
+							)}{" "}
+						</p>
 					</div>
-					<div className='flex flex-col items-center p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
-						<p className='mb-2'>You&apos;re Powering</p>
-						<h2 className='mt-0'>
+					<div className='flex flex-col items-center md:p-4 hover:border-white rounded-md  transition-all hover:bg-green-50 hover:bg-opacity-5'>
+						<h3 className='mb-2 text-sm md:text-base text-gray-400'>
+							You&apos;re Powering
+						</h3>
+						<p className='mt-0 text-sm md:text-base'>
 							🏡 {totalUserHomesPowering.toFixed(2)}{" "}
-							{totalUserHomesPowering < 1
-								? "of a home for an entire year"
-								: totalUserHomesPowering === 1
-								? "home for an entire year"
-								: "homes for an entire year"}{" "}
-						</h2>
+							{totalUserHomesPowering < 1 ? (
+								<span className='text-xs'>per home each year</span>
+							) : totalUserHomesPowering === 1 ? (
+								<span className='text-xs'>home for an entire year</span>
+							) : (
+								<span className='text-xs'>homes for an entire year</span>
+							)}{" "}
+						</p>
 					</div>
 				</div>
 			</div>
