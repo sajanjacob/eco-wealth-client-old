@@ -4,7 +4,6 @@ import convertToCamelCase from "@/utils/convertToCamelCase";
 import withAuth from "@/utils/withAuth";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import getBasePath from "@/lib/getBasePath";
 import { useAppSelector } from "@/redux/hooks";
 import Link from "next/link";
 import Loading from "@/components/Loading";
@@ -20,7 +19,7 @@ function Portfolio({}: Props) {
 	// axios call to get investor portfolio
 	const fetchUserPortfolio = async () => {
 		const res = await axios.get(
-			`${getBasePath()}/api/investor/portfolio?investorId=${user.investorId}`
+			`/api/investor/portfolio?investorId=${user.investorId}`
 		);
 		console.log("res >>> ", res);
 		if (res.data.data.length > 0) {
