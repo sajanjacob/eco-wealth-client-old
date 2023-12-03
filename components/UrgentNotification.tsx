@@ -24,7 +24,7 @@ export default function UrgentNotification({ urgentNotification }: Props) {
 	}
 
 	return (
-		<div className='md:w-3/4 mx-auto'>
+		<div className='w-3/4 mx-auto'>
 			<div className='relative'>
 				{dismiss && (
 					<button
@@ -37,7 +37,7 @@ export default function UrgentNotification({ urgentNotification }: Props) {
 			</div>
 			<div className='flex md:justify-between justify-center items-center mb-4  border border-yellow-700  rounded-lg px-4 md:px-8 py-4 text-center'>
 				<MdWarning className='mr-2 text-2xl text-yellow-700' />
-				<span className='md:flex flex-1'>
+				<span className='md:flex md:items-center flex-1'>
 					<h2 className='text-yellow-700 w-[100%]'>
 						<span className='flex justify-center items-center text-sm md:text-base my-2'>
 							{message}
