@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { headers } from "next/headers";
 import axios from "axios";
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.stripe_secret_key!, {
 	apiVersion: "2023-10-16",
 });
 
