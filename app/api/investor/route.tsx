@@ -88,7 +88,6 @@ export async function GET(req: NextRequest, res: NextResponse): Promise<any> {
 			0
 		);
 
-		console.log("investmentProjects >>> ", investmentProjects);
 		// Calculate the total units contributed and add it to the project data
 		let totalUnitsContributed = 0;
 		if ((project as unknown as Project).type === ("Tree" || "tree")) {

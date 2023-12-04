@@ -6,7 +6,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	// Get category from the request query
 	try {
 		const category = req?.nextUrl?.searchParams.get("category");
-		console.log("category >>> ", category);
 		const data = [
 			{
 				id: "1",
@@ -38,9 +37,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 		// if (error) return res.status(500).json({ error: error.message });
 		if (category !== "all") {
 			const filteredData = data.filter((d) => d.category === category);
-			console.log("category >> ", category);
 			if (filteredData.length === 0) {
-				console.log("returning data with a category >> ", filteredData.length);
 				return NextResponse.json(
 					{ error: "No lessons under that category found" },
 					{ status: 404 }
@@ -48,8 +45,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
 			}
 			return NextResponse.json(filteredData, { status: 200 });
 		} else {
-			console.log("returning data without a category >> ", data);
-
 			return NextResponse.json(data, { status: 200 });
 		}
 	} catch (error) {

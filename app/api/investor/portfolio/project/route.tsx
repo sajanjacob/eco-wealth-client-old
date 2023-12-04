@@ -23,7 +23,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
 		return NextResponse.json({ error: error }, { status: 500 });
 	}
 	if (project) {
-		console.log("project >>> ", project);
 		const percentageFunded =
 			(project.project_financials?.total_amount_raised /
 				project.project_financials?.final_est_project_fund_request_total) *
@@ -56,9 +55,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
 		totalAmountInvested.push(
 			totalProjectAmountInvested.reduce((a, b) => a + b, 0)
 		);
-		console.log("totalShares >>> ", totalShares);
-		console.log("totalAmountInvested >>> ", totalAmountInvested);
-		console.log("projects >>> ", project);
 
 		return NextResponse.json(
 			{ data: project, percentageFunded, totalShares, totalAmountInvested },

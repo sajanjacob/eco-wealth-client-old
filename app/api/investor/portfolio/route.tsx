@@ -40,6 +40,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 		}
 		// Get each project's total shares (num_of_shares) and append to totalShares array
 		let totalShares: any[] = [];
+		console.log("projects:", projects);
 		convertToCamelCase(projects).forEach((project: Project) => {
 			let totalProjectShares: any[] = [];
 			if (project?.treeInvestments?.length > 0) {
@@ -69,9 +70,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
 				totalProjectAmountInvested.reduce((a, b) => a + b, 0)
 			);
 		});
-		console.log("totalShares >>> ", totalShares);
-		console.log("totalAmountInvested >>> ", totalAmountInvested);
-		// console.log("projects >>> ", projects);
+		console.log("totalShares:", totalShares);
+		console.log("totalAmountInvested:", totalAmountInvested);
+
 		return NextResponse.json(
 			{ data: projects, totalShares, totalAmountInvested },
 			{ status: 200 }

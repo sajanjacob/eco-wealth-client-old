@@ -424,179 +424,198 @@ export async function POST(req: NextRequest, res: NextResponse) {
 				console.log("error updating tree investment data >>> ", error);
 				return NextResponse.json({ message: error }, { status: 502 });
 			}
-		}
-	} else {
-		const { error } = await supabase.from("tree_investments").insert([
-			{
-				investor_id: orderData.investor_id,
-				project_id: orderData.project_id,
-				amount: totalRaised,
-				order_amount: orderAmount,
-				num_of_shares: orderData.num_of_shares,
-				transaction_ids: [transactionData?.id],
-				trees_contributed: orderData.trees_contributed,
-				est_return_per_year_until_repayment: estReturnPerYearUntilRepayment,
-				est_return_per_year_after_repayment: estReturnPerYearAfterRepayment,
-			},
-		]);
-		if (error) {
-			console.log("error inserting tree investment data >>> ", error);
-			return NextResponse.json({ message: error }, { status: 502 });
-		}
-		console.log(
-			"orderData.trees_contributed >>> ",
-			orderData.trees_contributed
-		);
-	}
-
-	//
-	// Here we look for the investor's metrics and update it if it exists, otherwise we create it.
-	const { data: metricsData, error: metricsError } = await supabase
-		.from("investor_metrics")
-		.select("*")
-		.eq("investor_id", orderData.investor_id);
-	console.log("metricsData.length >>> ", metricsData?.length);
-	console.log("metricsError >>> ", metricsError);
-	if (metricsError || metricsData?.length === 0) {
-		//
-		// Create new metrics data
-		const { error: metricsInsertError } = await supabase
-			.from("investor_metrics")
-			.insert([
+		} else {
+			const { error } = await supabase.from("tree_investments").insert([
 				{
 					investor_id: orderData.investor_id,
+					project_id: orderData.project_id,
+					amount: totalRaised,
+					order_amount: orderAmount,
+					num_of_shares: orderData.num_of_shares,
+					transaction_ids: [transactionData?.id],
 					trees_contributed: orderData.trees_contributed,
+					est_return_per_year_until_repayment: estReturnPerYearUntilRepayment,
+					est_return_per_year_after_repayment: estReturnPerYearAfterRepayment,
 				},
 			]);
-		if (metricsInsertError) {
-			console.log("metricsInsertError >>> ", metricsInsertError);
-			return NextResponse.json(
-				{ message: metricsInsertError.message },
-				{ status: 502 }
+			if (error) {
+				console.log("error inserting tree investment data >>> ", error);
+				return NextResponse.json({ message: error }, { status: 502 });
+			}
+			console.log(
+				"orderData.trees_contributed >>> ",
+				orderData.trees_contributed
 			);
 		}
-	} else {
+
 		//
-		// Update existing metrics
-		const totalTreesContributed =
-			parseInt(orderData.trees_contributed) +
-			parseInt(metricsData[0].trees_contributed);
-		const { error: metricsUpdateError } = await supabase
+		// Here we look for the investor's metrics and update it if it exists, otherwise we create it.
+		const { data: metricsData, error: metricsError } = await supabase
 			.from("investor_metrics")
-			.update({
-				trees_contributed: totalTreesContributed,
-			})
+			.select("*")
 			.eq("investor_id", orderData.investor_id);
-		if (metricsUpdateError) {
-			console.log("metricsUpdateError >>> ", metricsUpdateError);
-
+		console.log("metricsData.length >>> ", metricsData?.length);
+		console.log("metricsError >>> ", metricsError);
+		if (metricsError) {
+			console.log("metricsError >>> ", metricsError);
 			return NextResponse.json(
-				{ message: metricsUpdateError.message },
+				{ message: metricsError.message },
 				{ status: 502 }
 			);
 		}
-	}
-	// Update producer metrics
-	const { data: producerMetricsData, error: producerMetricsError } =
-		await supabase
-			.from("producer_metrics")
-			.select("*")
-			.eq("producer_id", orderData.project_owner_id);
-	if (producerMetricsError || producerMetricsData.length === 0) {
-		//
-		// Create new metrics entry
 
-		const { error: producerMetricsInsertError } = await supabase
-			.from("producer_metrics")
-			.insert([
-				{
-					producer_id: orderData.project_owner_id,
-					total_raised: totalAmountRaised,
-					num_of_investors: 1,
-					total_tree_contributions_received: orderData.trees_contributed,
-					total_kwh_contributions_received: 0,
-					total_shares_sold: orderData.num_of_shares,
-					num_of_investors_paid: 0,
-					total_paid_to_investors: 0,
-					total_trees_planted: 0,
-					total_kwh_generated: 0,
-					total_carbon_offset: 0,
-					total_homes_powered: 0,
-					total_arrays_installed: 0,
-				},
-			]);
-		if (producerMetricsInsertError) {
-			console.log(
-				"producerMetricsInsertError >>> ",
-				producerMetricsInsertError
-			);
-			return NextResponse.json(
-				{ message: producerMetricsInsertError.message },
-				{ status: 502 }
-			);
-		}
-	} else {
-		//
-		// Update existing metrics
-		console.log("updating producer metric data...");
-
-		const { error } = await supabase
-			.from("transactions")
-			.select("*")
-			.eq("project_owner_id", orderData.project_owner_id)
-			.eq("investor_id", orderData.investor_id);
-		if (error) {
-			console.log("error pulling transaction data >>> ", error);
-			return NextResponse.json({ message: error.message }, { status: 502 });
+		if (metricsData?.length === 0) {
+			//
+			// Create new metrics data
+			const { error: metricsInsertError } = await supabase
+				.from("investor_metrics")
+				.insert([
+					{
+						investor_id: orderData.investor_id,
+						trees_contributed: orderData.trees_contributed,
+					},
+				]);
+			if (metricsInsertError) {
+				console.log("metricsInsertError >>> ", metricsInsertError);
+				return NextResponse.json(
+					{ message: metricsInsertError.message },
+					{ status: 502 }
+				);
+			}
 		}
 
-		const { data: investorCountData, error: investorCountDataError } =
+		if (metricsData?.length > 0) {
+			//
+			// Update existing metrics
+			const totalTreesContributed =
+				parseInt(orderData.trees_contributed) +
+				parseInt(metricsData[0].trees_contributed);
+			const { error: metricsUpdateError } = await supabase
+				.from("investor_metrics")
+				.update({
+					trees_contributed: totalTreesContributed,
+				})
+				.eq("investor_id", orderData.investor_id);
+			if (metricsUpdateError) {
+				console.log("metricsUpdateError >>> ", metricsUpdateError);
+
+				return NextResponse.json(
+					{ message: metricsUpdateError.message },
+					{ status: 502 }
+				);
+			}
+		}
+		// Update producer metrics
+		const { data: producerMetricsData, error: producerMetricsError } =
 			await supabase
-				.from("view_unique_investors_per_owner")
+				.from("producer_metrics")
 				.select("*")
-				.eq("project_owner_id", orderData.project_owner_id);
-		if (investorCountDataError) {
-			console.log("investorCountDataError >>> ", investorCountDataError);
+				.eq("producer_id", orderData.project_owner_id);
+		if (producerMetricsError) {
+			console.log("producerMetricsError >>> ", producerMetricsError);
 			return NextResponse.json(
-				{ message: investorCountDataError.message },
+				{ message: producerMetricsError.message },
 				{ status: 502 }
 			);
 		}
-		console.log("investorCountData >>> ", investorCountData);
+		if (producerMetricsData.length === 0) {
+			//
+			// Create new metrics entry
 
-		const { error: producerMetricsUpdateError } = await supabase
-			.from("producer_metrics")
-			.update({
-				producer_id: orderData.project_owner_id,
-				num_of_investors: investorCountData[0].unique_investors_count,
-				total_raised:
-					parseInt(producerMetricsData[0].total_raised) + totalAmountRaised,
-				total_tree_contributions_received:
-					parseInt(producerMetricsData[0].total_tree_contributions_received) +
-					parseInt(orderData.trees_contributed),
-
-				total_shares_sold:
-					parseInt(producerMetricsData[0].total_shares_sold) +
-					parseInt(orderData.num_of_shares),
-			})
-			.eq("producer_id", orderData.project_owner_id);
-		if (producerMetricsUpdateError) {
-			console.log(
-				"producerMetricsUpdateError >>> ",
-				producerMetricsUpdateError
-			);
-			return NextResponse.json(
-				{ message: producerMetricsUpdateError.message },
-				{ status: 502 }
-			);
+			const { error: producerMetricsInsertError } = await supabase
+				.from("producer_metrics")
+				.insert([
+					{
+						producer_id: orderData.project_owner_id,
+						total_raised: totalAmountRaised,
+						num_of_investors: 1,
+						total_tree_contributions_received: orderData.trees_contributed,
+						total_kwh_contributions_received: 0,
+						total_shares_sold: orderData.num_of_shares,
+						num_of_investors_paid: 0,
+						total_paid_to_investors: 0,
+						total_trees_planted: 0,
+						total_kwh_generated: 0,
+						total_carbon_offset: 0,
+						total_homes_powered: 0,
+						total_arrays_installed: 0,
+					},
+				]);
+			if (producerMetricsInsertError) {
+				console.log(
+					"producerMetricsInsertError >>> ",
+					producerMetricsInsertError
+				);
+				return NextResponse.json(
+					{ message: producerMetricsInsertError.message },
+					{ status: 502 }
+				);
+			}
 		}
+
+		if (producerMetricsData.length > 0) {
+			//
+			// Update existing metrics
+			console.log("updating producer metric data...");
+
+			const { error } = await supabase
+				.from("transactions")
+				.select("*")
+				.eq("project_owner_id", orderData.project_owner_id)
+				.eq("investor_id", orderData.investor_id);
+			if (error) {
+				console.log("error pulling transaction data >>> ", error);
+				return NextResponse.json({ message: error.message }, { status: 502 });
+			}
+
+			const { data: investorCountData, error: investorCountDataError } =
+				await supabase
+					.from("view_unique_investors_per_owner")
+					.select("*")
+					.eq("project_owner_id", orderData.project_owner_id);
+			if (investorCountDataError) {
+				console.log("investorCountDataError >>> ", investorCountDataError);
+				return NextResponse.json(
+					{ message: investorCountDataError.message },
+					{ status: 502 }
+				);
+			}
+			console.log("investorCountData >>> ", investorCountData);
+
+			const { error: producerMetricsUpdateError } = await supabase
+				.from("producer_metrics")
+				.update({
+					producer_id: orderData.project_owner_id,
+					num_of_investors: investorCountData[0].unique_investors_count,
+					total_raised:
+						parseInt(producerMetricsData[0].total_raised) + totalAmountRaised,
+					total_tree_contributions_received:
+						parseInt(producerMetricsData[0].total_tree_contributions_received) +
+						parseInt(orderData.trees_contributed),
+
+					total_shares_sold:
+						parseInt(producerMetricsData[0].total_shares_sold) +
+						parseInt(orderData.num_of_shares),
+				})
+				.eq("producer_id", orderData.project_owner_id);
+			if (producerMetricsUpdateError) {
+				console.log(
+					"producerMetricsUpdateError >>> ",
+					producerMetricsUpdateError
+				);
+				return NextResponse.json(
+					{ message: producerMetricsUpdateError.message },
+					{ status: 502 }
+				);
+			}
+		}
+
+		return NextResponse.json(
+			{
+				message:
+					"Order successfully completed. Thank you for investing in the environment.",
+			},
+			{ status: 200 }
+		);
 	}
-
-	return NextResponse.json(
-		{
-			message:
-				"Order successfully completed. Thank you for investing in the environment.",
-		},
-		{ status: 200 }
-	);
 }

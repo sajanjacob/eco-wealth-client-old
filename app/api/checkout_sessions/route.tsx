@@ -26,7 +26,6 @@ export async function POST(req: NextRequest, res: any) {
 		.single();
 	if (userDataError)
 		return NextResponse.json({ error: userDataError.message }, { status: 500 });
-	console.log("project >>> ", project);
 	const customerEmail = userData.email;
 	const investorId = userData.investors.id;
 	const projectName = project.title;
@@ -36,7 +35,6 @@ export async function POST(req: NextRequest, res: any) {
 	const type = project.type;
 	const isNonProfit = project.is_non_profit;
 	const amountPerShare = project.project_financials.amount_per_share;
-	console.log("amountPerShare: ", amountPerShare);
 	const adminFeeId = process.env.admin_fee_id;
 	const transactionFee = 1;
 	const merchantFeePercentage = 0.03;
@@ -44,27 +42,18 @@ export async function POST(req: NextRequest, res: any) {
 	const feeAmountWithPercentage = feeAmount * merchantFeePercentage;
 	const finalFeeAmountRounded = feeAmountWithPercentage.toFixed(2);
 
-	console.log("req.url", req.nextUrl.origin);
-
 	let metaData;
 	if (type === "Energy") {
-		console.log(
-			"project?.energy_projects?.target_kwh_production_per_year ",
-			project?.energy_projects?.target_kwh_production_per_year
-		);
 		const kwhPerShare =
 			parseInt(project?.energy_projects?.target_kwh_production_per_year) /
 			parseInt(project.project_financials.num_of_shares);
-		console.log("kwhPerShare", kwhPerShare);
 
 		const avgKwhPerHousePerYear = 11000;
 		const homesPowered = (kwhPerShare * numOfShares) / avgKwhPerHousePerYear;
-		console.log("homesPowered", homesPowered);
 		const arraysInstalled =
 			(project?.solar_projects[0]?.num_of_arrays /
 				project.project_financials.num_of_shares) *
 			numOfShares;
-		console.log("arraysInstalled", arraysInstalled);
 		metaData = {
 			projectId: projectId,
 			investorId: investorId,
@@ -80,14 +69,9 @@ export async function POST(req: NextRequest, res: any) {
 			arraysInstalled: arraysInstalled,
 		};
 	} else {
-		console.log(
-			"project?.tree_projects?.tree_target",
-			project?.tree_projects?.tree_target
-		);
 		const treesPerShare =
 			project?.tree_projects?.tree_target /
 			project.project_financials.num_of_shares;
-		console.log("treesPerShare ", treesPerShare);
 		metaData = {
 			projectId: projectId,
 			investorId: investorId,
@@ -102,7 +86,6 @@ export async function POST(req: NextRequest, res: any) {
 		};
 	}
 
-	console.log("metaData", metaData);
 	try {
 		// Create Checkout Sessions from body params.
 		const session = await stripe.checkout.sessions.create({
@@ -151,7 +134,6 @@ export async function POST(req: NextRequest, res: any) {
 			success_url: `${req.nextUrl.origin}/i/portfolio?success=true`,
 			cancel_url: `${req.nextUrl.origin}/i/projects/${projectId}/invest?canceled=true`,
 		});
-		console.log("session", session);
 		if (session) {
 			return NextResponse.json({ id: session.id }, { status: 200 });
 		} else {
