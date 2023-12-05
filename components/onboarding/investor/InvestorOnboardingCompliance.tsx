@@ -75,12 +75,12 @@ export default function InvestorOnboardingCompliance({
 					regulatory, management, time horizon, technological, and operational
 					risks.
 				</label>
-				<div className='h-[400px] overflow-y-auto border-2 border-white p-4 rounded-md my-3 text-sm'>
-					<h3 className='font-light text-2xl'>
+				<div className='h-[400px] overflow-y-auto border-2 border-white p-4 rounded-md my-3 text-sm text-gray-300'>
+					<h3 className='font-bold text-3xl !text-white'>
 						Here are risks with investing in Trees:
 					</h3>
 					<hr className='mt-3 border-gray-500' />
-					<h5 className='font-light text-xl mt-3'>Environmental Risks:</h5>
+					<h5 className='font-semibold text-xl mt-3'>Environmental Risks:</h5>
 					<p>
 						Natural disasters like forest fires, hurricanes, pests, or diseases
 						can cause significant damage to the trees, leading to losses.
@@ -89,7 +89,7 @@ export default function InvestorOnboardingCompliance({
 						cover the full amount of the investment. Every effort will be made
 						to minimize risks while maximizing returns.
 					</p>
-					<h5 className='font-light text-xl mt-3'>Market Risks:</h5>
+					<h5 className='font-semibold text-xl mt-3'>Market Risks:</h5>
 					<p>
 						The market for timber and other tree-derived products can be
 						unpredictable. Prices for these commodities can fluctuate due to
@@ -97,7 +97,7 @@ export default function InvestorOnboardingCompliance({
 						candidates to produce and manage trees however there is no guarantee
 						that the trees will be sold for a profit.
 					</p>
-					<h5 className='font-light text-xl mt-3'>Regulatory Risks:</h5>
+					<h5 className='font-semibold text-xl mt-3'>Regulatory Risks:</h5>
 					<p>
 						Regulations related to forestry, environmental protection, and land
 						use can change, potentially impacting the profitability of tree
@@ -108,7 +108,7 @@ export default function InvestorOnboardingCompliance({
 						collective desire and need for policies that encourage profitable
 						investments into environmental projects.
 					</p>
-					<h5 className='font-light text-xl mt-3'>Management Risks:</h5>
+					<h5 className='font-semibold text-xl mt-3'>Management Risks:</h5>
 					<p>
 						The health and growth of trees depend significantly on good forest
 						management. Ineffective management can lead to reduced growth rates
@@ -122,17 +122,17 @@ export default function InvestorOnboardingCompliance({
 						meaning that the initial investment will be returned to the
 						investor.
 					</p>
-					<h5 className='font-light text-xl mt-3'>Time Horizon Risk:</h5>
+					<h5 className='font-semibold text-xl mt-3'>Time Horizon Risk:</h5>
 					<p>
 						Trees take a long time to grow before they can be harvested for
 						profit. Investors need to have a long-term investment horizon and be
 						aware that returns will not be immediate.
 					</p>
-					<h4 className='font-light text-2xl mt-4'>
+					<h4 className='font-bold text-3xl mt-4 !text-white'>
 						Here are risks with investing in Renewable Energy:
 					</h4>
 					<hr className='mt-3 border-gray-500' />
-					<h5 className='font-light text-xl mt-3'>Technological Risks:</h5>
+					<h5 className='font-semibold text-xl mt-3'>Technological Risks:</h5>
 					<p>
 						Renewable energy technologies are still evolving. There&apos;s a
 						risk that a given technology may become obsolete, or a more
@@ -142,20 +142,20 @@ export default function InvestorOnboardingCompliance({
 						each individual investor to do their own due diligence before
 						investing.
 					</p>
-					<h5 className='font-light text-xl mt-3'>Regulatory Risks:</h5>
+					<h5 className='font-semibold text-xl mt-3'>Regulatory Risks:</h5>
 					<p>
 						Policies and regulations related to renewable energy can change. For
 						example, changes in government incentives or subsidies can directly
 						impact the profitability of renewable energy investments.
 					</p>
-					<h5 className='font-light text-xl mt-3'>Market Risks:</h5>
+					<h5 className='font-semibold text-xl mt-3'>Market Risks:</h5>
 					<p>
 						Energy prices fluctuate due to various factors, including
 						geopolitical events, changes in supply and demand, and shifts in
 						energy policy. This volatility can impact the return on investment
 						from renewable energy projects.
 					</p>
-					<h5 className='font-light text-xl mt-3'>Environmental Risks: </h5>
+					<h5 className='font-semibold text-xl mt-3'>Environmental Risks: </h5>
 					<p>
 						While renewable energy is generally more environmentally friendly
 						than fossil fuels, projects can still face opposition due to their
@@ -163,7 +163,7 @@ export default function InvestorOnboardingCompliance({
 						controversial due to their impact on bird populations, and
 						hydroelectric projects can disrupt aquatic ecosystems.
 					</p>
-					<h5 className='font-light text-xl mt-3'>Operational Risks: </h5>
+					<h5 className='font-semibold text-xl mt-3'>Operational Risks: </h5>
 					<p>
 						As with any infrastructure project, renewable energy installations
 						come with operational risks, including maintenance issues, equipment
