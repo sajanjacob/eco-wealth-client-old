@@ -129,6 +129,13 @@ const Onboarding: FC = () => {
 					className='flex flex-col items-center justify-center min-h-screen'
 				>
 					<div className='flex flex-col'>
+						<h1 className='mr-4 text-left mb-4 text-3xl text-gray-500 dark:text-white font-semibold'>
+							Welcome to Eco Wealth.
+						</h1>
+						<h2 className='mr-4 text-left mb-8 text-xl text-gray-500 dark:text-white font-semibold'>
+							Please complete your account setup to gain access and start
+							investing or raising funds for the environment.
+						</h2>
 						<div>
 							<label className='mr-4 text-left mb-4 text-xl text-gray-500 dark:text-white'>
 								What&apos;s your name?
