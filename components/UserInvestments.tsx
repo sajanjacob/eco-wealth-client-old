@@ -54,6 +54,24 @@ export default function UserInvestments({
 						</span>
 					</p>
 				)}
+				{treeInvestments?.[0]?.estReturnPerYearUntilRepayment && (
+					<p className='text-3xl text-gray-400 mb-2 mr-2 flex items-center'>
+						${treeInvestments?.[0]?.estReturnPerYearUntilRepayment.toFixed(2)}{" "}
+						<span className='!text-xs ml-2'>
+							est. yearly ROI <br />
+							until repayment
+						</span>
+					</p>
+				)}
+				{treeInvestments?.[0]?.estReturnPerYearAfterRepayment && (
+					<p className='text-3xl text-gray-400 mb-2 mr-2 flex items-center'>
+						${treeInvestments?.[0]?.estReturnPerYearAfterRepayment.toFixed(2)}{" "}
+						<span className='!text-xs ml-2'>
+							est. yearly ROI <br />
+							after repayment
+						</span>
+					</p>
+				)}
 				<p className='text-sm text-gray-400'>
 					Note: Return payouts commence after project completed & turning
 					profit.
