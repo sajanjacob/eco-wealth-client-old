@@ -313,7 +313,7 @@ export async function GET(req: any, res: any) {
 			.eq("status", "published")
 			.eq("is_verified", true)
 			.eq("is_deleted", false)
-			.eq("energy_projects.project_type", projectType);
+			.eq("energy_projects.type", projectType);
 	}
 
 	// Check if nonProfit is true, if so, add a filter on is_non_profit

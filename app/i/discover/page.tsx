@@ -49,6 +49,7 @@ function Discover() {
 	}, [projects]);
 	useEffect(() => {
 		if (nonProfitFilter === "true") {
+			// with restoration
 			setFilters([
 				{ label: "All", value: "All" },
 				{ label: "🌳 Restoration", value: "Restoration" },
@@ -62,6 +63,7 @@ function Discover() {
 				{ label: "☀️ Solar", value: "Solar" },
 			]);
 		} else {
+			// without restoration
 			setFilters([
 				{ label: "All", value: "All" },
 				{ label: "🌳 Timber / Lumber", value: "Timber / Lumber" },
