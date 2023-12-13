@@ -3,6 +3,7 @@ import React, { ReactHTML, useState } from "react";
 import { isEmailValid } from "@/utils/isEmailValid";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { BiLock } from "react-icons/bi";
 
 function WaitingListForm() {
 	const [name, setName] = useState("");
@@ -71,6 +72,19 @@ function WaitingListForm() {
 			>
 				Join waiting list
 			</button>
+			<div className='w-[300px] mt-4'>
+				<p className='text-xs mt-2 text-gray-500'>
+					<BiLock className='inline text-base' /> We promise to keep your
+					information confidential and only use it for notifying you of news &
+					updates regarding Eco Wealth, and inviting you to test the platform
+					when opportunities arise.
+				</p>
+
+				<p className='text-xs mt-2 text-gray-500'>
+					Note: We anonymously share statistics publicly which will include your
+					registration as part of the data.
+				</p>
+			</div>
 		</form>
 	);
 }
