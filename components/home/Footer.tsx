@@ -13,12 +13,12 @@ export default function Footer({}: Props) {
 					Privacy Policy
 				</a>
 				<p className='text-sm text-gray-500'>
-					We are not affiliated with or endorsed by X™, Meta Facebook™,
+					We are not affiliated with or endorsed by X™, Meta™, Facebook™,
 					Instagram™, Threads™, TikTok™, Google™, Isha Foundation, Cauvery
 					Calling, Save Soil, or any of their subsidiaries, holding companies,
-					or related organizations. Eco Wealth is an independent startup based
-					out of Canada focused on raising investments for tree-based
-					agriculture and renewable energy projects.
+					related organizations, or initiatives. Eco Wealth is an independent
+					startup based out of Canada focused on raising investments for
+					tree-based agriculture and renewable energy projects.
 				</p>
 			</div>
 		</div>
