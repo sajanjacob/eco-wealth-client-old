@@ -12,6 +12,10 @@ export default function Footer({}: Props) {
 				>
 					Privacy Policy
 				</a>
+				<p className='text-sm text-gray-500'>
+					We are not affiliated with or endorsed by X™, Meta Facebook™,
+					Instagram™, Threads™, TikTok™, Google™, or any of their subsidiaries.
+				</p>
 			</div>
 		</div>
 	);
