@@ -68,6 +68,10 @@ export default function Verify({}: Props) {
 					Thank you, your email has been verified and you&apos;ve joined the
 					waiting list! 🎉
 				</h1>
+				<p className='text-lg text-gray-300 mt-2'>
+					We will keep you informed about upcoming platform testing & feedback
+					opportunities and the launch via email!
+				</p>
 				<p className='mt-8'>Consider sharing Eco Wealth with a friend!</p>
 
 				<div className='flex mt-2'>

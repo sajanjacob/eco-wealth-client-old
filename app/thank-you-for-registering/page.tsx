@@ -30,7 +30,10 @@ export default function ThankYouForRegistering({}: Props) {
 							?.substring(0, params?.get("name")?.indexOf(" "))}! 🎉`
 					: "! 🎉"}
 			</h1>
-			<p>We will send you an email with more details around the launch soon.</p>
+			<p>
+				We will send you an email to confirm your registration and secure your
+				spot.
+			</p>
 		</div>
 	);
 }
