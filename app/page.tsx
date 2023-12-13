@@ -147,7 +147,7 @@ export default function Home() {
 					</div>
 				</div>
 			</div>
-			<div className='md:w-[1200px] md:mx-auto mt-[90vh]'>
+			<div className='2xl:w-[1200px] md:mx-auto mt-[90vh]'>
 				<About />
 				<Strategy />
 				<HowItWorks />

@@ -22,12 +22,12 @@ export default function Pricing({}: Props) {
 							</h4>
 						</div>
 						<div className='flex-[3.33]'>
-							<p className='transition-all hover:scale-110 hover:!text-white '>
+							<p className='transition-all  hover:!text-white '>
 								<b>Merchant Order Processing Fee:</b> For each investment, a fee
 								of 2.9% + $3 is applied, covering secure and efficient
 								processing.
 							</p>
-							<p className='mt-4 hover:scale-110 transition-all hover:!text-white'>
+							<p className='mt-4  transition-all hover:!text-white'>
 								<b>Administrative Cost:</b> A nominal $1 fee is charged for the
 								smooth management and operation of your investments.
 							</p>
@@ -42,21 +42,21 @@ export default function Pricing({}: Props) {
 							</h4>
 						</div>
 						<div className='flex-[3.33]'>
-							<p className='hover:scale-110 transition-all hover:!text-white '>
+							<p className=' transition-all hover:!text-white '>
 								<b>Ownership of Project Share(s):</b> Gain direct ownership in
 								green projects, impacting the environment and sustainable
 								development.
 							</p>
-							<p className='hover:scale-110 transition-all hover:!text-white mt-4'>
+							<p className=' transition-all hover:!text-white mt-4'>
 								<b>Project Milestone Updates:</b> Receive regular updates on
 								your project&apos;s progress and achievements.
 							</p>
-							<p className='hover:scale-110 transition-all hover:!text-white mt-4'>
+							<p className=' transition-all hover:!text-white mt-4'>
 								<b>Returns on Investment:</b> Enjoy returns based on the
 								project&apos;s success and type, contributing to both the
 								environment and your financial portfolio.
 							</p>
-							<p className='hover:scale-110 transition-all hover:!text-white mt-4'>
+							<p className=' transition-all hover:!text-white mt-4'>
 								<b>Flexibility in Ownership:</b> Adapt your investment portfolio
 								as needed with options to sell or transfer shares.
 							</p>
