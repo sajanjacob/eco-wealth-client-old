@@ -26,5 +26,13 @@ export async function PUT(req: NextRequest, res: NextResponse) {
 		console.error("Error updating user:", updateError);
 		return NextResponse.json({ message: updateError.message }, { status: 501 });
 	}
+	const { error: deleteError } = await supabase
+		.from("wl_verification_tokens")
+		.delete()
+		.eq("token", token);
+	if (deleteError) {
+		console.error("Cleanup error while deleting wl token");
+		return NextResponse.json({ message: deleteError.message }, { status: 502 });
+	}
 	return NextResponse.json({ message: "success" }, { status: 200 });
 }
