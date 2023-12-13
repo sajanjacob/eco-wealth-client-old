@@ -14,8 +14,11 @@ export default function Footer({}: Props) {
 				</a>
 				<p className='text-sm text-gray-500'>
 					We are not affiliated with or endorsed by X™, Meta Facebook™,
-					Instagram™, Threads™, TikTok™, Google™, or any of their subsidiaries
-					or holding companies.
+					Instagram™, Threads™, TikTok™, Google™, Isha Foundation, Cauvery
+					Calling, Save Soil, or any of their subsidiaries, holding companies,
+					or related organizations. Eco Wealth is an independent startup based
+					out of Canada focused on raising investments for tree-based
+					agriculture and renewable energy.
 				</p>
 			</div>
 		</div>
