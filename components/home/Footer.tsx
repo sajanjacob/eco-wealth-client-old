@@ -14,7 +14,8 @@ export default function Footer({}: Props) {
 				</a>
 				<p className='text-sm text-gray-500'>
 					We are not affiliated with or endorsed by X™, Meta Facebook™,
-					Instagram™, Threads™, TikTok™, Google™, or any of their subsidiaries.
+					Instagram™, Threads™, TikTok™, Google™, or any of their subsidiaries
+					or holding companies.
 				</p>
 			</div>
 		</div>
