@@ -16,6 +16,7 @@ import WaitingListGoalTracker from "@/components/WaitingListGoalTracker";
 import Disclaimer from "@/components/home/Disclaimer";
 import Footer from "@/components/home/Footer";
 import { setUser } from "@/redux/features/userSlice";
+import Link from "next/link";
 // TODO: remove guard statements in login & signup pages when launching beta
 export default function Home() {
 	const backgroundImageUrl =
@@ -66,13 +67,13 @@ export default function Home() {
 	return (
 		<>
 			<div
-				className='z-[-1000] absolute top-0 w-[100%] mx-auto h-[100vh] bg-cover bg-center flex justify-center items-center bg-no-repeat'
+				className='z-0 absolute top-0 w-[100%] mx-auto h-[100vh] bg-cover bg-center flex justify-center items-center bg-no-repeat'
 				style={{
 					backgroundImage: `url(${backgroundImageUrl})`,
 				}}
 			>
-				<div className='w-full h-full flex justify-center flex-col items-center bg-black bg-opacity-75'>
-					<div className=' w-[80%] m-auto items-center md:w-[50%]'>
+				<div className='z-[1000] w-full h-full flex justify-center flex-col items-center bg-black bg-opacity-75'>
+					<div className='z-[1000] w-[80%] m-auto items-center md:w-[50%]'>
 						{/* <h1 className='text-2xl font-light mb-4'>
 						Together, we&apos;ve planted {treeCount} trees & installed{" "}
 						{arrayCount} solar arrays.
@@ -86,14 +87,14 @@ export default function Home() {
 							<span className='text-[var(--h-one)]'> renewable energy</span>.
 						</h1>
 						{!user.loggedIn && (
-							<>
+							<div>
 								<h3 className='font-medium tracking-wide text-gray-400 text-lg md:text-2xl mt-4'>
 									By using Eco Wealth, you can help bring balance to the
 									environment and ensure future generations of people thrive.
 								</h3>
 								<button
-									className='glow mb-4 cursor-pointer transition-all bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
-									onClick={() => handleWaitingListClick()}
+									className='z-[1000] glow mb-4 cursor-pointer transition-all bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
+									onClick={handleWaitingListClick}
 								>
 									Join the waiting list today
 								</button>
@@ -114,7 +115,7 @@ export default function Home() {
 								</span>{" "}
 								today.
 							</h3> */}
-							</>
+							</div>
 						)}
 						{user.loggedIn && (
 							<div className='flex flex-col mt-8'>
