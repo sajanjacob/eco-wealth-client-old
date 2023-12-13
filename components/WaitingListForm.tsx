@@ -74,14 +74,14 @@ function WaitingListForm() {
 			<div className='w-[300px] mt-4'>
 				<p className='text-xs mt-2 text-gray-500'>
 					<BiLock className='inline text-base' /> We promise to keep your
-					information confidential and only use it for notifying you of news &
+					contact information confidential and only contact you with news &
 					updates regarding Eco Wealth, and inviting you to test the platform
 					when opportunities arise.
 				</p>
-
 				<p className='text-xs mt-2 text-gray-500'>
-					Note: We anonymously share statistics publicly which will include your
-					registration as part of the data.
+					<b>Note:</b> We will only share your first name publicly on our
+					waiting list page, and anonymously as statistics on our home page. You
+					can unsubscribe at any time by writing to support@ecowealth.app.
 				</p>
 			</div>
 		</form>
