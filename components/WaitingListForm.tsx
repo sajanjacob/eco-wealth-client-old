@@ -4,6 +4,7 @@ import { isEmailValid } from "@/utils/isEmailValid";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { BiLock } from "react-icons/bi";
+import Logo from "./Logo";
 
 function WaitingListForm() {
 	const [name, setName] = useState("");
@@ -38,12 +39,10 @@ function WaitingListForm() {
 			onSubmit={handleSubmit}
 			className='flex flex-col items-center justify-center min-h-screen'
 		>
-			<h1
-				onClick={handleReturnHome}
-				className='mb-2 text-4xl bold lg:text-6xl text-[var(--cta-one)] cursor-pointer transition-colors hover:text-[var(--cta-one-hover)]'
-			>
-				Eco Wealth
-			</h1>
+			<Logo
+				width={384}
+				height={150}
+			/>
 			<h2 className='mb-12 lg:text-xl text-gray-400 text-center'>
 				Be the first to know when Eco Wealth launches!
 			</h2>
