@@ -45,7 +45,7 @@ export default function UrgentNotification({ urgentNotification }: Props) {
 					</h2>
 					<button
 						onClick={() => router.push(`${actionUrl}`)}
-						className='pulsate bg-yellow-700 hover:bg-yellow-800 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer text-sm md:text-base'
+						className='glow bg-yellow-700 hover:bg-yellow-800 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer text-sm md:text-base'
 					>
 						{actionType}
 					</button>
