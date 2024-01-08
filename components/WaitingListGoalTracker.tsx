@@ -47,7 +47,7 @@ export default function WaitingListGoalTracker() {
 			<p className='text-sm mb-[4px]'>Help us reach 1000 waiting list users!</p>
 			<div className='border-green-800 border-[1px] rounded-md'>
 				<div
-					className={`bg-green-400 transition-all duration-500 ease-out`}
+					className={`bg-green-400 transition-all duration-500 ease-out rounded-md`}
 					style={{
 						width: `${loadingWidth}%`,
 						height: "8px",
