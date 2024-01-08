@@ -2,6 +2,8 @@ import React, { useState, useEffect, use } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import moment from "moment";
+import { BsCheckCircleFill } from "react-icons/bs";
+import { FaFileSignature } from "react-icons/fa";
 
 export default function RecentRegistrations() {
 	const [registrations, setRegistrations] = useState<any>([]);
@@ -15,17 +17,31 @@ export default function RecentRegistrations() {
 	}, []);
 
 	useEffect(() => {
-		async function DisplayPopup(index: number, name: string) {
-			await setTimeout(async () => {
+		async function DisplayPopup(index: number, name: string, toastId: string) {
+			setTimeout(async () => {
 				toast.success(
-					`${
-						name?.split(" ").length > 1
-							? name.substring(0, name?.indexOf(" "))
-							: name
-					} joined ${moment(registrations[index].created_at).fromNow()}`,
+					() => (
+						<div className='flex items-center'>
+							<FaFileSignature className='mr-[8px] text-[#07bc0c] text-xl' />{" "}
+							<div>
+								{name && name?.split(" ").length > 1
+									? `${name?.split(" ")[0]} ${name
+											?.split(" ")
+											?.pop()?.[0]
+											?.toUpperCase()}.`
+									: name}{" "}
+								registered {moment(registrations[index].created_at).fromNow()}{" "}
+								<span className='text-[#07bc0c] flex items-center font-bold text-xs'>
+									<BsCheckCircleFill className='mr-[2px]' /> Verifed Email
+								</span>
+							</div>
+						</div>
+					),
 					{
 						position: "bottom-left",
 						theme: "dark",
+						toastId: toastId,
+						icon: false,
 					}
 				);
 			}, index * 5000);
@@ -33,7 +49,7 @@ export default function RecentRegistrations() {
 		for (let i = 0; i < registrations.length; i++) {
 			const toastId = `registration-${registrations[i].id}`; // Assuming each registration has a unique 'id'
 
-			DisplayPopup(i, registrations[i].name);
+			DisplayPopup(i, registrations[i].name, toastId);
 		}
 	}, [registrations]);
 
