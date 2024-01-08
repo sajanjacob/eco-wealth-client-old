@@ -40,7 +40,6 @@ export default function RecentRegistrations() {
 					{
 						position: "bottom-left",
 						theme: "dark",
-						toastId: toastId,
 						icon: false,
 					}
 				);
