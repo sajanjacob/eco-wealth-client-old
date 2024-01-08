@@ -319,7 +319,7 @@ const Dashboard = ({}: DashboardProps) => {
 						<p className='mt-0 text-sm md:text-base'>
 							🏡 {totalAppHomesPowering.toFixed(2)}{" "}
 							{totalAppHomesPowering < 1 ? (
-								<span className='text-xs'>per home each year</span>
+								<span className='text-xs'>homes each year</span>
 							) : totalAppHomesPowering === 1 ? (
 								<span className='text-xs'>home per year</span>
 							) : (
@@ -334,7 +334,7 @@ const Dashboard = ({}: DashboardProps) => {
 						<p className='mt-0 text-sm md:text-base'>
 							🏡 {totalUserHomesPowering.toFixed(2)}{" "}
 							{totalUserHomesPowering < 1 ? (
-								<span className='text-xs'>per home each year</span>
+								<span className='text-xs'>homes each year</span>
 							) : totalUserHomesPowering === 1 ? (
 								<span className='text-xs'>home for an entire year</span>
 							) : (
