@@ -31,13 +31,11 @@ export async function GET(req: NextRequest, res: NextResponse) {
 			.from("waiting_list")
 			.select("email, name")
 			.eq("email_verified", true);
-		console.log("usersData", usersData);
-		console.log("waitingListData", waitingListData);
+
 		// Combine and filter emails
 		const combinedEmails = [...(usersData || []), ...(waitingListData || [])]
 			.filter((user) => !isTestEmail(user.email) && !hasTestLastName(user.name))
 			.map((user) => user.email);
-		console.log("combinedEmails", combinedEmails);
 		// Count unique emails
 		const uniqueEmailsCount = new Set(combinedEmails).size;
 
