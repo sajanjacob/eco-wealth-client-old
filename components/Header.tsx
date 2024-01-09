@@ -234,6 +234,10 @@ const Header = ({}: Props) => {
 		router.push("/settings?tab=personal-details");
 
 	const handleWaitingListClick = () => router.push("/register");
+	useEffect(() => {
+		console.log("render >>> ", render);
+		console.group("loading user >>> ", loadingUser);
+	}, [render, loadingUser]);
 
 	if (!render || loadingUser) return null;
 	return (

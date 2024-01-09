@@ -2,10 +2,7 @@
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { RootState } from "@/redux/store"; // Import RootState from your Redux store
-import {
-	navigateToInvestorDashboard,
-	navigateToProducerDashboard,
-} from "@/redux/actions"; // Import the actions from your actions file
+
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import About from "@/components/home/About";
 import Strategy from "@/components/home/Strategy";
@@ -16,7 +13,6 @@ import WaitingListGoalTracker from "@/components/WaitingListGoalTracker";
 import Disclaimer from "@/components/home/Disclaimer";
 import Footer from "@/components/home/Footer";
 import { setUser } from "@/redux/features/userSlice";
-import Link from "next/link";
 // TODO: remove guard statements in login & signup pages when launching beta
 export default function Home() {
 	const backgroundImageUrl =

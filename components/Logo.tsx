@@ -17,8 +17,8 @@ export default function Logo({ width, height }: Props) {
 			<Image
 				src='/white_logo_transparent_background.png'
 				alt='EcoWealth logo'
-				width={width}
-				height={height}
+				width={width || 300}
+				height={height || 150}
 				onClick={handleReturnHome}
 				className='cursor-pointer'
 			/>
