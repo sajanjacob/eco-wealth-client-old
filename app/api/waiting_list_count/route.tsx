@@ -37,7 +37,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 		const combinedEmails = [...(usersData || []), ...(waitingListData || [])]
 			.filter((user) => !isTestEmail(user.email) && !hasTestLastName(user.name))
 			.map((user) => user.email);
-
+		console.log("combinedEmails", combinedEmails);
 		// Count unique emails
 		const uniqueEmailsCount = new Set(combinedEmails).size;
 
