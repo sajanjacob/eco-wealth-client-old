@@ -10,6 +10,7 @@ import AuthMFA from "@/components/login/AuthMFA";
 import Image from "next/image";
 import { BASE_URL } from "@/constants";
 import { set } from "react-hook-form";
+import axios from "axios";
 export default function Login() {
 	const user = useAppSelector((state: RootState) => state.user);
 	const isLoggedIn = useAppSelector((state: RootState) => state.user?.loggedIn);
@@ -50,45 +51,51 @@ export default function Login() {
 				return null;
 			}
 			console.log("data >> ", data);
-			const userData = {};
 			console.log(
 				"isOlderThan30Days(data.mfa_verified_at) >> ",
 				isOlderThan30Days(data.mfa_verified_at)
 			);
-			if (isOlderThan30Days(data.mfa_verified_at)) {
-				console.log("mfa older than 30 days.");
-
-				await supabase
-					.from("users")
-					.update({ mfa_verified: false })
-					.eq("id", userId);
-				dispatch(
-					setUser({
-						loggedIn: true,
-						name: data.name,
-						email: data.email,
-						phoneNumber: data.phone_number,
-						isVerified: data.is_verified,
-						roles: data.roles,
-						id: data.id,
-						producerId: data.producers.id,
-						investorId: data.investors.id,
-						activeRole: data.active_role,
-						onboardingComplete: data.onboarding_complete,
-						investorOnboardingComplete: data.investors.onboarding_complete,
-						producerOnboardingComplete: data.producers.onboarding_complete,
-						emailNotification: data.email_notification,
-						smsNotification: data.sms_notification,
-						pushNotification: data.push_notification,
-						mfaEnabled: data.mfa_enabled,
-
-						mfaVerifiedAt: data.mfa_verified_at,
-						mfaVerified: false,
-						loadingUser: false,
-					})
-				); // Dispatch a redux action
-				setLoading(false);
+			if (
+				data.mfa_enabled &&
+				isOlderThan30Days(data.mfa_verified_at) &&
+				data.mfa_verified
+			) {
+				setVerified(false);
+			}
+			if (data.mfa_enabled && isOlderThan30Days(data.mfa_verified_at)) {
+				console.log("mfa older than 30 days...");
+				if (data.mfa_verified) {
+					console.log("mfa_verified is true, setting to false...");
+					await axios.post("/api/update_mfa", { userId });
+				}
+				const userValues = {
+					loggedIn: true,
+					name: data?.name,
+					email: data?.email,
+					phoneNumber: data?.phone_number,
+					isVerified: data?.is_verified,
+					roles: data?.roles,
+					id: data?.id,
+					producerId: data?.producers?.id,
+					investorId: data?.investors?.id,
+					activeRole: data?.active_role,
+					onboardingComplete: data?.onboarding_complete,
+					investorOnboardingComplete: data?.investors?.onboarding_complete,
+					producerOnboardingComplete: data?.producers?.onboarding_complete,
+					emailNotification: data?.email_notification,
+					smsNotification: data?.sms_notification,
+					pushNotification: data?.push_notification,
+					mfaEnabled: data?.mfa_enabled,
+					mfaVerifiedAt: data?.mfa_verified_at,
+					mfaVerified: false,
+					loadingUser: false,
+				};
+				console.log("userValues >> ", userValues);
+				console.log("dispatching redux user details...");
+				dispatch(setUser(userValues)); // Dispatch a redux action
+				console.log("dispatched redux user details...");
 				setShowMFA(true);
+				setLoading(false);
 				return null;
 			}
 			if (!data.mfa_verified_at) {
@@ -175,7 +182,7 @@ export default function Login() {
 				if (verified) userVerificationRouting();
 			}
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user, isLoggedIn, user.mfaVerifiedAt, verified]);
 
 	useEffect(() => {
