@@ -55,7 +55,8 @@ export default function Home() {
 	const handleSignupClick = () => router.push("/signup");
 	const handleWaitingListClick = () => router.push("/register");
 	const dispatch = useAppDispatch();
-
+	const handleInvestorClick = () => router.push("/i/discover");
+	const handleProducerClick = () => router.push("/p/projects");
 	useEffect(() => {
 		dispatch(setUser({ ...user, loadingUser: false }));
 	}, [user, dispatch]);
@@ -116,22 +117,24 @@ export default function Home() {
 						{user.loggedIn && (
 							<div className='flex flex-col mt-8'>
 								<h3 className='text-[var(--main-link-color)] font-medium text-4xl mt-3 '>
-									Make a difference today, {user.name}.
+									Make a difference today, {user.name?.split(" ")[0]}.
 								</h3>
 								<div className='flex'>
 									{user.activeRole === "investor" ? (
-										<button className='w-fit my-4 py-4 px-16 text-xl rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'>
+										<button
+											onClick={handleInvestorClick}
+											className='w-fit my-4 py-4 px-16 text-xl rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
+										>
 											Search for a project
 										</button>
 									) : user.activeRole === "producer" ? (
-										<button className='w-fit my-4 py-4 px-16 text-xl rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'>
+										<button
+											onClick={handleProducerClick}
+											className='w-fit my-4 py-4 px-16 text-xl rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
+										>
 											View your projects
 										</button>
-									) : (
-										<button className='w-fit my-4 py-4 px-16 text-xl rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'>
-											View your projects
-										</button>
-									)}
+									) : null}
 								</div>
 							</div>
 						)}
