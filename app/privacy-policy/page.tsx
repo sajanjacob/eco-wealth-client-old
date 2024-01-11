@@ -37,6 +37,22 @@ export default function PrivacyPolicy({}: Props) {
 				sell or rent your personal information to third parties for their
 				marketing purposes.
 			</p>
+			<p>
+				We share your information publicly on our website in the form of
+				registrations which includes your first name, the first letter of your
+				last name, and approximately how long ago you registered.
+			</p>
+			<p>
+				We may disclose your information if required by law or if we believe
+				that such action is necessary to protect our rights or property or to
+				protect the safety of our users or the public. We may share your
+				information with any successor to all or part of our business.
+			</p>
+			<p>
+				We may share your information with any successor to all or part of our
+				business. We may share your information with any successor to all or
+				part of our business.
+			</p>
 
 			<h3 className='text-lg font-bold mt-4'>Data retention and security</h3>
 			<p>

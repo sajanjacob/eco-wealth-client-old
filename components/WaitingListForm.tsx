@@ -1,7 +1,7 @@
 "use client";
-import React, { ReactHTML, useState } from "react";
+import React, { ReactHTML, useEffect, useState } from "react";
 import { isEmailValid } from "@/utils/isEmailValid";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { BiLock } from "react-icons/bi";
 import Logo from "./Logo";
@@ -10,7 +10,70 @@ function WaitingListForm() {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [emailError, setEmailError] = useState("");
+	const [referralSource, setReferralSource] = useState("");
+	const [referrer, setReferrer] = useState("");
+	const [isFormValid, setIsFormValid] = useState(false);
+	const searchParams = useSearchParams();
+	const ref = searchParams?.get("r");
+	const [specificReferral, setSpecificReferral] = useState("");
+	useEffect(() => {
+		if (ref) {
+			setReferrer(ref);
+			setReferralSource("Friend/Someone referred");
+		}
+	}, [ref]);
 
+	const handleReferralChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		setReferralSource(e.target.value);
+		setSpecificReferral(""); // Reset specific referral if the referral source is changed
+		if (e.target.value !== "Friend/Someone referred") {
+			setReferrer("");
+		}
+	};
+	const renderSpecificReferralInput = () => {
+		if (referralSource === "Friend/Someone referred") {
+			return (
+				<div className='flex flex-col mb-4'>
+					<label className='mb-2'>Who referred you?</label>
+					<input
+						type='text'
+						value={referrer}
+						placeholder='Name and/or email'
+						className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
+						onChange={(e) => setReferrer(e.target.value)}
+					/>
+				</div>
+			);
+		} else if (
+			[
+				"Instagram",
+				"Facebook",
+				"YouTube",
+				"TikTok",
+				"Threads",
+				"Blog/Website",
+			].includes(referralSource)
+		) {
+			return (
+				<div className='flex flex-col mb-4 w-[300px]'>
+					<label className='mb-2'>
+						Which {referralSource} account did you hear about Eco Wealth from?
+					</label>
+					<input
+						type='text'
+						value={specificReferral}
+						placeholder={
+							referralSource === "Blog/Website"
+								? "Blog/Website name"
+								: "@username"
+						}
+						className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
+						onChange={(e) => setSpecificReferral(e.target.value)}
+					/>
+				</div>
+			);
+		}
+	};
 	const router = useRouter();
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -22,7 +85,13 @@ function WaitingListForm() {
 
 		// TODO: Integrate with Supabase here
 		axios
-			.post("/api/waiting_list", { name, email })
+			.post("/api/waiting_list", {
+				name,
+				email,
+				referralSource,
+				referrer,
+				specificReferral,
+			})
 			.then((res) => {
 				router.push(`/thank-you-for-registering?name=${name}&email=${email}`);
 			})
@@ -33,7 +102,19 @@ function WaitingListForm() {
 	const handleReturnHome = () => {
 		router.push("/");
 	};
-
+	useEffect(() => {
+		// Check if all required fields are filled and valid
+		const isReferralValid =
+			referralSource === "Friend/Someone referred"
+				? referrer.trim() !== ""
+				: specificReferral.trim() !== "";
+		const isValid =
+			name.trim() !== "" &&
+			isEmailValid(email) &&
+			referralSource.trim() !== "" &&
+			isReferralValid;
+		setIsFormValid(isValid);
+	}, [name, email, referralSource, referrer, specificReferral]);
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -65,23 +146,58 @@ function WaitingListForm() {
 				/>
 				{emailError && <p style={{ color: "red" }}>{emailError}</p>}
 			</div>
+			{/* Referral source dropdown */}
+			<div className='flex flex-col mb-4'>
+				<label className='mb-2'>How did you hear about Eco Wealth?</label>
+				<select
+					value={referralSource}
+					className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
+					onChange={handleReferralChange}
+				>
+					<option value=''>Select</option>
+					<option value='Instagram'>Instagram</option>
+					<option value='Facebook'>Facebook</option>
+					<option value='YouTube'>YouTube</option>
+					<option value='TikTok'>TikTok</option>
+					<option value='Threads'>Threads</option>
+					<option value='Blog/Website'>Blog/Website</option>
+					<option value='Friend/Someone referred'>
+						Friend/Someone referred me
+					</option>
+				</select>
+			</div>
+
+			{/* Conditional text input for referrer */}
+			{renderSpecificReferralInput()}
+
 			<button
-				className='w-[300px] mt-8 px-4 py-2 rounded-lg bg-[var(--cta-one)] text-white cursor-pointer hover:bg-[var(--cta-one-hover)] transition-all hover:scale-105'
+				className={
+					isFormValid
+						? "w-[300px] mt-8 px-4 py-2 rounded-lg bg-[var(--cta-one)] text-white cursor-pointer hover:bg-[var(--cta-one-hover)] transition-all hover:scale-105"
+						: "w-[300px] mt-8 px-4 py-2 rounded-lg bg-gray-700 text-white cursor-default"
+				}
 				type='submit'
+				disabled={!isFormValid}
 			>
 				Join waiting list
 			</button>
 			<div className='w-[300px] mt-4'>
 				<p className='text-xs mt-2 text-gray-500'>
-					<BiLock className='inline text-base' /> We promise to keep your
-					contact information confidential and only contact you with news &
-					updates regarding Eco Wealth, and inviting you to test the platform
-					when opportunities arise.
+					<BiLock className='inline text-base' />
+					<b>Your Privacy:</b> We promise to keep your contact information
+					confidential and only contact you with news & updates regarding Eco
+					Wealth, and inviting you to test the platform when opportunities
+					arise.
 				</p>
 				<p className='text-xs mt-2 text-gray-500'>
-					<b>Note:</b> We will only share your first name publicly on our
-					waiting list page, and anonymously as statistics on our home page. You
-					can unsubscribe at any time by writing to support@ecowealth.app.
+					<b>Note:</b> More details can be found in our{" "}
+					<a
+						href='/privacy-policy'
+						className='underline cursor-pointer hover:text-gray-400 transition-all'
+					>
+						privacy policy
+					</a>
+					.
 				</p>
 			</div>
 		</form>

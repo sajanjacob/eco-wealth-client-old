@@ -12,18 +12,21 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const SUPABASE_SERVICE_ROLE_KEY = process.env.supabase_service_role_key;
 	if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
 	const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-	const { name, email } = await req.json();
+	const { name, email, referralSource, referrer, specificReferral } =
+		await req.json();
 
 	const token: string = gen(333);
 
+	const waitingListData = {
+		name,
+		email,
+		referral_source: referralSource,
+		referrer: referrer !== "" ? referrer : specificReferral,
+	};
+
 	const { data, error } = await supabase
 		.from("waiting_list")
-		.insert([
-			{
-				name,
-				email,
-			},
-		])
+		.insert([waitingListData])
 		.select();
 
 	if (error) {
