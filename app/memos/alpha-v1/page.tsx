@@ -11,6 +11,7 @@ import { CircularProgress } from "@mui/material";
 import Logo from "@/components/Logo";
 import { HiDocument } from "react-icons/hi";
 import { IoDocumentOutline } from "react-icons/io5";
+import { isEmailValid } from "@/utils/isEmailValid";
 type Props = {};
 
 export default function AlphaV1({}: Props) {
@@ -20,14 +21,16 @@ export default function AlphaV1({}: Props) {
 	// Get email from url param
 	const router = useRouter();
 	const params = useSearchParams();
-	const email = params?.get("email");
+	const paramEmail = params?.get("email");
 	const [loading, setLoading] = useState(true);
+	const [email, setEmail] = useState("");
+	const [emailError, setEmailError] = useState("");
 	useEffect(() => {
 		dispatch(setUser({ ...user, loadingUser: false }));
-		if (!email) return setLoading(false);
+		if (!paramEmail) return setLoading(false);
 		const checkIfUserOnWaitlist = async () => {
 			await axios
-				.post("/api/verify_waiting_list_registration", { email })
+				.post("/api/verify_waiting_list_registration", { paramEmail })
 				.then((res) => {
 					if (res.data.onWaitlist) {
 						// Code block goes here
@@ -42,8 +45,32 @@ export default function AlphaV1({}: Props) {
 				});
 		};
 		checkIfUserOnWaitlist();
-	}, [user, dispatch, email]);
-	const googleDocUrl = "#";
+	}, [user, dispatch, paramEmail]);
+
+	useEffect(() => {
+		if (paramEmail) setEmail(paramEmail);
+	}, [paramEmail]);
+	const handleVerifyEmailClick = async () => {
+		if (!isEmailValid(email))
+			return setEmailError("Please enter a valid email");
+		setLoading(true);
+		await axios
+			.post("/api/verify_waiting_list_registration", { email })
+			.then((res) => {
+				if (res.data.onWaitlist) {
+					// Code block goes here
+					setUserOnWaitlist(true);
+					setLoading(false);
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+				setUserOnWaitlist(false);
+				setLoading(false);
+			});
+	};
+	const googleDocUrl =
+		"https://docs.google.com/document/d/1i34086N8Frdbfjsor-BmI_j-XMq1l8C6YxFRBKfmSVE/edit?usp=sharing";
 	const handleMemoLinkClick = () => {
 		router.push(googleDocUrl);
 	};
@@ -66,13 +93,44 @@ export default function AlphaV1({}: Props) {
 				)}
 				{!loading && (
 					<div className='mt-4 '>
-						{email ? (
-							<p>Waiting list registration not found for {email}.</p>
+						{paramEmail ? (
+							<div>
+								<p>Waiting list registration not found for {email}.</p>
+								<input
+									type='email'
+									placeholder='Enter your email'
+									className='border border-gray-300 rounded-md px-4 py-2'
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+								/>
+								<button
+									onClick={handleVerifyEmailClick}
+									className='ml-2 mt-4 cursor-pointer transition-all hover:scale-105 bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-xs md:text-lg lg:px-8 px-4 py-2'
+								>
+									Access memo
+								</button>
+							</div>
 						) : (
-							<p>Waiting list registration not found.</p>
+							<div>
+								<input
+									type='email'
+									placeholder='Enter your email'
+									className='border border-gray-300 rounded-md px-4 py-2'
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+								/>
+								<button
+									onClick={handleVerifyEmailClick}
+									className='ml-2 mt-4 cursor-pointer transition-all hover:scale-105 bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-xs md:text-lg lg:px-8 px-4 py-2'
+								>
+									Access memo
+								</button>
+							</div>
 						)}
+						{emailError && <p style={{ color: "red" }}>{emailError}</p>}
+						<p className='mt-8 mb-2'>Not on the waiting list yet? Join here:</p>
 						<button
-							className='mt-4 cursor-pointer transition-all hover:scale-105 bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-xs md:text-lg lg:px-8 px-4 py-2 glow'
+							className='cursor-pointer transition-all hover:scale-105 bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-xs md:text-lg lg:px-8 px-4 py-2 glow'
 							onClick={handleWaitingListClick}
 						>
 							Join the waiting list today
