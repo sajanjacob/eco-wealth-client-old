@@ -465,19 +465,20 @@ const Header = ({}: Props) => {
 							Join the waiting list today
 						</button>
 						<WaitingListMobileMenu />
-						{/* <a
-							className='cursor-pointer hover:underline text-[var(--cta-one)] font-medium'
-							onClick={handleLoginClick}
-						>
-							Login
-						</a>
-
-						<a
-							className='cursor-pointer hover:underline text-[var(--cta-one)] font-medium'
-							onClick={handleSignupClick}
-						>
-							Signup
-						</a> */}
+						<div className='flex-col'>
+							<a
+								className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
+								onClick={handleLoginClick}
+							>
+								Login
+							</a>
+							<a
+								className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
+								onClick={handleSignupClick}
+							>
+								Signup
+							</a>
+						</div>
 					</>
 				)}
 			</div>
