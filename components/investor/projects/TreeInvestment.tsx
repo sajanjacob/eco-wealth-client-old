@@ -90,7 +90,7 @@ export default function TreeInvestment({ project }: Props) {
 		case 1:
 			if (!treeProjects) return <Loading />;
 			return (
-				<div className='flex flex-col md:flex-row mx-auto lg:w-[60%]'>
+				<div className='flex flex-col xl:flex-row mx-auto xl:w-[60%]'>
 					<TreeInvestmentLeft
 						title={title}
 						description={description}
@@ -101,7 +101,7 @@ export default function TreeInvestment({ project }: Props) {
 						estimatedMaturityDate={estimatedMaturityDate}
 					/>
 
-					<form className='mt-4 md:mt-4 md:px-8 flex-1'>
+					<form className='mt-4 md:mt-4 xl:px-8 flex-1'>
 						<h2 className='text-xl font-semibold'>
 							Choose how many{" "}
 							{isNonProfit ? "trees to contribute" : "shares to acquire"}:

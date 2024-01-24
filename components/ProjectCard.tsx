@@ -196,7 +196,7 @@ const ProjectCard = ({
 	if (role === "investor" && !isVerified) return null;
 	if (role === "investor" && status === "published")
 		return (
-			<div className='mb-8 lg:w-[308px] w-[408px]  bg-transparent rounded-2xl shadow-md relative md:mr-4 z-10 h-fit  '>
+			<div className='mb-8 md:w-[300px] w-[408px]  bg-transparent rounded-2xl shadow-md relative md:mr-4 z-10 h-fit  '>
 				<a className='block text-inherit no-underline'>
 					<Link
 						href={`/i/projects/${projectId}`}

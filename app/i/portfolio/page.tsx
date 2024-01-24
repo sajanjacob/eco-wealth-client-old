@@ -49,14 +49,14 @@ function Portfolio({}: Props) {
 	console.log("projects >>> ", projects);
 	if (loading)
 		return (
-			<div className='lg:w-[1200px] mx-auto w-[90%]'>
+			<div className='xl:w-[1200px] mx-auto w-[90%]'>
 				<h1 className='text-3xl font-bold mt-8'>Your Portfolio</h1>
 				<Loading />
 			</div>
 		);
 	if (!loading && projects.length === 0)
 		return (
-			<div className='lg:w-[1200px] mx-auto w-[90%]'>
+			<div className='xl:w-[1200px] mx-auto w-[90%]'>
 				<h1 className='text-3xl font-bold mt-8 ml-8 lg:ml-0'>Your Portfolio</h1>
 				<div className='flex flex-col items-center justify-center h-[80vh]'>
 					<h3 className='text-2xl font-bold mb-4'>

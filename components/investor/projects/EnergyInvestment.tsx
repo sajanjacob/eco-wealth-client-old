@@ -90,7 +90,7 @@ export default function EnergyInvestment({ project }: Props) {
 		case 1:
 			if (!energyProjects) return <Loading />;
 			return (
-				<div className='flex mx-auto lg:w-[60%]'>
+				<div className='flex flex-col xl:flex-row mx-auto xl:w-[60%]'>
 					<InvestmentLeft
 						title={title}
 						description={description}

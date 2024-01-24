@@ -384,7 +384,7 @@ const Header = ({}: Props) => {
 								</MenuItem>
 							</Link>
 							<Link
-								href='https://eco-wealth.canny.io/'
+								href='/feedback'
 								target='_blank'
 							>
 								<MenuItem className='menu-link'>

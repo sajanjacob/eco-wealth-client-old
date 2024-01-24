@@ -134,7 +134,7 @@ function Discover() {
 	};
 
 	return (
-		<div className='w-[90%] lg:w-3/4 mx-auto py-8 h-[100%]'>
+		<div className='w-[90%] xl:w-[90vw] mx-auto py-8 h-[100%]'>
 			<h1 className='text-2xl font-bold'>Discover Projects</h1>
 			<h2 className='font-light text-lg mb-8'>
 				Instantly find tree-based agriculture and renewable energy projects to
