@@ -21,7 +21,6 @@ export default async function handleReferralId(
 			await axios
 				.post("/api/check_referrer", { refId: ReferralId })
 				.then((res) => {
-					console.log("res >>> ", res);
 					if (res.data) {
 						// There is a referral ambassador with the same ID, use that ID
 						const referralData = {
@@ -29,10 +28,7 @@ export default async function handleReferralId(
 							referrer: res.data.referrer.name,
 							dateAdded: new Date().toISOString(),
 						};
-						console.log(
-							"updating referral data in localStorage >>> ",
-							referralData
-						);
+
 						localStorage.setItem("referralData", JSON.stringify(referralData));
 						updateUrlWithReferralId(res.data);
 						setReferrer(res.data.referrer.name);
@@ -61,7 +57,6 @@ export default async function handleReferralId(
 					res
 				);
 				if (res.data) {
-					console.log("res.data.referrer >>> ", res.data.referrer);
 					// There is a referral ambassador with the same ID, use that ID
 					const referralData = {
 						referralId: ReferralId,

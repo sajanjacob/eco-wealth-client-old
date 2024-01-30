@@ -169,7 +169,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
 	useEffect(() => {
 		const baseDuration = 2000;
 		if (!metricData?.data) return;
-		console.log("metricData >>> ", metricData);
 		animateValue(
 			"numOfInvestors",
 			0,

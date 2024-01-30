@@ -23,8 +23,6 @@ function Portfolio({}: Props) {
 		);
 		console.log("res >>> ", res);
 		if (res.data.data.length > 0) {
-			console.log("res.data >>> ", res.data);
-
 			setProjects(convertToCamelCase(res.data.data));
 			setTotalShares(res.data.totalShares);
 			setTotalAmountInvested(res.data.totalAmountInvested);
@@ -46,7 +44,6 @@ function Portfolio({}: Props) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
-	console.log("projects >>> ", projects);
 	if (loading)
 		return (
 			<div className='xl:w-[1200px] mx-auto w-[90%]'>
@@ -83,8 +80,6 @@ function Portfolio({}: Props) {
 				{projects &&
 					projects.length > 0 &&
 					projects.map((project: any, index: number) => {
-						console.log("project >>> ", project);
-						console.log("index >>> ", index);
 						return (
 							<PortfolioCard
 								project={project}

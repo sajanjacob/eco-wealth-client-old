@@ -38,7 +38,6 @@ export default function Login() {
 	}
 
 	const fetchUserData = async (userId: string) => {
-		console.log("fetching user data...", userId);
 		try {
 			const { data, error } = await supabase
 				.from("users")
@@ -50,11 +49,7 @@ export default function Login() {
 
 				return null;
 			}
-			console.log("data >> ", data);
-			console.log(
-				"isOlderThan30Days(data.mfa_verified_at) >> ",
-				isOlderThan30Days(data.mfa_verified_at)
-			);
+
 			if (
 				data.mfa_enabled &&
 				isOlderThan30Days(data.mfa_verified_at) &&
@@ -90,10 +85,7 @@ export default function Login() {
 					mfaVerified: false,
 					loadingUser: false,
 				};
-				console.log("userValues >> ", userValues);
-				console.log("dispatching redux user details...");
 				dispatch(setUser(userValues)); // Dispatch a redux action
-				console.log("dispatched redux user details...");
 				setShowMFA(true);
 				setLoading(false);
 				return null;
@@ -171,10 +163,7 @@ export default function Login() {
 	};
 
 	useEffect(() => {
-		console.log("user is logged in >>", isLoggedIn);
-		console.log("user from redux >>", user);
 		if (isLoggedIn) {
-			console.log("user >> ", user);
 			if (!user.mfaVerified || isOlderThan30Days(user.mfaVerifiedAt)) {
 				setShowMFA(true);
 			} else {

@@ -9,8 +9,6 @@ export async function POST(req: any) {
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 	try {
 		const { projectData, producerId } = await req.json();
-		console.log("projectData >>> ", projectData);
-		console.log("producerId >>> ", producerId);
 
 		// Here we check if there is a title, project type, project contact details, agreement accepted, and
 		// address of operation

@@ -47,7 +47,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
 			)
 			.slice(0, 5);
 
-		console.log("Most recent registrations: ", combinedData);
 		return NextResponse.json(combinedData, { status: 200 });
 	} catch (error) {
 		console.error("Error fetching data:", error);

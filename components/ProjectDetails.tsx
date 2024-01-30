@@ -25,7 +25,6 @@ const ProjectDetails = ({}: Props) => {
 
 		const fetchProject = async () => {
 			axios.get(`/api/investor/projects?projectId=${id}`).then((res) => {
-				console.log("res.data >>> ", res.data);
 				setProject(convertToCamelCase(res.data.data));
 				setUniqueInvestors(res.data.uniqueInvestors);
 				setPercentageFunded(res.data.percentageFunded);

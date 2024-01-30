@@ -116,7 +116,6 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 		};
 
 		useEffect(() => {
-			console.log("user >>> ", user);
 			if (user.loggedIn) {
 				let role = null;
 				if (pathname?.includes("/i/")) {

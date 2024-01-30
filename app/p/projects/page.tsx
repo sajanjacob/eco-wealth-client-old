@@ -44,7 +44,6 @@ function Projects({}: Props) {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
-	console.log("projects >>> ", projects);
 	useEffect(() => {
 		if (projects.length > 0) {
 			setPercentagesFunded(

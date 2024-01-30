@@ -78,7 +78,6 @@ function ProducerAddresses({ user }: Props) {
 				address: newAddressDetails,
 			})
 			.then((res) => {
-				console.log("res >>> ", res);
 				if (!properties) {
 					setProperties([convertToCamelCase(res.data[0])]);
 				} else {
@@ -131,7 +130,6 @@ function ProducerAddresses({ user }: Props) {
 				producerId: producerId,
 			})
 			.then((res) => {
-				console.log("res >>> ", res);
 				setProperties((prev) =>
 					prev.map((address) =>
 						address.id === addressId
@@ -190,7 +188,6 @@ function ProducerAddresses({ user }: Props) {
 		await axios
 			.delete(`/api/properties?addressId=${addressId}&producerId=${producerId}`)
 			.then((res) => {
-				console.log("res >>> ", res);
 				setProperties((prev) =>
 					prev.filter((address) => address.id !== addressId)
 				);

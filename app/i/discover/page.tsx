@@ -101,7 +101,6 @@ function Discover() {
 
 		fetchProjects(activeFilter, nonProfitFilter);
 	}, [activeFilter, nonProfitFilter]);
-	console.log("hi ", user.name?.substring(0, user.name.indexOf(" ")));
 	// Here we handle the filter click by pushing the filter type to the url
 	const handleFilterClick = (e: any) => {
 		const filterType = e.target.value;
