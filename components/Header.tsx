@@ -13,6 +13,7 @@ import {
 	MdSettings,
 	MdContactSupport,
 	MdBugReport,
+	MdGroupAdd,
 } from "react-icons/md";
 import { AiOutlineUserSwitch } from "react-icons/ai";
 import Link from "next/link";
@@ -375,6 +376,11 @@ const Header = ({}: Props) => {
 									</MenuItem>
 								</>
 							) : null}
+							<Link href='/referral-center'>
+								<MenuItem className='menu-link'>
+									<MdGroupAdd className='mr-2' /> Referral Center
+								</MenuItem>
+							</Link>
 							<Link
 								href='https://ecoxsolar.com/'
 								target='_blank'

@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { BiLock } from "react-icons/bi";
 import Logo from "./Logo";
+import handleReferralId from "@/utils/handleReferralId";
+import { set } from "react-hook-form";
 
 function WaitingListForm() {
 	const [name, setName] = useState("");
@@ -16,13 +18,37 @@ function WaitingListForm() {
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
 	const [specificReferral, setSpecificReferral] = useState("");
-	useEffect(() => {
-		if (ref) {
-			setReferrer(ref);
-			setReferralSource("Friend/Someone referred");
+	const handleCheckReferral = () => {
+		if (typeof window !== "undefined") {
+			// The code now runs only on the client side
+
+			if (ref) {
+				setReferralSource("Friend/Someone referred");
+				handleExistingReferral(ref);
+				return;
+			} else {
+				const storedData = localStorage.getItem("referralData");
+				if (!storedData) return;
+				const { referralId } = JSON.parse(storedData as string);
+				setReferralSource("Friend/Someone referred");
+				handleExistingReferral(referralId);
+			}
 		}
+	};
+
+	// Check if referralId is present in URL or localStorage
+	useEffect(() => {
+		// Check if referralId is present in URL
+		handleCheckReferral();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ref]);
 
+	// Check if referralId is present in localStorage
+	const handleExistingReferral = async (referralId: string) => {
+		await handleReferralId(referralId, setReferrer);
+	};
+
+	// Handle referral source change
 	const handleReferralChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setReferralSource(e.target.value);
 		setSpecificReferral(""); // Reset specific referral if the referral source is changed
@@ -30,6 +56,8 @@ function WaitingListForm() {
 			setReferrer("");
 		}
 	};
+
+	// Render specific referral input based on referral source
 	const renderSpecificReferralInput = () => {
 		if (referralSource === "Friend/Someone referred") {
 			return (
