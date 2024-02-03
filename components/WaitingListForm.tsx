@@ -14,10 +14,11 @@ function WaitingListForm() {
 	const [emailError, setEmailError] = useState("");
 	const [referralSource, setReferralSource] = useState("");
 	const [referrer, setReferrer] = useState("");
+	const [specificReferral, setSpecificReferral] = useState("");
 	const [isFormValid, setIsFormValid] = useState(false);
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
-	const [specificReferral, setSpecificReferral] = useState("");
+
 	const handleCheckReferral = () => {
 		if (typeof window !== "undefined") {
 			// The code now runs only on the client side
