@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+function capitalizeName(fullName: string): string {
+	const names = fullName.split(" ");
 
+	const capitalizedNames = names.map((name) => {
+		return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+	});
+
+	return capitalizedNames.join(" ");
+}
 export async function GET(req: NextRequest, res: NextResponse) {
 	const cookieStore = cookies();
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
@@ -38,14 +46,18 @@ export async function GET(req: NextRequest, res: NextResponse) {
 			throw new Error(usersError?.message || waitingListError?.message);
 		}
 
-		// Combine, filter, and sort the data
+		// Refactored data combining, filtering, sorting, and slicing
 		const combinedData = [...usersData, ...waitingListData]
 			.filter((user) => !isTestEmail(user.email) && !hasTestLastName(user.name))
 			.sort(
 				(a, b) =>
 					new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
 			)
-			.slice(0, 5);
+			.slice(0, 5)
+			.map((user) => ({
+				...user,
+				name: capitalizeName(user.name),
+			}));
 
 		return NextResponse.json(combinedData, { status: 200 });
 	} catch (error) {
