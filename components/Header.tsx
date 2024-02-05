@@ -14,6 +14,7 @@ import {
 	MdContactSupport,
 	MdBugReport,
 	MdGroupAdd,
+	MdUpdate,
 } from "react-icons/md";
 import { AiOutlineUserSwitch } from "react-icons/ai";
 import Link from "next/link";
@@ -411,6 +412,11 @@ const Header = ({}: Props) => {
 							>
 								<MenuItem className='menu-link'>
 									<MdBugReport className='mr-2' /> Report a Bug
+								</MenuItem>
+							</Link>
+							<Link href='/updates'>
+								<MenuItem className='menu-link'>
+									<MdUpdate className='mr-2' /> News & Updates
 								</MenuItem>
 							</Link>
 							{/* TODO: fix light & dark mode */}
