@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { StringLiteral } from "typescript";
+import ReferralReport from "./ReferralReport";
 
 type Referral = {
 	name: string;
@@ -38,6 +39,7 @@ const Referrals = ({ referralId }: Props) => {
 
 	return (
 		<div className='mt-4'>
+			<ReferralReport referralId={referralId} />
 			<h2 className='text-2xl mb-2'>Your Referrals:</h2>
 			<table className='w-[100%] border-white rounded-md border-[1px]'>
 				<thead className='text-left border-b-[1px]'>

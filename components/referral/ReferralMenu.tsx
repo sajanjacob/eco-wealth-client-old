@@ -40,6 +40,7 @@ export default function ReferralMenu({}: Props) {
 			>
 				Payouts
 			</p>
+
 			<p
 				className='mr-2 xl:mb-2 cursor-pointer'
 				onClick={(e) => HandleMenuLinkClick(e, { destination: "agreement" })}

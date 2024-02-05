@@ -3,6 +3,7 @@ import ReferralAgreement from "@/components/referral/ReferralAgreement";
 import ReferralLinks from "@/components/referral/ReferralLinks";
 import ReferralMenu from "@/components/referral/ReferralMenu";
 import ReferralPayouts from "@/components/referral/ReferralPayouts";
+import ReferralReport from "@/components/referral/ReferralReport";
 import Referrals from "@/components/referral/Referrals";
 import { useAppSelector } from "@/redux/hooks";
 import withAuth from "@/utils/withAuth";
