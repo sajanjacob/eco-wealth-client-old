@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import UnenrollMFA from "../login/UnenrollMFA";
 import EnrollMFA from "../login/EnrollMFA";
 import { FaLock } from "react-icons/fa";
+import axios from "axios";
+import MFAFrequencySelector from "./MFA/MFAFrequencySelector";
 type Props = {
 	user: UserState;
 };
@@ -15,7 +17,6 @@ export default function PasswordAndSecurity({ user }: Props) {
 	const [errorMessage, setErrorMessage] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [isMfaEnrolled, setIsMfaEnrolled] = useState(false);
-
 	useEffect(() => {
 		if (newPassword !== confirmNewPassword) {
 			setErrorMessage("New passwords do not match!");
@@ -140,13 +141,19 @@ export default function PasswordAndSecurity({ user }: Props) {
 				</h3>
 				{isMfaEnrolled ? (
 					<UnenrollMFA onCancelled={handleCancel} />
-				) : (
+				) : user.id ? (
 					<EnrollMFA
 						onEnrolled={handleEnrollment}
 						onCancelled={handleCancel}
 					/>
-				)}
+				) : null}
 			</div>
+			{user.id && (
+				<MFAFrequencySelector
+					currentFrequency={user.mfaFrequency}
+					userId={user.id}
+				/>
+			)}
 		</div>
 	);
 }

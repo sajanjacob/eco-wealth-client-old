@@ -36,6 +36,69 @@ export default function Login() {
 		// otherwise, return false
 		return dateFromTimestamp < thirtyDaysAgo;
 	}
+	function isOlderThan7Days(timestamp: string) {
+		if (!timestamp) return false;
+
+		const dateFromTimestamp = new Date(timestamp);
+		const now = new Date();
+		const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+		return dateFromTimestamp < sevenDaysAgo;
+	}
+
+	function isOlderThan14Days(timestamp: string) {
+		if (!timestamp) return false;
+
+		const dateFromTimestamp = new Date(timestamp);
+		const now = new Date();
+		const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+		return dateFromTimestamp < fourteenDaysAgo;
+	}
+
+	function isOlderThan28Days(timestamp: string) {
+		if (!timestamp) return false;
+
+		const dateFromTimestamp = new Date(timestamp);
+		const now = new Date();
+		const twentyEightDaysAgo = new Date(
+			now.getTime() - 28 * 24 * 60 * 60 * 1000
+		);
+
+		return dateFromTimestamp < twentyEightDaysAgo;
+	}
+
+	const handleUnverifiedMFA = async (userId: string, data: any) => {
+		console.log("MFA is not verified...");
+		setVerified(false);
+		setShowMFA(true);
+		setLoading(false);
+		const userValues = {
+			loggedIn: true,
+			...getUserDetails(data),
+			mfaVerified: false,
+			loadingUser: false,
+		};
+		dispatch(setUser(userValues));
+		await axios.post("/api/update_mfa", { userId });
+	};
+	const checkMFAReverification = (user: any) => {
+		const verificationFrequency = user.mfa_frequency;
+		const verificationTimestamp = user.mfa_verified_at;
+
+		switch (verificationFrequency) {
+			case "Always":
+				return true; // Always reverify
+			case "7 Days":
+				return isOlderThan7Days(verificationTimestamp);
+			case "14 Days":
+				return isOlderThan14Days(verificationTimestamp);
+			case "28 Days":
+				return isOlderThan28Days(verificationTimestamp);
+			default:
+				return false;
+		}
+	};
 
 	const fetchUserData = async (userId: string) => {
 		try {
@@ -44,93 +107,42 @@ export default function Login() {
 				.select("*, producers(*), investors(*)")
 				.eq("id", userId)
 				.single();
+
 			if (error) {
 				console.error("Error fetching user data:", error.message);
-
 				return null;
 			}
 
-			if (
-				data.mfa_enabled &&
-				isOlderThan30Days(data.mfa_verified_at) &&
-				data.mfa_verified
-			) {
-				setVerified(false);
-			}
-			if (data.mfa_enabled && isOlderThan30Days(data.mfa_verified_at)) {
-				console.log("mfa older than 30 days...");
-				if (data.mfa_verified) {
-					console.log("mfa_verified is true, setting to false...");
-					await axios.post("/api/update_mfa", { userId });
+			console.log("data >>> ", data);
+
+			if (data.mfa_enabled && data.mfa_verified) {
+				console.log("MFA is enabled and verified");
+				const shouldVerify = checkMFAReverification(data);
+				if (shouldVerify) {
+					await handleUnverifiedMFA(userId, data);
+					return;
 				}
-				const userValues = {
-					loggedIn: true,
-					name: data?.name,
-					email: data?.email,
-					phoneNumber: data?.phone_number,
-					isVerified: data?.is_verified,
-					roles: data?.roles,
-					id: data?.id,
-					producerId: data?.producers?.id,
-					investorId: data?.investors?.id,
-					activeRole: data?.active_role,
-					onboardingComplete: data?.onboarding_complete,
-					investorOnboardingComplete: data?.investors?.onboarding_complete,
-					producerOnboardingComplete: data?.producers?.onboarding_complete,
-					emailNotification: data?.email_notification,
-					smsNotification: data?.sms_notification,
-					pushNotification: data?.push_notification,
-					mfaEnabled: data?.mfa_enabled,
-					mfaVerifiedAt: data?.mfa_verified_at,
-					mfaVerified: false,
-					loadingUser: false,
-				};
-				dispatch(setUser(userValues)); // Dispatch a redux action
-				setShowMFA(true);
-				setLoading(false);
-				return null;
+			}
+			if (data.mfa_enabled && !data.mfa_verified) {
+				console.log("MFA is enabled and not verified");
+
+				await handleUnverifiedMFA(userId, data);
+				return;
 			}
 			if (!data.mfa_verified_at) {
-				setLoading(false);
-				setShowMFA(true);
+				await handleUnverifiedMFA(userId, data);
 				return null;
 			}
+
 			setVerified(true);
 
 			if (!data.onboarding_complete) {
 				console.log("user is not onboarded");
 				router.push("/onboarding");
 			} else {
-				if (data?.active_role === "investor") {
-					router.push("/i/dashboard");
-				} else if (data?.active_role === "producer") {
-					router.push("/p/dashboard");
-				}
+				redirectToDashboard(data);
 			}
-			dispatch(
-				setUser({
-					loggedIn: true,
-					name: data.name,
-					email: data.email,
-					phoneNumber: data.phone_number,
-					isVerified: data.is_verified,
-					roles: data.roles,
-					id: data.id,
-					producerId: data.producers.id,
-					investorId: data.investors.id,
-					activeRole: data.active_role,
-					onboardingComplete: data.onboarding_complete,
-					investorOnboardingComplete: data.investors.onboarding_complete,
-					producerOnboardingComplete: data.producers.onboarding_complete,
-					emailNotification: data.email_notification,
-					smsNotification: data.sms_notification,
-					pushNotification: data.push_notification,
-					mfaEnabled: data.mfa_enabled,
-					mfaVerified: data.mfa_verified,
-					mfaVerifiedAt: data.mfa_verified_at,
-					loadingUser: false,
-				})
-			); // Dispatch a redux action
+
 			setLoading(false);
 			return data;
 		} catch (err) {
@@ -138,6 +150,37 @@ export default function Login() {
 			console.error("Unexpected error fetching user data:", err);
 			return null;
 		}
+	};
+
+	const redirectToDashboard = (data: any) => {
+		console.log("redirecting to dashboard...");
+		const { active_role } = data;
+		const dashboardPath =
+			active_role === "investor" ? "/i/dashboard" : "/p/dashboard";
+		router.push(dashboardPath);
+	};
+
+	const getUserDetails = (data: any) => {
+		return {
+			name: data?.name,
+			email: data?.email,
+			phoneNumber: data?.phone_number,
+			isVerified: data?.is_verified,
+			roles: data?.roles,
+			id: data?.id,
+			producerId: data?.producers?.id,
+			investorId: data?.investors?.id,
+			activeRole: data?.active_role,
+			onboardingComplete: data?.onboarding_complete,
+			investorOnboardingComplete: data?.investors?.onboarding_complete,
+			producerOnboardingComplete: data?.producers?.onboarding_complete,
+			emailNotification: data?.email_notification,
+			smsNotification: data?.sms_notification,
+			pushNotification: data?.push_notification,
+			mfaEnabled: data?.mfa_enabled,
+			mfaVerifiedAt: data?.mfa_verified_at,
+			mfaFrequency: data?.mfa_frequency,
+		};
 	};
 
 	const login = async (user: any) => {
@@ -164,14 +207,15 @@ export default function Login() {
 
 	useEffect(() => {
 		if (isLoggedIn) {
-			if (!user.mfaVerified || isOlderThan30Days(user.mfaVerifiedAt)) {
+			const mfaVerificationExpired =
+				!user.mfaVerified || checkMFAReverification(user);
+			if (mfaVerificationExpired) {
 				setShowMFA(true);
 			} else {
 				setShowMFA(false);
 				if (verified) userVerificationRouting();
 			}
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user, isLoggedIn, user.mfaVerifiedAt, verified]);
 
 	useEffect(() => {

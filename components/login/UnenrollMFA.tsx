@@ -23,11 +23,12 @@ function UnenrollMFA({ onCancelled }: Props) {
 		(async () => {
 			const { data, error } = await supabase.auth.mfa.listFactors();
 			if (error) {
+				console.log("error >>> ", error);
 				return error;
 			}
 			setFactors(data.totp as any);
 			console.log("unenroll data -> ", data);
-			setFactorId(data.totp[0].id);
+			setFactorId(data.totp[0]?.id);
 		})();
 	}, []);
 

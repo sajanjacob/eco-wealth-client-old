@@ -45,6 +45,7 @@ interface UserState {
 	isVerified: boolean;
 	mfaEnabled: boolean;
 	mfaVerified: boolean;
+	mfaFrequency: string;
 	loadingUser: boolean | null;
 
 	// User Roles

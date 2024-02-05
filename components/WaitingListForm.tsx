@@ -111,15 +111,17 @@ function WaitingListForm() {
 			return;
 		}
 		setEmailError("");
-
+		const storedData = localStorage.getItem("referralData");
+		if (!storedData) return;
+		const { referralId } = JSON.parse(storedData as string);
 		// TODO: Integrate with Supabase here
 		axios
 			.post("/api/waiting_list", {
 				name,
 				email,
 				referralSource,
-				referrer,
-				specificReferral,
+				referrer: referralId,
+				specificReferral: referrer !== "" ? referrer : specificReferral,
 			})
 			.then((res) => {
 				router.push(`/thank-you-for-registering?name=${name}&email=${email}`);

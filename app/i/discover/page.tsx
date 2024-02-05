@@ -139,7 +139,7 @@ function Discover() {
 				Instantly find tree-based agriculture and renewable energy projects to
 				invest into.
 			</h2>
-			<div className='flex flex-wrap gap-2  mb-8'>
+			<div className='flex flex-wrap gap-2 mb-8'>
 				{filters.map((item, index) => (
 					<button
 						key={index}

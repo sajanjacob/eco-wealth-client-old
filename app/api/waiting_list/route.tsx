@@ -21,7 +21,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		name,
 		email,
 		referral_source: referralSource,
-		referrer: referrer !== "" ? referrer : specificReferral,
+		referrer: specificReferral,
+		referred_by: referrer,
 	};
 
 	const { data, error } = await supabase
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	// TODO: Send verification email
 	const msg = {
 		to: email,
-		from: "info@ecowealth.app",
+		from: { email: "info@ecowealth.app", name: "Eco Wealth Notifications" },
 		subject: "Verify your email to join Eco Wealth's waiting list!",
 		html: `<p>Please verify your email now by clicking on this link or copying it to your browser: <a href="${BASE_URL}/verify?token=${token}">${BASE_URL}/verify?token=${token}</a></p>`,
 	};
