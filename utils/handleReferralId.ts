@@ -66,6 +66,8 @@ export default async function handleReferralId(
 		}
 	} else {
 		// No existing data, check if there is a referral ambassador with the same ID
+		if (!ReferralId || ReferralId === "")
+			return console.log("No referral ID provided");
 		await axios
 			.post("/api/check_referrer", { refId: ReferralId })
 			.then((res) => {
@@ -88,6 +90,9 @@ export default async function handleReferralId(
 			})
 			.catch((err) => {
 				console.log("err >>> ", err);
+				updateUrlWithReferralId("");
+				setReferrer("");
+				return;
 			});
 	}
 }
