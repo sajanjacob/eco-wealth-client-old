@@ -6,8 +6,7 @@ import axios from "axios";
 import { BiLock } from "react-icons/bi";
 import Logo from "./Logo";
 import handleReferralId from "@/utils/handleReferralId";
-import { set } from "react-hook-form";
-
+import ReCAPTCHA from "react-google-recaptcha";
 function WaitingListForm() {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
@@ -18,7 +17,8 @@ function WaitingListForm() {
 	const [isFormValid, setIsFormValid] = useState(false);
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
-
+	const [captcha, setCaptcha] = useState<string | null>("");
+	const RECAPTCHA_SITE_KEY = process.env.recaptcha_site_key;
 	const handleCheckReferral = () => {
 		if (typeof window !== "undefined") {
 			// The code now runs only on the client side
@@ -106,15 +106,17 @@ function WaitingListForm() {
 	const router = useRouter();
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		// Validate email
 		if (!isEmailValid(email)) {
 			setEmailError("Invalid email address");
 			return;
 		}
 		setEmailError("");
+		// Check if referralId is present in URL or localStorage;
 		const storedData = localStorage.getItem("referralData");
 		if (!storedData) return;
 		const { referralId } = JSON.parse(storedData as string);
-		// TODO: Integrate with Supabase here
+		// Send form data to the server
 		axios
 			.post("/api/waiting_list", {
 				name,
@@ -130,15 +132,18 @@ function WaitingListForm() {
 				console.log("/api/waiting_list >> err", err);
 			});
 	};
-	const handleReturnHome = () => {
-		router.push("/");
-	};
+
 	useEffect(() => {
 		// Check if all required fields are filled and valid
-		const isValid = name.trim() !== "" && isEmailValid(email);
+		const isValid =
+			name.trim() !== "" &&
+			isEmailValid(email) &&
+			captcha !== null &&
+			captcha !== "" &&
+			captcha !== undefined;
 		// Add reCaptcha validation here
 		setIsFormValid(isValid);
-	}, [name, email, referralSource, referrer, specificReferral]);
+	}, [name, email, referralSource, referrer, specificReferral, captcha]);
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -193,7 +198,11 @@ function WaitingListForm() {
 
 			{/* Conditional text input for referrer */}
 			{renderSpecificReferralInput()}
-
+			<ReCAPTCHA
+				sitekey={RECAPTCHA_SITE_KEY!}
+				onChange={setCaptcha}
+				className='rounded-md mx-auto mt-2'
+			/>
 			<button
 				className={
 					isFormValid

@@ -7,6 +7,8 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import handleReferralId from "@/utils/handleReferralId";
 import axios from "axios";
+import ReCAPTCHA from "react-google-recaptcha";
+import { isEmailValid } from "@/utils/isEmailValid";
 interface SignUpForm {
 	email: string;
 	password: string;
@@ -25,7 +27,10 @@ const SignUp: React.FC = () => {
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
 	const [specificReferral, setSpecificReferral] = useState("");
+	const [isFormValid, setIsFormValid] = useState(false);
 
+	const RECAPTCHA_SITE_KEY = process.env.recaptcha_site_key;
+	const [captcha, setCaptcha] = useState<string | null>("");
 	// TODO: Add password strength meter
 	// TODO: Add password requirements
 	// TODO: Add password reset
@@ -178,6 +183,17 @@ const SignUp: React.FC = () => {
 			);
 		}
 	};
+	useEffect(() => {
+		// Check if all required fields are filled and valid
+		const isValid =
+			isEmailValid(email) &&
+			captcha !== null &&
+			captcha !== "" &&
+			captcha !== undefined &&
+			passwordMatch;
+		// Add reCaptcha validation here
+		setIsFormValid(isValid);
+	}, [name, email, referralSource, referrer, specificReferral, captcha]);
 	if (BASE_URL === "https://ecowealth.app") return;
 	return (
 		<div className='flex flex-col items-center justify-center min-h-screen px-12'>
@@ -249,9 +265,18 @@ const SignUp: React.FC = () => {
 
 				{/* Conditional text input for referrer */}
 				{renderSpecificReferralInput()}
+				<ReCAPTCHA
+					sitekey={RECAPTCHA_SITE_KEY!}
+					onChange={setCaptcha}
+				/>
 				<button
-					className='px-2 py-2 rounded-lg bg-[var(--cta-one)] text-white cursor-pointer hover:bg-[var(--cta-one-hover)] transition-all hover:scale-105'
+					className={
+						isFormValid
+							? "px-2 py-2 rounded-lg bg-[var(--cta-one)] text-white cursor-pointer hover:bg-[var(--cta-one-hover)] transition-all hover:scale-105"
+							: "px-2 py-2 rounded-lg bg-gray-500 text-white cursor-default "
+					}
 					type='submit'
+					disabled={!isFormValid}
 				>
 					Sign up with Email
 				</button>
