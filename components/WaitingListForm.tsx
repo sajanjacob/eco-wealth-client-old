@@ -135,15 +135,8 @@ function WaitingListForm() {
 	};
 	useEffect(() => {
 		// Check if all required fields are filled and valid
-		const isReferralValid =
-			referralSource === "Friend/Someone referred"
-				? referrer.trim() !== ""
-				: specificReferral.trim() !== "";
-		const isValid =
-			name.trim() !== "" &&
-			isEmailValid(email) &&
-			referralSource.trim() !== "" &&
-			isReferralValid;
+		const isValid = name.trim() !== "" && isEmailValid(email);
+		// Add reCaptcha validation here
 		setIsFormValid(isValid);
 	}, [name, email, referralSource, referrer, specificReferral]);
 	return (
