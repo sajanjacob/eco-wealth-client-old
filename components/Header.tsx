@@ -24,6 +24,7 @@ import Logo from "./Logo";
 import { useMediaQuery } from "@mui/material";
 import { FaFolder, FaGraduationCap, FaHome } from "react-icons/fa";
 import { RiCompassDiscoverFill } from "react-icons/ri";
+import { BASE_URL } from "@/constants";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -477,20 +478,23 @@ const Header = ({}: Props) => {
 							Join the waiting list today
 						</button>
 						<WaitingListMobileMenu />
-						<div className='flex-col'>
-							<a
-								className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
-								onClick={handleLoginClick}
-							>
-								Login
-							</a>
-							<a
-								className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
-								onClick={handleSignupClick}
-							>
-								Signup
-							</a>
-						</div>
+						{BASE_URL === "https://alpha.ecowealth.app" ||
+							(BASE_URL === "http://localhost:3000" && (
+								<div className='flex-col'>
+									<a
+										className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
+										onClick={handleLoginClick}
+									>
+										Login
+									</a>
+									<a
+										className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
+										onClick={handleSignupClick}
+									>
+										Signup
+									</a>
+								</div>
+							))}
 					</>
 				)}
 			</div>
