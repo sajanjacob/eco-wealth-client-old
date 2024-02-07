@@ -25,6 +25,7 @@ import { useMediaQuery } from "@mui/material";
 import { FaFolder, FaGraduationCap, FaHome } from "react-icons/fa";
 import { RiCompassDiscoverFill } from "react-icons/ri";
 import { BASE_URL } from "@/constants";
+import axios from "axios";
 type Props = {};
 
 const Header = ({}: Props) => {
@@ -116,42 +117,49 @@ const Header = ({}: Props) => {
 	// Logout logic
 	const handleLogoutClick = async () => {
 		// Handle logout logic here
-		await supabase.auth.signOut();
-		dispatch(
-			setUser({
-				roles: [""],
-				loggedIn: false,
-				id: "",
-				producerId: "",
-				investorId: "",
-				activeRole: "",
-				currentTheme: "dark",
-				email: "",
-				name: "",
-				phoneNumber: "",
-				isVerified: false,
-				totalUserTreeCount: 0,
-				userTreeCount: 0,
-				onboardingComplete: false,
-				investorOnboardingComplete: false,
-				producerOnboardingComplete: false,
-				emailNotification: false,
-				smsNotification: false,
-				pushNotification: false,
-				mfaEnabled: false,
-				mfaVerified: false,
-				mfaVerifiedAt: "",
-				loadingUser: true,
+		axios
+			.post("/api/logout", {
+				options: {
+					setMFAFalse: true,
+				},
+				userId: user.id,
 			})
-		);
-		await supabase
-			.from("users")
-			.update({
-				mfa_verified: false,
+			.then(() => {
+				console.log("User logged out");
+				dispatch(
+					setUser({
+						roles: [""],
+						loggedIn: false,
+						id: "",
+						producerId: "",
+						investorId: "",
+						activeRole: "",
+						currentTheme: "dark",
+						email: "",
+						name: "",
+						phoneNumber: "",
+						isVerified: false,
+						totalUserTreeCount: 0,
+						userTreeCount: 0,
+						onboardingComplete: false,
+						investorOnboardingComplete: false,
+						producerOnboardingComplete: false,
+						emailNotification: false,
+						smsNotification: false,
+						pushNotification: false,
+						mfaEnabled: false,
+						mfaVerified: false,
+						mfaVerifiedAt: "",
+						loadingUser: true,
+					})
+				);
+
+				router.push("/login");
+				router.refresh();
 			})
-			.eq("id", user.id);
-		router.push("/login");
-		router.refresh();
+			.catch((err) => {
+				console.log("Error logging out user", err);
+			});
 	};
 	const handleUpdateTheme = async (theme: string) => {
 		const { data, error } = await supabase

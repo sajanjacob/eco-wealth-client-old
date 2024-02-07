@@ -5,6 +5,7 @@
         "onboarded",
         "recaptcha",
         "sendgrid",
-        "sitekey"
+        "sitekey",
+        "TOTP"
     ]
 }
