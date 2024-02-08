@@ -81,6 +81,7 @@ const SignUp: React.FC = () => {
 			alert("Passwords do not match. Please try again.");
 			return;
 		}
+		// Check if there's stored referral data in localStorage
 		const storedData = localStorage.getItem("referralData");
 		if (storedData) {
 			const { referralId } = JSON.parse(storedData as string);
@@ -100,6 +101,24 @@ const SignUp: React.FC = () => {
 					console.log("err >>> ", err);
 				});
 		} else {
+			// If no stored referral, signup with static referral info or with email & password
+			if (referralSource !== "") {
+				await axios
+					.post("/api/signup", {
+						email,
+						password,
+						referralSource,
+						specificReferral,
+					})
+					.then((res) => {
+						console.log("res >>> ", res);
+						router.push(`/thankyou?email=${email}`);
+					})
+					.catch((err) => {
+						console.log("err >>> ", err);
+					});
+				return;
+			}
 			await axios
 				.post("/api/signup", {
 					email,

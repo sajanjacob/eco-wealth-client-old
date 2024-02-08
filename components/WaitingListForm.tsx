@@ -7,6 +7,8 @@ import { BiLock } from "react-icons/bi";
 import Logo from "./Logo";
 import handleReferralId from "@/utils/handleReferralId";
 import ReCAPTCHA from "react-google-recaptcha";
+import validator from "validator";
+import DOMPurify from "dompurify";
 function WaitingListForm() {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
@@ -104,33 +106,88 @@ function WaitingListForm() {
 		}
 	};
 	const router = useRouter();
+	const getReferralId = () => {
+		const storedData = localStorage.getItem("referralData");
+		if (!storedData) return null;
+		const { referralId } = JSON.parse(storedData as string);
+		return referralId;
+	};
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		// Validate email
-		if (!isEmailValid(email)) {
+		console.log("submitting...");
+		if (!validator.isEmail(email)) {
 			setEmailError("Invalid email address");
 			return;
 		}
 		setEmailError("");
+
 		// Check if referralId is present in URL or localStorage;
-		const storedData = localStorage.getItem("referralData");
-		if (!storedData) return;
-		const { referralId } = JSON.parse(storedData as string);
+		const referralId = getReferralId();
+		if (!name || !email || !captcha) return;
 		// Send form data to the server
-		axios
-			.post("/api/waiting_list", {
-				name,
-				email,
-				referralSource,
-				referrer: referralId,
-				specificReferral: referrer !== "" ? referrer : specificReferral,
-			})
-			.then((res) => {
-				router.push(`/thank-you-for-registering?name=${name}&email=${email}`);
-			})
-			.catch((err) => {
-				console.log("/api/waiting_list >> err", err);
-			});
+		const sanitizedName = DOMPurify.sanitize(name);
+		const sanitizedEmail = DOMPurify.sanitize(email);
+		const sanitizedReferralSource = DOMPurify.sanitize(referralSource);
+		const sanitizedReferrer = DOMPurify.sanitize(referrer);
+		const sanitizedSpecificReferral = DOMPurify.sanitize(specificReferral);
+		if (!referralId) {
+			// Send form data to the server
+			if (referralSource !== "") {
+				axios
+					.post("/api/waiting_list", {
+						name: sanitizedName,
+						email: sanitizedEmail,
+						referralSource: sanitizedReferralSource,
+						specificReferral:
+							sanitizedReferrer !== ""
+								? sanitizedReferrer
+								: sanitizedSpecificReferral,
+					})
+					.then((res) => {
+						router.push(
+							`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
+						);
+					})
+					.catch((err) => {
+						console.log("/api/waiting_list >> err", err);
+					});
+			} else {
+				axios
+					.post("/api/waiting_list", {
+						name: sanitizedName,
+						email: sanitizedEmail,
+					})
+					.then((res) => {
+						router.push(
+							`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
+						);
+					})
+					.catch((err) => {
+						console.log("/api/waiting_list >> err", err);
+					});
+			}
+		} else {
+			axios
+				.post("/api/waiting_list", {
+					name: sanitizedName,
+					email: sanitizedEmail,
+					referralSource: sanitizedReferralSource,
+					referrer: referralId,
+					specificReferral:
+						sanitizedReferrer !== ""
+							? sanitizedReferrer
+							: sanitizedSpecificReferral,
+				})
+				.then((res) => {
+					router.push(
+						`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
+					);
+				})
+				.catch((err) => {
+					console.log("/api/waiting_list >> err", err);
+				});
+		}
 	};
 
 	useEffect(() => {
