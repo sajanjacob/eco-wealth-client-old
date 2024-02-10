@@ -162,24 +162,25 @@ const Header = ({}: Props) => {
 			});
 	};
 	const handleUpdateTheme = async (theme: string) => {
-		const { data, error } = await supabase
-			.from("users")
-			.update({ current_theme: theme })
-			.eq("id", user?.id);
-		if (error) {
-			console.error("Error updating user theme:", error.message);
-		}
-		if (data) {
-			dispatch(setUser({ ...user, currentTheme: theme }));
-			// Apply or remove the 'dark' class to the root HTML element
-			if (theme === "light") {
-				if (typeof window !== "undefined")
-					document.documentElement.classList.add("dark");
-			} else {
-				if (typeof window !== "undefined")
-					window.document.documentElement.classList.remove("dark");
-			}
-		}
+		await axios
+			.post("/api/switch_theme", {
+				userId: user.id,
+				theme: theme,
+			})
+			.then((res) => {
+				dispatch(setUser({ ...user, currentTheme: theme }));
+				// Apply or remove the 'dark' class to the root HTML element
+				if (theme === "light") {
+					if (typeof window !== "undefined")
+						document.documentElement.classList.add("dark");
+				} else {
+					if (typeof window !== "undefined")
+						window.document.documentElement.classList.remove("dark");
+				}
+			})
+			.catch((error) => {
+				console.error("Error updating user theme:", error.message);
+			});
 	};
 
 	// Here we toggle the theme between light and dark.

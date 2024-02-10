@@ -22,64 +22,12 @@ function AuthMFA({ mfaEnabled, setVerified, setShowMFA }: Props) {
 	const [loading, setLoading] = useState(false);
 	const user = useAppSelector((state: RootState) => state.user);
 
-	const verifyMFA = async () => {
-		const factors = await supabase.auth.mfa.listFactors();
-		if (factors.error) {
-			throw new Error(factors.error.message);
-		}
-
-		const totpFactor = factors.data.totp[0];
-
-		if (!totpFactor) {
-			throw new Error("No TOTP factors found!");
-		}
-
-		const factorId = totpFactor.id;
-
-		const challenge = await supabase.auth.mfa.challenge({ factorId });
-		if (challenge.error) {
-			setError(challenge.error.message);
-			throw new Error(challenge.error.message);
-		}
-
-		const challengeId = challenge.data.id;
-
-		const verify = await supabase.auth.mfa.verify({
-			factorId,
-			challengeId,
-			code: verifyCode,
-		});
-		if (verify.error) {
-			setError(verify.error.message);
-
-			return;
-		} else {
-			const { data, error } = await supabase
-				.from("users")
-				.update({
-					mfa_verified: true,
-					mfa_verified_at: new Date().toISOString(),
-				})
-				.eq("id", user.id);
-			if (error) {
-				console.log("Error updating user:", error.message);
-			}
-			dispatch(
-				setUser({
-					...user,
-					mfaVerified: true,
-				})
-			);
-			setShowMFA(false);
-			setVerified(true);
-		}
-	};
 	const onSubmitClicked = () => {
 		setLoading(true);
 		setError("");
 		const sanitizedCode = DOMPurify.sanitize(verifyCode);
 		axios
-			.post("/api/verify_mfa", { verifyCode: sanitizedCode, userId: user.id })
+			.post("/api/mfa/verify", { verifyCode: sanitizedCode, userId: user.id })
 			.then((res) => {
 				console.log("res.data >>> ", res.data);
 				if (res.data.error) {

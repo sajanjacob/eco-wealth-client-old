@@ -161,19 +161,16 @@ function AddProject() {
 	const fetchProperties = async (producerId: string | null) => {
 		if (!producerId) return;
 		setLoading({ loading: true, message: "Fetching properties..." });
-		const { data: propertyData, error: propertyError } = await supabase
-			.from("producer_properties")
-			.select("*")
-			.eq("producer_id", producerId)
-			.eq("is_verified", true);
-		if (propertyError) {
-			console.log("error fetching properties: ", propertyError);
-			setLoading({ loading: false, message: "" });
-		}
-		if (propertyData) {
-			setFoundProperties(convertToCamelCase(propertyData) as Property[]);
-			setLoading({ loading: false, message: "" });
-		}
+		axios
+			.get(`/api/properties?producer_id=${producerId}`)
+			.then((res) => {
+				setFoundProperties(convertToCamelCase(res.data.data));
+				setLoading({ loading: false, message: "" });
+			})
+			.catch((error) => {
+				console.error("Error fetching properties:", error.message);
+				setLoading({ loading: false, message: "" });
+			});
 	};
 
 	useEffect(() => {
@@ -190,17 +187,20 @@ function AddProject() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
-	let fileName = "";
+	const [fileName, setFileName] = useState("");
 	const uploadImage = async (file: File) => {
 		const fileExt = file.name.split(".").pop();
-		fileName = `${Math.random()}.${fileExt}`;
-		const filePath = `projects/${user.id}/${fileName}`;
-		const { data, error } = await supabase.storage
-			.from("projects")
-			.upload(filePath, file);
-		if (error) {
-			throw error;
-		}
+		const fileUploadName = `${Math.random()}.${fileExt}`;
+		setFileName(fileUploadName);
+		const filePath = `projects/${user.id}/${fileUploadName}`;
+		await axios
+			.post("/api/upload_project_img", { filePath, file })
+			.then((res) => {
+				console.log("Image uploaded: ", res.data);
+			})
+			.catch((error) => {
+				console.error("Error uploading image:", error.message);
+			});
 	};
 
 	const producerId = user.producerId;
@@ -307,7 +307,7 @@ function AddProject() {
 			setLoading({ loading: false, message: "" });
 			return;
 		}
-
+		let fileUploadName = fileName;
 		if ((formValues.imageFile as FileList).length > 0) {
 			try {
 				await uploadImage((formValues.imageFile as FileList)[0]);
@@ -316,15 +316,26 @@ function AddProject() {
 				console.log("error uploading image: ", error);
 
 				setLoading({ loading: false, message: "" });
+				// Delete the uploaded image if the project update fails
+				if (fileUploadName) {
+					const { error: deleteError } = await supabase.storage
+						.from("projects")
+						.remove([fileUploadName]);
+
+					if (deleteError) {
+						console.error("Error deleting the uploaded image:", deleteError);
+					}
+				}
 				return;
 			} finally {
 				const fileExt = (formValues.imageFile as FileList)[0].name
 					.split(".")
 					.pop();
+
 				if (fileName === "") {
-					fileName = `${Math.random()}.${fileExt}`;
+					fileUploadName = `${Math.random()}.${fileExt}`;
 				}
-				const filePath = `projects/${user.id}/${fileName}`;
+				const filePath = `projects/${user.id}/${fileUploadName}`;
 				const { data: publicURL } = supabase.storage
 					.from("projects")
 					.getPublicUrl(filePath);

@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 	const handleUnverifiedMFA = async (userId: string) => {
 		console.log("MFA is not verified...");
 		await axios
-			.post("/api/update_mfa", { userId })
+			.post("/api/mfa/update", { userId })
 			.then((res) => {
 				console.log("MFA updated", res.data);
 			})

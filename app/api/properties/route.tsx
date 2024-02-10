@@ -242,10 +242,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
 	const supabase = createRouteHandlerClient<any>({
 		cookies: () => cookieStore,
 	});
-	const producerId = req?.nextUrl?.searchParams.get("producerId");
-
-	console.log("received get request", producerId);
-	try {
+	let producerId = req?.nextUrl?.searchParams.get("producerId");
+	if (!producerId) {
+		return NextResponse.json(
+			{ error: "producerId is required" },
+			{ status: 400 }
+		);
+	}
+	async function checkAndCreateVerificationCodes(producerId: string) {
 		const { data, error } = await supabase
 			.from("producer_properties")
 			.select("*")
@@ -254,50 +258,65 @@ export async function GET(req: NextRequest, res: NextResponse) {
 			.order("is_verified", { ascending: false });
 
 		if (error) {
-			console.log("error >>> ", error);
+			console.error("Error fetching properties:", error.message);
 			return NextResponse.json({ error: error.message }, { status: 500 });
 		}
-		if (!data || data.length === 0) {
+
+		if (data && data.length > 0) {
+			for (const property of data) {
+				if (!property.is_verified) {
+					// Check if there is a verification code for this property
+					const { data: verificationData, error: verificationError } =
+						await supabase
+							.from("producer_verification_codes")
+							.select("*")
+							.eq("producer_id", producerId)
+							.eq("property_id", property.id)
+							.eq("is_deleted", false);
+
+					if (verificationError) {
+						console.error(
+							"Error fetching verification codes:",
+							verificationError.message
+						);
+						continue; // Move to the next property
+					}
+
+					if (verificationData && verificationData.length === 0) {
+						// If there is no verification code for this property, create one
+						const { data: newVerificationData, error: insertError } =
+							await supabase.from("producer_verification_codes").insert([
+								{
+									producer_id: producerId,
+									verification_code: shortid.generate(),
+									property_id: property.id,
+								},
+							]);
+
+						if (insertError) {
+							console.error(
+								"Error creating verification code:",
+								insertError.message
+							);
+						} else {
+							console.log(
+								"Verification code created for property:",
+								property.id
+							);
+						}
+					}
+				}
+			}
+		} else {
+			console.log("No properties found for the given producer ID.");
 			return NextResponse.json(
-				{ message: "No properties found" },
+				{ message: "No properties found." },
 				{ status: 200 }
 			);
 		}
-		const propertyData = convertToCamelCase(data) as Property[];
-
-		// Here we check producer_verification_codes to see if a code has been created, if not, we create one
-		const { data: verificationData, error: verificationError } = await supabase
-			.from("producer_verification_codes")
-			.select("*")
-			.eq("producer_id", producerId)
-			.eq("is_deleted", false);
-		if (verificationError) {
-			console.log("error >>> ", verificationError);
-			NextResponse.json({ error: verificationError.message }, { status: 500 });
-		}
-		if (verificationData?.length === 0) {
-			console.log("propertyData[0].id >>> ", propertyData[0].id);
-			console.log("producerId >>> ", producerId);
-			// TODO: fix verification code RLS
-			const { data: verificationDataTwo, error } = await supabase
-				.from("producer_verification_codes")
-				.insert([
-					{
-						producer_id: producerId,
-						verification_code: shortid.generate(),
-						property_id: propertyData[0].id,
-					},
-				]);
-			if (error) {
-				console.log("error >>> ", error);
-			}
-		}
-		return NextResponse.json({ propertyData }, { status: 200 });
-	} catch (error) {
-		console.log("error >>> ", error);
-		return NextResponse.json(
-			{ error: "An error occurred when fetching producer data" },
-			{ status: 500 }
-		);
+		return NextResponse.json({ data }, { status: 200 });
 	}
+
+	// Example usage:
+	checkAndCreateVerificationCodes(producerId);
 }

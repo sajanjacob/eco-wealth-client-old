@@ -348,3 +348,45 @@ export async function PUT(req: NextRequest, res: NextResponse) {
 
 	return NextResponse.json({ message: "Project updated successfully" });
 }
+
+export async function DELETE(req: NextRequest, res: NextResponse) {
+	const cookieStore = cookies();
+	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+	const { searchParams } = new URL(req.url);
+	const projectId = searchParams.get("projectId");
+	const projectType = searchParams.get("projectId");
+
+	const deletedAt = new Date();
+	const { error } = await supabase
+		.from("projects")
+		.update({ is_deleted: true, status: "deleted", deleted_at: deletedAt })
+		.eq("id", projectId)
+		.select();
+	if (error) {
+		console.error("Error deleting project:", error);
+		return NextResponse.json({ error: error.message }, { status: 500 });
+	}
+	if (projectType === "Tree") {
+		const { error } = await supabase
+			.from("tree_projects")
+			.update({ is_deleted: true, status: "deleted", deleted_at: deletedAt })
+			.eq("project_id", projectId);
+		if (error) {
+			console.error("Error deleting tree project:", error);
+			return NextResponse.json({ error: error.message }, { status: 500 });
+		}
+		return NextResponse.json({ message: "Project deleted successfully" });
+	}
+
+	if (projectType === "Energy") {
+		const { error } = await supabase
+			.from("energy_projects")
+			.update({ is_deleted: true, status: "deleted", deleted_at: deletedAt })
+			.eq("project_id", projectId);
+		if (error) {
+			console.error("Error deleting energy project:", error);
+			return NextResponse.json({ error: error.message }, { status: 500 });
+		}
+		return NextResponse.json({ message: "Project deleted successfully" });
+	}
+}

@@ -89,26 +89,34 @@ function Edit() {
 		},
 	});
 	const fetchProject = async () => {
-		const { data, error } = await supabase
-			.from("projects")
-			.select(
-				`*, tree_projects(*), energy_projects(*), solar_projects(*), producer_properties(*), project_milestones(*)`
-			)
-			.eq("id", id)
-			.neq("is_deleted", true);
-		if (error) {
-			console.error("Error fetching projects:", error);
-			toast.error(error.message);
-		}
-		if (data) {
-			setProject(
-				convertToCamelCase(data[0]) as
-					| Project
-					| TreeProject
-					| EnergyProject
-					| SolarProject
-			);
-		}
+		await axios
+			.post("/api/project", {
+				projectId: id,
+				options: {
+					query: `*, tree_projects(*), energy_projects(*), solar_projects(*), producer_properties(*), project_milestones(*)`,
+				},
+			})
+			.then((res) => {
+				setProject(convertToCamelCase(res.data.data));
+			})
+			.catch((error) => {
+				console.error("Error fetching project:", error.message);
+				toast.error(error.message);
+			});
+
+		// if (error) {
+		// 	console.error("Error fetching projects:", error);
+		// 	toast.error(error.message);
+		// }
+		// if (data) {
+		// 	setProject(
+		// 		convertToCamelCase(data[0]) as
+		// 			| Project
+		// 			| TreeProject
+		// 			| EnergyProject
+		// 			| SolarProject
+		// 	);
+		// }
 	};
 	useEffect(() => {
 		fetchProject();
@@ -196,20 +204,17 @@ function Edit() {
 	// we can list them as options for the producer to select from when adding a project.
 	const fetchProperties = async (producerId: string) => {
 		setLoading({ loading: true, message: "Fetching properties..." });
-		const { data: propertyData, error: propertyError } = await supabase
-			.from("producer_properties")
-			.select("*")
-			.eq("producer_id", producerId)
-			.eq("is_verified", true);
-		if (propertyError) {
-			toast.error(`Error fetching properties. ${propertyError.message}`);
-			console.log("error fetching properties: ", propertyError);
-			setLoading({ loading: false, message: "" });
-		}
-		if (propertyData) {
-			setValue("properties", convertToCamelCase(propertyData) as Property[]);
-			setLoading({ loading: false, message: "" });
-		}
+		axios
+			.get(`/api/properties?producerId=${producerId}`)
+			.then((res) => {
+				setValue("properties", res.data.data);
+				setLoading({ loading: false, message: "" });
+			})
+			.catch((error) => {
+				console.error("Error fetching properties:", error);
+				toast.error(error.message);
+				setLoading({ loading: false, message: "" });
+			});
 	};
 
 	useEffect(() => {
@@ -225,12 +230,17 @@ function Edit() {
 		const fileExt = file.name.split(".").pop();
 		fileName = `${Math.random()}.${fileExt}`;
 		const filePath = `projects/${user.id}/${fileName}`;
-		const { data, error } = await supabase.storage
-			.from("projects")
-			.upload(filePath, file);
-		if (error) {
-			throw error;
-		}
+		await axios
+			.post(`/api/upload_project_img`, { filePath, file })
+			.then((res) => {
+				if (res.data) {
+					toast.success("Image uploaded!");
+				}
+			})
+			.catch((error) => {
+				console.error("Error uploading image:", error);
+				toast.error(error.message);
+			});
 	};
 	const producerId = user.producerId;
 
@@ -285,7 +295,7 @@ function Edit() {
 				const fileExt = formValues.imageFile[0].name.split(".").pop();
 				uploadedFilePath = `projects/${user.id}/${fileName}`;
 
-				const { data: publicURL } = await supabase.storage
+				const { data: publicURL } = supabase.storage
 					.from("projects")
 					.getPublicUrl(uploadedFilePath);
 

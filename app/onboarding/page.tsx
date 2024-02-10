@@ -30,7 +30,7 @@ const Onboarding: FC = () => {
 	//  Here we update the user's role in the database and redux store
 	const updateUserData = async (role: string) => {
 		await axios
-			.post("/api/onboard_user", {
+			.post("/api/onboard/user", {
 				userId: user.id,
 				role: role,
 				name: name,

@@ -41,21 +41,24 @@ export default function PasswordAndSecurity({ user }: Props) {
 		toast.success("MFA enrolment cancelled");
 	}, []);
 	// Here we have a function called setPassword that updates the user's password in the supabase database
+	// TODO: Add MFA, email, or SMS verification before updating the password
 	const setPassword = async () => {
 		setLoading(true);
-		const { data, error } = await supabase.rpc("change_user_password", {
-			current_plain_password: oldPassword,
-			new_plain_password: newPassword,
-		});
-
-		if (error) {
-			console.log(error.message);
-			toast.error(`Could not update password: ${error.message}`);
-			setLoading(false);
-			return;
-		}
-		toast.success("Password updated successfully");
-		setLoading(false);
+		await axios
+			.post("/api/settings/password", {
+				oldPassword,
+				newPassword,
+			})
+			.then((res) => {
+				console.log(res.data);
+				toast.success("Password updated successfully");
+				setLoading(false);
+			})
+			.catch((err) => {
+				toast.error(`Could not update password: ${err.message}`);
+				console.log(err);
+				setLoading(false);
+			});
 	};
 
 	const handlePasswordChange = () => {
