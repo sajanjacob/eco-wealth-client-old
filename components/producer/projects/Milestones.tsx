@@ -324,7 +324,7 @@ export default function Milestones({ project, adminMode }: Props) {
 						</div>
 					);
 				})}
-			{milestones.length === 0 && <p>No milestones found.</p>}
+			{milestones?.length === 0 && <p>No milestones found.</p>}
 		</div>
 	);
 }
