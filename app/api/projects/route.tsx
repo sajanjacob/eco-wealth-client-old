@@ -133,25 +133,45 @@ export async function POST(req: any) {
 		if (projectData.projectType === "Tree" && project) {
 			const fundsRequestedPerTree =
 				totalFundsRequested / projectData.treeTarget;
-
-			const { error } = await supabase.from("tree_projects").insert([
-				{
-					project_id: project?.[0].id,
-					tree_target: projectData.treeTarget,
-					funds_requested_per_tree: fundsRequestedPerTree,
-					project_type: projectData.treeProjectType,
-					tree_type: projectData.treeType,
-					tree_count: 0,
-					producer_id: producerId,
-					est_seed_cost: projectData.estSeedCost,
-					est_labour_cost: projectData.labourCost,
-					est_maintenance_cost_per_year: projectData.maintenanceCost,
-					est_planting_date: projectData.estPlantingDate,
-					est_maturity_date: projectData.estMaturityDate,
-				},
-			]);
-			if (error) {
-				return NextResponse.json({ error: error.message }, { status: 501 });
+			if (projectData.treeProjectType === "Restoration") {
+				const { error } = await supabase.from("tree_projects").insert([
+					{
+						project_id: project?.[0].id,
+						tree_target: projectData.treeTarget,
+						funds_requested_per_tree: fundsRequestedPerTree,
+						project_type: projectData.treeProjectType,
+						tree_type: projectData.treeType,
+						tree_count: 0,
+						producer_id: producerId,
+						est_seed_cost: projectData.estSeedCost,
+						est_labour_cost: projectData.labourCost,
+						est_maintenance_cost_per_year: projectData.maintenanceCost,
+						est_planting_date: projectData.estPlantingDate,
+					},
+				]);
+				if (error) {
+					return NextResponse.json({ error: error.message }, { status: 502 });
+				}
+			} else {
+				const { error } = await supabase.from("tree_projects").insert([
+					{
+						project_id: project?.[0].id,
+						tree_target: projectData.treeTarget,
+						funds_requested_per_tree: fundsRequestedPerTree,
+						project_type: projectData.treeProjectType,
+						tree_type: projectData.treeType,
+						tree_count: 0,
+						producer_id: producerId,
+						est_seed_cost: projectData.estSeedCost,
+						est_labour_cost: projectData.labourCost,
+						est_maintenance_cost_per_year: projectData.maintenanceCost,
+						est_planting_date: projectData.estPlantingDate,
+						est_maturity_date: projectData.estMaturityDate,
+					},
+				]);
+				if (error) {
+					return NextResponse.json({ error: error.message }, { status: 502 });
+				}
 			}
 		}
 
