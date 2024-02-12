@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 function capitalizeName(fullName: string): string {
+	if (!fullName) return "";
 	const names = fullName.split(" ");
 
 	const capitalizedNames = names.map((name) => {
@@ -22,7 +23,8 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
 	// Function to check if the last name contains 'Test-'
 	const hasTestLastName = (name: string) => {
-		return name && name.split(" ").some((part) => part.startsWith("Test-"));
+		if (!name) return false;
+		return name && name?.split(" ").some((part) => part.startsWith("Test-"));
 	};
 
 	try {
@@ -31,6 +33,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 			.from("users")
 			.select("name, email, created_at")
 			.eq("is_verified", true)
+			.neq("name", null)
 			.order("created_at", { ascending: false })
 			.limit(5);
 
@@ -48,7 +51,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
 		// Refactored data combining, filtering, sorting, and slicing
 		const combinedData = [...usersData, ...waitingListData]
-			.filter((user) => !isTestEmail(user.email) && !hasTestLastName(user.name))
+			.filter(
+				(user) => !isTestEmail(user.email) && !hasTestLastName(user?.name)
+			)
 			.sort(
 				(a, b) =>
 					new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -56,7 +61,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 			.slice(0, 5)
 			.map((user) => ({
 				...user,
-				name: capitalizeName(user.name),
+				name: capitalizeName(user?.name),
 			}));
 
 		return NextResponse.json(combinedData, { status: 200 });
