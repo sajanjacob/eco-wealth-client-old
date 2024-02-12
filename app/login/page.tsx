@@ -89,6 +89,7 @@ export default function Login() {
 
 		if (isLoggedIn && user.mfaVerified) {
 			setShowMFA(false);
+			if (!user.onboardingComplete) router.push("/onboarding");
 			if (user.activeRole === undefined || user.activeRole === null) {
 				if (user.roles.includes("investor")) {
 					router.push("/i/dashboard");
@@ -133,7 +134,7 @@ export default function Login() {
 					loadingUser: false,
 				};
 				dispatch(setUser(userValues));
-				if (!res.data.onboardingComplete) {
+				if (!res.data.onboardingComplete && res.data.mfaVerified) {
 					console.log("user is not onboarded");
 					router.push("/onboarding");
 				}
