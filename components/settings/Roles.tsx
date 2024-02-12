@@ -42,9 +42,8 @@ export default function Roles({ user }: Props) {
 			{["Investor", "Producer"].map((role) => {
 				const isActive = user.roles.includes(role.toLowerCase());
 				return (
-					<>
+					<div key={role}>
 						<div
-							key={role}
 							className={
 								isActive
 									? "flex items-center justify-between mb-4 border-[var(--cta-one)] border-2 py-4 px-6 rounded-md"
@@ -72,7 +71,7 @@ export default function Roles({ user }: Props) {
 								</button>
 							)}
 						</div>
-					</>
+					</div>
 				);
 			})}
 		</div>
