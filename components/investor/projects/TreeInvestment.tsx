@@ -10,9 +10,10 @@ import Loading from "@/components/Loading";
 
 type Props = {
 	project: Project;
+	sharesRemaining: number;
 };
 
-export default function TreeInvestment({ project }: Props) {
+export default function TreeInvestment({ project, sharesRemaining }: Props) {
 	const {
 		title,
 		description,
@@ -32,21 +33,18 @@ export default function TreeInvestment({ project }: Props) {
 		setAmountPerShare(projectFinancials.amountPerShare);
 	}, [project, projectFinancials]);
 
-	// TODO: get number of shares acquired by all investors and subtract from total number of shares to get
-	// remaining # of shares that can be acquired.
+	// Handle maximum number of shares available to be purchased
 	useEffect(() => {
 		if (!project) return;
-		if (project && numberOfShares > projectFinancials.numOfShares) {
-			setNumberOfShares(projectFinancials.numOfShares);
+		if (project && numberOfShares > sharesRemaining) {
+			setNumberOfShares(sharesRemaining);
 			toast.info(
-				`Note: The maximum number of trees you can invest in for this project is ${projectFinancials.numOfShares}`
+				`Note: You can only invest in a maximum of ${sharesRemaining} shares for this project.`
 			);
 		}
-	}, [numberOfShares, treeProjects, project, projectFinancials]);
+	}, [numberOfShares, treeProjects, project, sharesRemaining]);
 
 	const calculateROI = (returnPerShare: number) => {
-		console.log("returnPerShare >>> ", returnPerShare);
-		console.log("numberOfShares >>> ", numberOfShares);
 		const amount = numberOfShares * returnPerShare;
 		return amount.toFixed(2);
 	};
