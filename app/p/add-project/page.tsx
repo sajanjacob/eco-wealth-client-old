@@ -156,14 +156,19 @@ function AddProject() {
 	const estimatedMaturityDate = watch("estimatedMaturityDate");
 	const [foundProperties, setFoundProperties] = useState<Property[]>([]);
 	const [agreements, setAgreements] = useState<boolean>(false);
+	const dispatch = useAppDispatch();
+	const producer = useAppSelector((state) => state.producer);
+	const userId = user.id;
+
 	// Here we retrieve the properties the user submitted that are verified so
 	// we can list them as options for the user to select from when adding a project.
 	const fetchProperties = async (producerId: string | null) => {
 		if (!producerId) return;
 		setLoading({ loading: true, message: "Fetching properties..." });
 		axios
-			.get(`/api/properties?producer_id=${producerId}`)
+			.get(`/api/properties/verified/?producerId=${producerId}`)
 			.then((res) => {
+				console.log("Verified properties fetched: ", res.data.data);
 				setFoundProperties(convertToCamelCase(res.data.data));
 				setLoading({ loading: false, message: "" });
 			})
@@ -181,7 +186,13 @@ function AddProject() {
 	}, [foundProperties]);
 
 	useEffect(() => {
+		// console.log(
+		// 	"useEffect - producer.producerProperties >>>",
+		// 	producer.producerProperties
+		// );
+		// setFoundProperties(producer.producerProperties);
 		if (user) {
+			console.log("user.producerId >>> ", user.producerId);
 			fetchProperties(user.producerId);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -358,9 +369,6 @@ function AddProject() {
 		handleClose();
 		setAgreements(true);
 	};
-	const dispatch = useAppDispatch();
-	const producer = useAppSelector((state) => state.producer);
-	const userId = user.id;
 
 	const fetchProducerData = async () => {
 		const res = await axios.get(`/api/producer?user_id=${userId}`);
@@ -392,54 +400,28 @@ function AddProject() {
 	}>({ message: "", actionUrl: "", actionType: "" });
 	const [allPropertiesUnverified, setAllPropertiesUnverified] = useState(false);
 
+	// If the user has no verified properties, we show a notification to prompt them to submit an address
 	useEffect(() => {
-		if (producer && producer.id) {
-			console.log(
-				"producer.producerProperties >>> ",
-				producer.producerProperties.length === 0
-			);
-			if (producer.producerProperties.length === 0) {
-				return setUrgentNotification({
-					message: "You need to submit an address to create new projects.",
-					actionUrl: "/settings?tab=properties",
-					actionType: "Resolve",
-					dismiss: false,
-				});
-			}
-		}
-
-		let numUnverifiedAddresses = 0;
-		for (let i = 0; i < producer.producerProperties.length; i++) {
-			console.log(
-				"producer.producerProperties[i] >>> ",
-				producer.producerProperties[i]
-			);
-			if (producer.producerProperties[i].isVerified === false) {
-				setUrgentNotification({
-					message: `Your submitted property at ${producer.producerProperties[i].address.addressLineOne} in or near ${producer.producerProperties[i].address.city} is pending verification.`,
-					actionUrl: "/settings?tab=properties",
-					actionType: "View",
-					dismiss: true,
-				});
-				setAllPropertiesUnverified(false);
-				numUnverifiedAddresses++;
-			}
-		}
-		if (numUnverifiedAddresses === producer.producerProperties.length) {
+		if (!foundProperties) return;
+		if (foundProperties.length === 0) {
 			setAllPropertiesUnverified(true);
 			setUrgentNotification({
-				message: `You cannot submit a project until a submitted property of yours is verified.`,
+				message: "You need to submit an address to create new projects.",
 				actionUrl: "/settings?tab=properties",
-				actionType: "View",
+				actionType: "Resolve",
 				dismiss: false,
 			});
 		}
-
-		if (numUnverifiedAddresses === 0) {
+		if (foundProperties.length > 0) {
 			setAllPropertiesUnverified(false);
-			setUrgentNotification({ message: "", actionUrl: "", actionType: "" });
+			setUrgentNotification({
+				message: "",
+				actionUrl: "",
+				actionType: "",
+				dismiss: false,
+			});
 		}
-	}, [producer]);
+	}, [foundProperties, producer]);
 
 	if (loading.loading)
 		return (
@@ -448,7 +430,7 @@ function AddProject() {
 				<Loading message={loading.message} />
 			</div>
 		);
-	if (allPropertiesUnverified || producer.producerProperties.length === 0)
+	if (allPropertiesUnverified || foundProperties.length === 0)
 		return (
 			<div className='container mx-auto py-6 px-4 min-h-[100vh]'>
 				<h1 className='text-2xl font-semibold mb-6'>Add Project</h1>
