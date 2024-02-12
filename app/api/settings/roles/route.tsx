@@ -9,17 +9,18 @@ export async function POST(req: any) {
 		cookies: () => cookieStore,
 	});
 
-	const { userId, newRoles, role } = await req.json();
+	const { userId, roles, role } = await req.json();
 	// Update the user's roles in Supabase
 	const { data, error } = await supabase
 		.from("users")
-		.update({ roles: newRoles })
+		.update({ roles })
 		.eq("id", userId)
 		.select();
 	if (error) {
 		console.error("Error updating user roles:", error.message);
 		return NextResponse.json({ error: error.message }, { status: 500 });
 	}
+	console.log("User roles updated:", data);
 	// Create investor profile
 	if (role === "investor") {
 		const { data: investorData, error: investorError } = await supabase
@@ -32,6 +33,16 @@ export async function POST(req: any) {
 			.select();
 		if (investorError) {
 			console.error("Error creating investor profile:", investorError.message);
+			if (
+				investorError.message.includes(
+					"duplicate key value violates unique constraint"
+				)
+			) {
+				return NextResponse.json(
+					{ message: "Producer profile already exists." },
+					{ status: 200 }
+				);
+			}
 			return NextResponse.json(
 				{ error: investorError.message },
 				{ status: 500 }
@@ -55,6 +66,16 @@ export async function POST(req: any) {
 			.select();
 		if (producerError) {
 			console.error("Error creating producer profile:", producerError.message);
+			if (
+				producerError.message.includes(
+					"duplicate key value violates unique constraint"
+				)
+			) {
+				return NextResponse.json(
+					{ message: "Producer profile already exists." },
+					{ status: 200 }
+				);
+			}
 			return NextResponse.json(
 				{ error: producerError.message },
 				{ status: 500 }
