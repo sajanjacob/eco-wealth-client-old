@@ -89,14 +89,14 @@ export async function POST(req: NextRequest) {
 	};
 	const handleUnverifiedMFA = async (userId: string) => {
 		console.log("MFA is not verified...");
-		await axios
-			.post("/api/mfa/update", { userId })
-			.then((res) => {
-				console.log("MFA updated", res.data);
-			})
-			.catch((err) => {
-				console.log("Error updating MFA", err);
-			});
+		const { data, error } = await supabase
+			.from("users")
+			.update({ mfa_verified: false })
+			.eq("id", userId);
+		if (error) {
+			return NextResponse.json({ message: error.message }, { status: 501 });
+		}
+		return NextResponse.json({ message: "MFA unverified." }, { status: 200 });
 	};
 
 	if (userData.mfa_enabled && userData.mfa_verified) {
