@@ -249,74 +249,74 @@ export async function GET(req: NextRequest, res: NextResponse) {
 			{ status: 400 }
 		);
 	}
-	async function checkAndCreateVerificationCodes(producerId: string) {
-		const { data, error } = await supabase
-			.from("producer_properties")
-			.select("*")
-			.eq("producer_id", producerId)
-			.eq("is_deleted", false)
-			.order("is_verified", { ascending: false });
 
-		if (error) {
-			console.error("Error fetching properties:", error.message);
-			return NextResponse.json({ error: error.message }, { status: 500 });
-		}
+	const { data, error } = await supabase
+		.from("producer_properties")
+		.select("*")
+		.eq("producer_id", producerId)
+		.eq("is_deleted", false)
+		.order("is_verified", { ascending: false });
 
-		if (data && data.length > 0) {
-			for (const property of data) {
-				if (!property.is_verified) {
-					// Check if there is a verification code for this property
-					const { data: verificationData, error: verificationError } =
-						await supabase
-							.from("producer_verification_codes")
-							.select("*")
-							.eq("producer_id", producerId)
-							.eq("property_id", property.id)
-							.eq("is_deleted", false);
-
-					if (verificationError) {
-						console.error(
-							"Error fetching verification codes:",
-							verificationError.message
-						);
-						continue; // Move to the next property
-					}
-
-					if (verificationData && verificationData.length === 0) {
-						// If there is no verification code for this property, create one
-						const { data: newVerificationData, error: insertError } =
-							await supabase.from("producer_verification_codes").insert([
-								{
-									producer_id: producerId,
-									verification_code: shortid.generate(),
-									property_id: property.id,
-								},
-							]);
-
-						if (insertError) {
-							console.error(
-								"Error creating verification code:",
-								insertError.message
-							);
-						} else {
-							console.log(
-								"Verification code created for property:",
-								property.id
-							);
-						}
-					}
-				}
-			}
-		} else {
-			console.log("No properties found for the given producer ID.");
-			return NextResponse.json(
-				{ message: "No properties found." },
-				{ status: 200 }
-			);
-		}
-		return NextResponse.json({ data }, { status: 200 });
+	if (error) {
+		console.error("Error fetching properties:", error.message);
+		return NextResponse.json({ error: error.message }, { status: 500 });
 	}
 
-	// Example usage:
-	checkAndCreateVerificationCodes(producerId);
+	if (data && data.length > 0) {
+		for (const property of data) {
+			if (!property.is_verified) {
+				console.log("Property not verified yet:", property.id);
+				// Check if there is a verification code for this property
+				const { data: verificationData, error: verificationError } =
+					await supabase
+						.from("producer_verification_codes")
+						.select("*")
+						.eq("producer_id", producerId)
+						.eq("property_id", property.id)
+						.eq("is_deleted", false);
+
+				if (verificationError) {
+					console.error(
+						"Error fetching verification codes:",
+						verificationError.message
+					);
+					continue; // Move to the next property
+				}
+				if (verificationData && verificationData.length === 0) {
+					console.log(
+						"No verification code found for property, creating a new one:",
+						property.id
+					);
+					// If there is no verification code for this property, create one
+					const { data: newVerificationData, error: insertError } =
+						await supabase.from("producer_verification_codes").insert([
+							{
+								producer_id: producerId,
+								verification_code: shortid.generate(),
+								property_id: property.id,
+							},
+						]);
+
+					if (insertError) {
+						console.error(
+							"Error creating verification code:",
+							insertError.message
+						);
+					} else {
+						console.log("Verification code created for property:", property.id);
+					}
+				}
+				console.log(
+					"Verification code already exists for property:",
+					property.id
+				);
+			}
+		}
+	} else {
+		return NextResponse.json(
+			{ message: "No properties found." },
+			{ status: 200 }
+		);
+	}
+	return NextResponse.json({ data }, { status: 200 });
 }
