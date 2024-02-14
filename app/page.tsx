@@ -14,6 +14,7 @@ import Disclaimer from "@/components/home/Disclaimer";
 import Footer from "@/components/home/Footer";
 import { setUser } from "@/redux/features/userSlice";
 import handleReferralId from "@/utils/handleReferralId";
+import PrototypePreview from "@/components/home/PrototypePreview";
 // TODO: create a stream schedule
 // TODO: Checkout luda's story on insta
 
@@ -162,6 +163,7 @@ export default function Home() {
 			</div>
 			<div className='2xl:w-[1200px] md:mx-auto mt-[90vh]'>
 				<About />
+				<PrototypePreview />
 				<Strategy />
 				<HowItWorks />
 				<Pricing />
