@@ -86,7 +86,8 @@ export async function POST(req: any) {
 			.insert([
 				{
 					title: projectData.title,
-					image_url: projectData.imageUrl,
+					banner_url: projectData.bannerUrl,
+					image_urls: projectData.imageUrls,
 					project_coordinator_contact: projectData.projectCoordinatorContact,
 					description: projectData.description,
 					producer_id: producerId,

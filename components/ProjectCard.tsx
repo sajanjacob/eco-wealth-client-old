@@ -41,7 +41,7 @@ const ProjectCard = ({
 	const {
 		title,
 		description,
-		imageUrl,
+		bannerUrl,
 		id,
 		status,
 		type,
@@ -196,7 +196,7 @@ const ProjectCard = ({
 								width={288}
 								height={150}
 								className='w-full h-48 object-cover rounded-2xl relative'
-								src={imageUrl}
+								src={bannerUrl}
 								alt={title}
 							/>
 							<div className='absolute inset-2 flex z-10 justify-end h-12 w-[95%]'>
@@ -423,7 +423,7 @@ const ProjectCard = ({
 							<Image
 								width={288}
 								height={150}
-								src={imageUrl}
+								src={bannerUrl}
 								alt={title}
 								className='w-full h-48 object-cover rounded-2xl relative'
 							/>
