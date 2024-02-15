@@ -25,11 +25,11 @@ export default function PrototypePreview({}: Props) {
 						alt=''
 						width={450}
 						height={500}
-						className='rounded-lg border-[1px] border-[var(--cta-one)]  shadow-green-900 shadow-lg md:ml-8 md:mb-0 mb-8'
+						className='rounded-lg border-[1px] border-[var(--cta-one)]  shadow-green-900 shadow-lg md:ml-16 md:mb-0 mb-8'
 					/>
 					<div>
 						<h4 className='text-2xl font-bold mb-2'>
-							See your impact. Track your growth. 📈
+							See your impact. {<br />}Track your growth. 📈
 						</h4>
 						<p>
 							Our dashboard is built with KPI metrics in mind to provide you
@@ -44,7 +44,7 @@ export default function PrototypePreview({}: Props) {
 						alt=''
 						width={450}
 						height={500}
-						className='rounded-lg border-[1px] border-[var(--cta-one)] shadow-green-900 shadow-lg md:mr-8 md:mb-0 mb-8'
+						className='rounded-lg border-[1px] border-[var(--cta-one)] shadow-green-900 shadow-lg md:mr-16 md:mb-0 mb-8'
 					/>
 					<div>
 						<h4 className='text-2xl font-bold mb-2'>
@@ -64,7 +64,7 @@ export default function PrototypePreview({}: Props) {
 						alt=''
 						width={450}
 						height={500}
-						className='rounded-lg border-[1px] border-[var(--cta-one)] shadow-green-900 shadow-lg md:ml-8 md:mb-0 mb-8'
+						className='rounded-lg border-[1px] border-[var(--cta-one)] shadow-green-900 shadow-lg md:ml-16 md:mb-0 mb-8'
 					/>
 					<div>
 						<h4 className='text-2xl font-bold mb-2'>
