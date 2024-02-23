@@ -7,7 +7,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const supabase = createRouteHandlerClient<any>({
 		cookies: () => cookieStore,
 	});
-	const { activeRole, userId } = await req.json();
+	const { role, userId } = await req.json();
 
 	if (!userId) {
 		NextResponse.json({ message: "User ID is required" });
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
 	const { data, error } = await supabase
 		.from("users")
-		.update({ active_role: activeRole })
+		.update({ active_role: role })
 		.eq("id", userId);
 
 	if (error) {
