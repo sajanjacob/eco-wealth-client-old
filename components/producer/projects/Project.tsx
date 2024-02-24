@@ -19,12 +19,13 @@ import { FaAngleDown } from "react-icons/fa";
 import axios from "axios";
 import ProjectImageDisplay from "@/components/ProjectImageDisplay";
 import ProjectVideoDisplay from "@/components/ProjectVideoDisplay";
+import ReferralShareLink from "@/components/referral/projects/ReferralShareLink";
 type Props = {
 	project: Project | null | undefined;
 	fetchProject?: () => void;
 	adminMode: boolean;
 	percentageFunded?: number;
-	pub: boolean;
+	pub?: boolean;
 };
 
 export default function Project({
@@ -37,6 +38,7 @@ export default function Project({
 	// Visibility Menu
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
+	const user = useAppSelector((state: RootState) => state.user);
 	const router = useRouter();
 	const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -397,6 +399,7 @@ export default function Project({
 				project={project}
 				adminMode={adminMode}
 			/>
+			{user.id && user.refAgreement && <ReferralShareLink />}
 		</div>
 	);
 }

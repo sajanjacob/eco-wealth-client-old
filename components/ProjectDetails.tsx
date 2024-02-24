@@ -10,9 +10,10 @@ import axios from "axios";
 
 type Props = {
 	pub?: boolean;
+	refAgreement?: boolean;
 };
 
-const ProjectDetails = ({ pub }: Props) => {
+const ProjectDetails = ({ pub, refAgreement }: Props) => {
 	const router = useRouter();
 	const path: any = useParams();
 	const { id } = path;
@@ -75,9 +76,9 @@ const ProjectDetails = ({ pub }: Props) => {
 							)}
 							{showInvestButton && <InvestButton id={project.id} />}
 							{pub && (
-								<div>
+								<div className='text-center'>
 									<p className='text-sm text-center mb-2'>
-										Want to back this project?
+										Want to back this project or find more like this one?
 									</p>
 									<button
 										className='py-2 px-6 rounded bg-[var(--cta-one)] text-white font-bold transition-all hover:bg-[var(--cta-one-hover)] hover:scale-105'

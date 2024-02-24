@@ -55,6 +55,7 @@ interface UserState {
 	// Onboarding
 	onboardingComplete: boolean;
 	investorOnboardingComplete: boolean;
+	investorOnboardingSkipped: boolean;
 	producerOnboardingComplete: boolean;
 
 	// Notifications
@@ -71,6 +72,10 @@ interface UserState {
 
 	// Timestamps
 	mfaVerifiedAt: string;
+
+	// Referral
+	refAgreement: boolean;
+	referralId: string;
 }
 
 interface ProducerState {
