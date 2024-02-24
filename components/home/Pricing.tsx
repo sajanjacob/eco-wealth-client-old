@@ -22,6 +22,9 @@ export default function Pricing({}: Props) {
 							</h4>
 						</div>
 						<div className='flex-[3.33]'>
+							<h5 className='text-3xl font-bold mb-2 text-gray-300'>
+								2.9% + $4 per transaction
+							</h5>
 							<p className='transition-all  hover:!text-white '>
 								<b>Merchant Order Processing Fee:</b> For each investment, a fee
 								of 2.9% + $3 is applied, covering secure and efficient
