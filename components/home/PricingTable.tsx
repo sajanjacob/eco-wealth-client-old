@@ -26,7 +26,7 @@ const PricingTable: React.FC<PricingTableProps> = ({ plans }) => {
 			<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
 				{plans.map((plan, index) => (
 					<div key={index}>
-						<div className='bg-white text-gray-500 rounded-lg shadow-md p-6 hover:shadow-lg hover:shadow-green-700 transition-all hover:scale-105'>
+						<div className='bg-white text-gray-500 rounded-lg shadow-md p-6 hover:shadow-lg hover:shadow-green-700 transition-all hover:scale-105 [&>*:nth-child(3)]:hover:text-[var(--cta-one)] [&>*:nth-child(2)]:hover:text-[var(--cta-one)] [&>*:nth-child(1)]:hover:text-[var(--cta-one)]'>
 							<h2 className='text-lg font-semibold'>{plan.title}</h2>
 							<h3 className='font-semibold mb-4'>{plan.subtitle}</h3>
 							<p className='text-2xl font-bold mb-4'>{plan.price}</p>
