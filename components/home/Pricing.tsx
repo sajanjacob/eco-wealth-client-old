@@ -91,16 +91,16 @@ export default function Pricing({ handleWaitingListClick }: Props) {
 		},
 	];
 	return (
-		<>
+		<div
+			id='pricing'
+			className='anchor'
+		>
 			<hr className='border-green-900' />
-			<div
-				id='pricing'
-				className='pt-[100px] px-[64px]'
-			>
+			<div className='pt-[100px] px-[64px]'>
 				<h1 className='text-3xl font-bold'>
 					Transparent Pricing for Investments, Funding, and Education
 				</h1>
-				<div className='mt-12'>
+				<div className='mt-16'>
 					<PricingTable plans={plans} />
 				</div>
 
@@ -155,6 +155,6 @@ export default function Pricing({ handleWaitingListClick }: Props) {
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }
