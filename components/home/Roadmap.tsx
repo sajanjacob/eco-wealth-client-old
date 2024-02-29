@@ -23,11 +23,11 @@ const Roadmap: React.FC<Props> = ({ milestones }) => {
 		defaultOpenMilestoneIndex >= 0 ? defaultOpenMilestoneIndex : null
 	);
 
-	const toggleMilestone = (index) => {
+	const toggleMilestone = (index: number) => {
 		setOpenMilestone((prev) => (prev === index ? null : index));
 	};
 	useEffect(() => {
-		const handleOutsideClick = (event) => {
+		const handleOutsideClick = (event: any) => {
 			const isClickInsideMilestone = event.target.closest(".milestone");
 			if (!isClickInsideMilestone) {
 				setOpenMilestone(null);
@@ -39,7 +39,7 @@ const Roadmap: React.FC<Props> = ({ milestones }) => {
 			document.removeEventListener("mousedown", handleOutsideClick);
 		};
 	}, []);
-	const doesMilestoneClip = (milestoneLeft, showMilestoneRight) => {
+	const doesMilestoneClip = (milestoneLeft: any, showMilestoneRight: any) => {
 		const viewportWidth = window.innerWidth;
 		const milestoneDetailsWidth = 200; // Assuming milestone details width
 
