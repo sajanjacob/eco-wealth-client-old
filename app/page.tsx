@@ -1,6 +1,6 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { RootState } from "@/redux/store"; // Import RootState from your Redux store
 
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
@@ -15,8 +15,6 @@ import Footer from "@/components/home/Footer";
 import { setUser } from "@/redux/features/userSlice";
 import handleReferralId from "@/utils/handleReferralId";
 import PrototypePreview from "@/components/home/PrototypePreview";
-// TODO: create a stream schedule
-// TODO: Checkout luda's story on insta
 
 // TODO: remove guard statements in login & sign up pages when launching beta
 export default function Home() {
@@ -54,6 +52,7 @@ export default function Home() {
 		fetchTreeCount();
 		fetchArrayCount();
 	}, []);
+	const [pinnedQuestions, setPinnedQuestions] = useState([]);
 
 	// useEffect(() => {
 	// 	if (user.loggedIn) {
