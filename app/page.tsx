@@ -16,6 +16,7 @@ import { setUser } from "@/redux/features/userSlice";
 import handleReferralId from "@/utils/handleReferralId";
 import PrototypePreview from "@/components/home/PrototypePreview";
 import JoinWaitlistButton from "@/components/home/JoinWaitlistButton";
+import { buttonClass } from "@/lib/tw-styles";
 
 // TODO: remove guard statements in login & sign up pages when launching beta
 export default function Home() {
@@ -164,14 +165,14 @@ export default function Home() {
 									{user.activeRole === "investor" ? (
 										<button
 											onClick={handleInvestorClick}
-											className='w-fit my-4 py-4 px-16 text-xl rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
+											className={buttonClass}
 										>
 											Search for a project
 										</button>
 									) : user.activeRole === "producer" ? (
 										<button
 											onClick={handleProducerClick}
-											className='w-fit my-4 py-4 px-16 text-xl rounded bg-green-700 text-white font-bold transition-all hover:bg-green-600 hover:scale-105'
+											className={buttonClass}
 										>
 											View your projects
 										</button>
@@ -182,7 +183,7 @@ export default function Home() {
 					</div>
 					<div className='flex justify-end w-[100%]'>
 						<h6 className='text-right text-white font-light mb-4 mr-4 text-xs opacity-50'>
-							Photo by Matthew Smith via Unsplash.
+							Photo credits — Matthew Smith (Unsplash).
 						</h6>
 					</div>
 				</div>
