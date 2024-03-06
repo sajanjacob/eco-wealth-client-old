@@ -5,14 +5,36 @@ import { useRouter } from "next/navigation";
 type Props = {
 	handleWaitingListClick: () => void;
 };
-
+interface PriceDetail {
+	amount: string;
+	method: "Credit/Debit" | "Bank Wire/Transfer" | "BTC" | "Ethereum" | "Monero";
+	comingSoon?: boolean;
+}
+interface PricingPlan {
+	title: string;
+	subtitle?: string;
+	prices: PriceDetail[];
+	features: (string | { subtitle: string })[];
+	ctaAction: () => void;
+	ctaText: string;
+	externalCtaLink?: string;
+	externalCta?: string;
+	externalCtaText?: string;
+}
 export default function Pricing({ handleWaitingListClick }: Props) {
 	const router = useRouter();
 	const plans = [
 		{
 			title: "Project Equity Shares",
 			subtitle: "(Investors)",
-			price: "2.9% + $4 per transaction",
+			prices: [
+				{ amount: "2.9% + $1.30 per transaction", method: "Credit/Debit" },
+				{
+					amount: "1.3% + $1 per transaction",
+					method: "Bank Wire/Transfer",
+					comingSoon: true,
+				},
+			],
 			features: [
 				{ subtitle: "Coming Soon" },
 				"Lifetime Ownership",
@@ -36,7 +58,12 @@ export default function Pricing({ handleWaitingListClick }: Props) {
 		{
 			title: "Investment Funding",
 			subtitle: "(Producers)",
-			price: "100% of Loan + Long Term Dividend",
+			prices: [
+				{
+					amount: "100% of Loan + Long Term Dividend",
+					method: "Bank Wire/Transfer",
+				},
+			],
 			features: [
 				{ subtitle: "Coming Soon" },
 				"Custom Repayment & Dividend Schedule (% of Profit Margin)",
@@ -57,7 +84,7 @@ export default function Pricing({ handleWaitingListClick }: Props) {
 		{
 			title: "Education & Resources",
 			subtitle: "(Students & Teachers)",
-			price: "Free",
+			prices: [{ amount: "Free", method: "Credit/Debit" }],
 			features: [
 				{ subtitle: "Coming Soon" },
 				"Unlimited On-Demand Access to Peer Reviewed Expert Agriculture, Investment, Business, Environmental and Energy Science Content & Resources",
@@ -77,7 +104,16 @@ export default function Pricing({ handleWaitingListClick }: Props) {
 		{
 			title: "Eco Wealth Equity",
 			subtitle: "(Accredited Investors)",
-			price: "$1/share",
+			prices: [
+				{
+					amount: "$1/share",
+					method: "Credit/Debit",
+				},
+				{
+					amount: "$1/share",
+					method: "Bank Wire/Transfer",
+				},
+			],
 			features: [
 				"1,000,000 Shares for 10% Stake Available",
 				"Founder Profile Badge",
@@ -101,7 +137,7 @@ export default function Pricing({ handleWaitingListClick }: Props) {
 					Transparent Pricing for Investments, Funding, and Education
 				</h1>
 				<div className='mt-16'>
-					<PricingTable plans={plans} />
+					<PricingTable plans={plans as PricingPlan[]} />
 				</div>
 
 				<div className='mt-12'>
@@ -115,7 +151,7 @@ export default function Pricing({ handleWaitingListClick }: Props) {
 						<div className='flex-[3.33]'>
 							<p className='transition-all  hover:!text-white '>
 								<b>Merchant Order Processing Fee:</b> For each investment, a fee
-								of <b>2.9% + $3 is applied</b>, covering secure and efficient
+								of <b>2.9% + $0.30 is applied</b>, covering secure and efficient
 								processing.
 							</p>
 							<p className='mt-4 transition-all hover:!text-white'>
