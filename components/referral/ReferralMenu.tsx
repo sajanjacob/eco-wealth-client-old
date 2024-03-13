@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
 type Props = {};
@@ -9,6 +9,9 @@ export default function ReferralMenu({}: Props) {
 	// list of pending, & previous payouts
 	// show agreement
 	// Links to share
+	const searchParams = useSearchParams();
+
+	const activeTab = searchParams?.get("tab");
 
 	const HandleMenuLinkClick = (
 		e: React.MouseEvent<HTMLParagraphElement, MouseEvent>,
@@ -16,36 +19,71 @@ export default function ReferralMenu({}: Props) {
 	) => {
 		e.preventDefault();
 		// navigate to destination
-		router.push(`/referral-center?tab=${destination}`);
+		router.push(`/r/?tab=${destination}`);
 	};
 
 	return (
-		<div className='xl:flex-col flex'>
-			<h2 className='mr-2 xl:mb-2'>Referral Menu</h2>
+		<div className='xl:flex-col flex rounded-md border-[1px] w-max p-3 border-green-950'>
+			<h2 className='mr-2 xl:mb-2 text-gray-300'>Referral Menu —</h2>
 			<p
-				className='mr-2 xl:mb-2 cursor-pointer'
+				className={
+					activeTab === "links"
+						? "mr-2 xl:mb-2 cursor-default text-green-400"
+						: "text-gray-400 mr-2 xl:mb-2 cursor-pointer hover:text-green-400 transition-colors"
+				}
 				onClick={(e) => HandleMenuLinkClick(e, { destination: "links" })}
 			>
 				Links
 			</p>
 			<p
-				className='mr-2 xl:mb-2 cursor-pointer'
+				className={
+					activeTab === "referrals"
+						? "mr-2 xl:mb-2 cursor-default text-green-400"
+						: "text-gray-400 mr-2 xl:mb-2 cursor-pointer hover:text-green-400 transition-colors"
+				}
 				onClick={(e) => HandleMenuLinkClick(e, { destination: "referrals" })}
 			>
 				Referrals
 			</p>
 			<p
-				className='mr-2 xl:mb-2 cursor-pointer'
+				className={
+					activeTab === "payouts"
+						? "mr-2 xl:mb-2 cursor-default text-green-400"
+						: "text-gray-400 mr-2 xl:mb-2 cursor-pointer hover:text-green-400 transition-colors"
+				}
 				onClick={(e) => HandleMenuLinkClick(e, { destination: "payouts" })}
 			>
 				Payouts
 			</p>
-
 			<p
-				className='mr-2 xl:mb-2 cursor-pointer'
+				className={
+					activeTab === "compensation"
+						? "mr-2 xl:mb-2 cursor-default text-green-400"
+						: "text-gray-400 mr-2 xl:mb-2 cursor-pointer hover:text-green-400 transition-colors"
+				}
+				onClick={(e) => HandleMenuLinkClick(e, { destination: "compensation" })}
+			>
+				Compensation
+			</p>
+			<p
+				className={
+					activeTab === "agreement"
+						? "mr-2 xl:mb-2 cursor-default text-green-400"
+						: "text-gray-400 mr-2 xl:mb-2 cursor-pointer hover:text-green-400 transition-colors"
+				}
 				onClick={(e) => HandleMenuLinkClick(e, { destination: "agreement" })}
 			>
 				Agreement
+			</p>
+			<p
+				className={
+					activeTab === "settings"
+						? "mr-2 xl:mb-2 cursor-default text-green-400"
+						: "text-gray-400 mr-2 xl:mb-2 cursor-pointer hover:text-green-400 transition-colors"
+				}
+				onClick={(e) => HandleMenuLinkClick(e, { destination: "settings" })}
+			>
+				Settings
 			</p>
 		</div>
 	);

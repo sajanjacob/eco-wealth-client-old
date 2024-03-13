@@ -79,6 +79,9 @@ const Header = ({}: Props) => {
 				} else if (role === "producer") {
 					dispatch(setUser({ ...user, activeRole: "producer" }));
 					router.push("/p/dashboard");
+				} else if (role === "referral_ambassador") {
+					dispatch(setUser({ ...user, activeRole: "referral_ambassador" }));
+					router.push("/r/?tab=links");
 				}
 				handleClose();
 			})
@@ -87,11 +90,9 @@ const Header = ({}: Props) => {
 			});
 	};
 
-	const handleToggleRole = async () => {
-		if (activeRole === "producer") {
-			await switchRole("investor");
-		} else if (activeRole === "investor") {
-			await switchRole("producer");
+	const handleToggleRole = async (role: string): Promise<void> => {
+		if (user?.roles.includes(role) && user?.activeRole !== role) {
+			switchRole(role);
 		}
 	};
 
@@ -225,6 +226,9 @@ const Header = ({}: Props) => {
 		if (activeRole === "producer") {
 			router.push("/p/dashboard");
 		}
+		if (activeRole === "referral_ambassador") {
+			router.push("/r/?tab=links");
+		}
 	};
 	const handleDiscoverClick = () => {
 		router.push("/i/discover");
@@ -323,6 +327,7 @@ const Header = ({}: Props) => {
 								</a>
 							</>
 						)}
+
 						<a
 							className='menu-link'
 							onClick={handleEducationCenterClick}
@@ -379,23 +384,33 @@ const Header = ({}: Props) => {
 								<MdSettings className='mr-2' /> Account Settings
 							</MenuItem>
 
-							{user?.roles?.length > 1 ? (
-								<>
+							{user.roles.includes("investor") &&
+								user.activeRole !== "investor" && (
 									<MenuItem
 										className='menu-link'
-										onClick={handleToggleRole}
+										onClick={() => handleToggleRole("investor")}
 									>
-										<AiOutlineUserSwitch className='mr-2' />
-										Switch to{" "}
-										{activeRole === "investor" ? "Producer" : "Investor"}
+										<MdGroupAdd className='mr-2' /> Switch to Investor
 									</MenuItem>
-								</>
-							) : null}
-							<Link href='/referral-center'>
-								<MenuItem className='menu-link'>
-									<MdGroupAdd className='mr-2' /> Referral Center
-								</MenuItem>
-							</Link>
+								)}
+							{user.roles.includes("producer") &&
+								user.activeRole !== "producer" && (
+									<MenuItem
+										className='menu-link'
+										onClick={() => handleToggleRole("producer")}
+									>
+										<MdGroupAdd className='mr-2' /> Switch to Producer
+									</MenuItem>
+								)}
+							{user.roles.includes("referral_ambassador") &&
+								user.activeRole !== "referral_ambassador" && (
+									<MenuItem
+										className='menu-link'
+										onClick={() => handleToggleRole("referral_ambassador")}
+									>
+										<MdGroupAdd className='mr-2' /> Switch to Referral
+									</MenuItem>
+								)}
 							<Link
 								href='https://ecoxsolar.com/'
 								target='_blank'

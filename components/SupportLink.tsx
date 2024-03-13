@@ -4,14 +4,14 @@ type Props = {};
 
 export default function SupportLink({}: Props) {
 	return (
-		<div>
+		<>
 			<a
-				href='https://ecoappsandautomation.freshdesk.com/'
+				href='mailto:support@ecowealth.app'
 				target='_blank'
 				className='text-[var(--cta-one)] hover:text-[var(--cta-one-hover)]'
 			>
-				ecoappsandautomation.freshdesk.com.
+				support@ecowealth.app
 			</a>
-		</div>
+		</>
 	);
 }

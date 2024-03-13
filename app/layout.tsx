@@ -6,6 +6,7 @@ import "react-tooltip/dist/react-tooltip.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Metadata } from "next";
+import CookieConsent from "@/components/global/CookieConsent";
 
 export const metadata: Metadata = {
 	title: "Eco Wealth",
@@ -28,6 +29,7 @@ export default function RootLayout({
 					<Header />
 					<ToastContainer />
 					{children}
+					<CookieConsent />
 				</Providers>
 			</body>
 		</html>

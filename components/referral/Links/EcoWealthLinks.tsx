@@ -1,21 +1,16 @@
 import copyToClipboard from "@/utils/copyToClipboard";
 import React from "react";
-import { toast } from "react-toastify";
 
 type Props = {
-	referralId: string;
+	referrerIds: string;
 };
 
-const ReferralLinks = ({ referralId }: Props) => {
-	// Generate referral link
-	const homePageReferralLink = `https://ecowealth.app/?r=${referralId}`;
-	const waitingListReferralLink = `https://ecowealth.app/register?r=${referralId}`;
-	const referralLink = `?r=${referralId}`;
-
+export default function EcoWealthLinks({ referrerIds }: Props) {
+	const homePageReferralLink = `https://ecowealth.app/?r=${referrerIds}`;
+	const waitingListReferralLink = `https://ecowealth.app/register?r=${referrerIds}`;
+	const referralLink = `?r=${referrerIds}`;
 	return (
-		<div className='mt-4'>
-			<p className='text-sm text-gray-500'>Your Referral ID is: {referralId}</p>
-			<h2 className='text-2xl'>Your Referral Links:</h2>
+		<div>
 			<div className='mt-2'>
 				<label>Home page:</label>
 				<div className='flex mt-[2px]'>
@@ -77,6 +72,4 @@ const ReferralLinks = ({ referralId }: Props) => {
 			</div>
 		</div>
 	);
-};
-
-export default ReferralLinks;
+}

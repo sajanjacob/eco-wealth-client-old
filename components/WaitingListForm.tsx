@@ -10,7 +10,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import validator from "validator";
 import addToWaitingList from "@/utils/addToWaitingList";
 import CheckReferral from "./home/CheckReferral";
-import handleReferralId from "@/utils/handleReferralId";
+import handleReferrerIds from "@/utils/handleReferrerIds";
 type Props = {
 	formHeight?: string;
 	showLogo?: boolean;
@@ -21,49 +21,48 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 	const [emailError, setEmailError] = useState("");
 	const [referralSource, setReferralSource] = useState("");
 	const [referrer, setReferrer] = useState("");
+	const [referrers, setReferrers] = useState<Object[]>([{}]);
+	const [referringFriend, setReferringFriend] = useState("");
 	const [specificReferral, setSpecificReferral] = useState("");
 	const [isFormValid, setIsFormValid] = useState(false);
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
 	const [captcha, setCaptcha] = useState<string | null>("");
+	const [referrerIds, setReferrerIds] = useState<string[]>([]);
 	const RECAPTCHA_SITE_KEY = process.env.recaptcha_site_key;
+	// Check if referrerIds is present in localStorage
+	const handleExistingReferral = async (referrerIds: string[]) => {
+		await handleReferrerIds(referrerIds, setReferrers, setReferrerIds);
+	};
 	const handleCheckReferral = () => {
 		if (typeof window !== "undefined") {
 			// The code now runs only on the client side
 
 			if (ref) {
 				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(ref);
+				handleExistingReferral(JSON.parse(ref as string));
 				return;
 			} else {
 				const storedData = localStorage.getItem("referralData");
 				if (!storedData) return;
-				const { referralId } = JSON.parse(storedData as string);
+				const { referrerIds } = JSON.parse(storedData as string);
 				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(referralId);
+				handleExistingReferral(referrerIds);
 			}
 		}
 	};
 
-	// Check if referralId is present in URL or localStorage
+	// Check if referrerIds is present in URL or localStorage
 	useEffect(() => {
-		// Check if referralId is present in URL
+		// Check if referrerIds is present in URL
 		handleCheckReferral();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ref]);
-
-	// Check if referralId is present in localStorage
-	const handleExistingReferral = async (referralId: string) => {
-		await handleReferralId(referralId, setReferrer);
-	};
 
 	// Handle referral source change
 	const handleReferralChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setReferralSource(e.target.value);
 		setSpecificReferral(""); // Reset specific referral if the referral source is changed
-		if (e.target.value !== "Friend/Someone referred") {
-			setReferrer("");
-		}
 	};
 
 	// Render specific referral input based on referral source
@@ -72,13 +71,29 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 			return (
 				<div className='flex flex-col mb-4'>
 					<label className='mb-2'>Who referred you?</label>
-					<input
-						type='text'
-						value={referrer}
-						placeholder='Name and/or email'
-						className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
-						onChange={(e) => setReferrer(e.target.value)}
-					/>
+					{referrerIds ? (
+						// Add list of referrers from referrerIds
+						// Name, affiliate contact email, and ref id
+						<>
+							<h3>Add another referrer</h3>
+							{/* Check through db to find affiliate by name or email and present with a selectable option to link affiliate */}
+							<input
+								type='text'
+								value={referringFriend}
+								placeholder='Name and/or email'
+								className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
+								onChange={(e) => setReferringFriend(e.target.value)}
+							/>
+						</>
+					) : (
+						<input
+							type='text'
+							value={referringFriend}
+							placeholder='Name and/or email'
+							className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
+							onChange={(e) => setReferringFriend(e.target.value)}
+						/>
+					)}
 				</div>
 			);
 		} else if (
@@ -112,11 +127,11 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 		}
 	};
 	const router = useRouter();
-	const getReferralId = () => {
+	const getreferrerIds = () => {
 		const storedData = localStorage.getItem("referralData");
 		if (!storedData) return null;
-		const { referralId } = JSON.parse(storedData as string);
-		return referralId;
+		const { referrerIds } = JSON.parse(storedData as string);
+		return referrerIds;
 	};
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -128,19 +143,20 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 		}
 		setEmailError("");
 
-		// Check if referralId is present in URL or localStorage;
-		const referralId = getReferralId();
+		// Check if referrerIds is present in URL or localStorage;
+		const referrerIds = getreferrerIds();
 		if (!name || !email || !captcha) return;
 		// Send form data to the server
 
-		if (!referralId) {
+		if (!referrerIds) {
 			// Send form data to the server
 			if (referralSource !== "") {
 				addToWaitingList({
 					name,
 					email,
 					referralSource,
-					referrer,
+					referrerIds,
+					referrers,
 					specificReferral: referrer !== "" ? referrer : specificReferral,
 					router,
 				});
@@ -156,15 +172,19 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 				name,
 				email,
 				referralSource,
-				referrer,
+				referrers,
 				specificReferral,
-				referralId,
+				referrerIds,
 				router,
 			});
 		}
 	};
 
 	useEffect(() => {
+		console.log("referrer >>> ", referrers);
+		console.log("referralSource >>> ", referralSource);
+		console.log("specificReferral >>> ", specificReferral);
+
 		// Check if all required fields are filled and valid
 		const isValid =
 			name.trim() !== "" &&
@@ -174,7 +194,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 			captcha !== undefined;
 		// Add reCaptcha validation here
 		setIsFormValid(isValid);
-	}, [name, email, referralSource, referrer, specificReferral, captcha]);
+	}, [name, email, captcha, referrers, referralSource, specificReferral]);
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -232,7 +252,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 				</select>
 			</div>
 
-			{/* Conditional text input for referrer */}
+			{/* Conditional text input for referrers */}
 			{renderSpecificReferralInput()}
 			<ReCAPTCHA
 				sitekey={RECAPTCHA_SITE_KEY!}

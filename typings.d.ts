@@ -75,6 +75,7 @@ interface UserState {
 
 	// Referral
 	refAgreement: boolean;
+	refAgreementAcceptedAt: string;
 	referralId: string;
 }
 

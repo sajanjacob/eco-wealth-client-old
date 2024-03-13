@@ -1,4 +1,4 @@
-import CityPicker from "@/components/CityPicker";
+import CityPicker from "@/components/global/CityPicker";
 import { setOnboarding } from "@/redux/features/onboardingSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";

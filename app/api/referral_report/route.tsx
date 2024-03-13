@@ -5,7 +5,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const cookieStore = cookies();
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-	const { referralId } = await req.json();
+	const { referrerIds } = await req.json();
 	// Check total number of referral ambassadors
 	const { error: referralAmbassadorsError, count: referralAmbassadorsCount } =
 		await supabase.from("referral_ambassadors").select("*", { count: "exact" });
@@ -15,11 +15,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		.from("total_referrals_view")
 		.select("*");
 
-	console.log("referralId >> ", referralId);
+	console.log("referrerIds >> ", referrerIds);
 	const { data: userReferrals, error: userReferralsError } = await supabase
 		.from("total_user_referrals_view")
 		.select("*")
-		.eq("referred_by", referralId);
+		.contains("referrer_ids", [`${referrerIds}`]);
 	// Return error if there is an error retrieving the total number of referral ambassadors or total number of referrals
 	if (referralAmbassadorsError || totalReferralsError || userReferralsError) {
 		return NextResponse.json(
@@ -33,16 +33,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		);
 	}
 	// Calculate total potential payout for all referrals
-	const totalPotentialPayout = totalReferrals[0].total_referrals * 25; // $25 per referral
+	const totalPotentialPayout = totalReferrals[0]?.total_referrals * 25; // $25 per referral
 
 	// Return total number of referrals, total potential payout, and total number of referral ambassadors
 	return NextResponse.json(
 		{
-			totalReferrals: totalReferrals[0].total_referrals,
+			totalReferrals: totalReferrals[0]?.total_referrals,
 			totalPotentialPayout: totalPotentialPayout,
 			totalReferralAmbassadors: referralAmbassadorsCount,
-			totalUserReferrals: userReferrals[0].total_referrals || 0,
-			totalUserPotentialPayout: userReferrals[0].total_referrals * 25 || 0,
+			totalUserReferrals: userReferrals[0]?.total_referrals || 0,
+			totalUserPotentialPayout: userReferrals[0]?.total_referrals * 25 || 0,
 		},
 		{ status: 200 }
 	);

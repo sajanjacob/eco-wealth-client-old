@@ -39,7 +39,7 @@ export async function POST(req: any) {
 				)
 			) {
 				return NextResponse.json(
-					{ message: "Producer profile already exists." },
+					{ message: "Investor profile already exists." },
 					{ status: 200 }
 				);
 			}
@@ -83,6 +83,44 @@ export async function POST(req: any) {
 		}
 		return NextResponse.json(
 			{ message: "Producer profile successfully created." },
+			{ status: 200 }
+		);
+	}
+
+	console.log("User roles updated:", data);
+	// Create investor profile
+	if (role === "referral_ambassador") {
+		const { data: refAmbassadorData, error: refAmbassadorError } =
+			await supabase
+				.from("referral_ambassadors")
+				.insert([
+					{
+						user_id: userId,
+					},
+				])
+				.select();
+		if (refAmbassadorError) {
+			console.error(
+				"Error creating referral ambassador profile:",
+				refAmbassadorError.message
+			);
+			if (
+				refAmbassadorError.message.includes(
+					"duplicate key value violates unique constraint"
+				)
+			) {
+				return NextResponse.json(
+					{ message: "Referral Ambassador profile already exists." },
+					{ status: 200 }
+				);
+			}
+			return NextResponse.json(
+				{ error: refAmbassadorError.message },
+				{ status: 500 }
+			);
+		}
+		return NextResponse.json(
+			{ message: "Referral Ambassador profile successfully created." },
 			{ status: 200 }
 		);
 	}

@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import { setUser } from "@/redux/features/userSlice";
 import { useSearchParams } from "next/navigation";
-import handleReferralId from "@/utils/handleReferralId";
+import handleReferrerIds from "@/utils/handleReferrerIds";
 import { supabaseClient } from "@/utils/supabaseClient";
 import axios from "axios";
 import { set } from "react-hook-form";
@@ -16,13 +16,13 @@ export default function PublicProject({}: Props) {
 	const supabase = supabaseClient;
 	const dispatch = useAppDispatch();
 	const searchParams = useSearchParams();
-	const referralId = searchParams?.get("r");
-	// Store referralId in localStorage
+	const referrerIds = searchParams?.get("r");
+	// Store referrerIds in localStorage
 	useEffect(() => {
-		if (referralId) {
-			handleReferralId(referralId);
+		if (referrerIds) {
+			handleReferrerIds(JSON.parse(referrerIds as string));
 		}
-	}, [referralId]);
+	}, [referrerIds]);
 
 	// Here we query public.users for the user's additional profile data
 	const fetchUserData = async (userId: string) => {
@@ -42,7 +42,7 @@ export default function PublicProject({}: Props) {
 						name: userData.name,
 						email: userData.email,
 						refAgreement: refUser.agreement_accepted,
-						referralId: refUser.id,
+						referrerIds: refUser.id,
 						phoneNumber: userData.phone_number,
 						isVerified: userData.is_verified,
 						roles: userData.roles ? userData.roles : [""],

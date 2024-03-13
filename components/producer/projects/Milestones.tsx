@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import { v4 as uuidv4 } from "uuid";
-import MilestoneForm from "@/components/MilestoneForm";
+import MilestoneForm from "@/components/producer/projects/MilestoneForm";
 import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import { BiPencil, BiTrash } from "react-icons/bi";

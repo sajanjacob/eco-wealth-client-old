@@ -28,6 +28,17 @@ export async function GET(req: NextRequest, res: NextResponse) {
 				category: "Investing",
 				role: "investor",
 			},
+			{
+				id: "3",
+				title: "Affiliate Marketing Basics",
+				url: "https://www.investopedia.com/financial-term-dictionary-4769738",
+
+				imgUrl:
+					"https://www.investopedia.com/thmb/Y8G3oep1ipc-S-b7QbJos8DK9W4=/1000x1000/filters:fill(auto,1)/socialfallback-5c01877846e0fb00015416ff.png",
+				shortDescription: "An introduction to affiliate marketing.",
+				category: "Affiliate Marketing",
+				role: "referral_ambassador",
+			},
 		];
 		// Fetch data from Supabase
 		// let { data, error } = category

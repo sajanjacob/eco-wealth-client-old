@@ -13,7 +13,7 @@ import WaitingListGoalTracker from "@/components/WaitingListGoalTracker";
 import Disclaimer from "@/components/home/Disclaimer";
 import Footer from "@/components/home/Footer";
 import { setUser } from "@/redux/features/userSlice";
-import handleReferralId from "@/utils/handleReferralId";
+import handleReferrerIds from "@/utils/handleReferrerIds";
 import PrototypePreview from "@/components/home/PrototypePreview";
 import JoinWaitlistButton from "@/components/home/JoinWaitlistButton";
 import { buttonClass } from "@/lib/tw-styles";
@@ -27,14 +27,14 @@ export default function Home() {
 	const [arrayCount, setArrayCount] = React.useState(0);
 
 	const searchParams = useSearchParams();
-	const referralId = searchParams?.get("r");
+	const referrerIds = searchParams?.get("r");
 
-	// Store referralId in localStorage
+	// Store referrerIds in localStorage
 	useEffect(() => {
-		if (referralId) {
-			handleReferralId(referralId);
+		if (referrerIds) {
+			handleReferrerIds(JSON.parse(referrerIds as string));
 		}
-	}, [referralId]);
+	}, [referrerIds]);
 
 	const user = useAppSelector((state: RootState) => state.user);
 

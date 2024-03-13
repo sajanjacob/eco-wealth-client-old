@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import ProjectCard from "@/components/ProjectCard";
+import ProjectCard from "@/components/global/ProjectCard";
 import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { RootState } from "@/redux/store";
 import { useAppSelector } from "@/redux/hooks";

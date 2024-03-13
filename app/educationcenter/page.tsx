@@ -17,7 +17,7 @@ type EduCard = {
 
 type Category = {
 	category: string;
-	role: "producer" | "investor" | "all";
+	role: "producer" | "investor" | "referral_ambassador" | "all";
 	isVisible: boolean;
 };
 
@@ -28,6 +28,9 @@ const EducationCenter = () => {
 	const activeRole = useAppSelector((state) =>
 		state.user?.activeRole?.toLowerCase()
 	);
+	useEffect(() => {
+		console.log("activeRole", activeRole);
+	}, [activeRole]);
 	const fetchCards = async (category: string) => {
 		const apiUrl = "/api/edu/";
 		let response: EduCard[] | null = null;
@@ -65,6 +68,11 @@ const EducationCenter = () => {
 		} else if (activeRole === "investor") {
 			filteredCategories = categories.filter(
 				(category) => category.role === "investor" || category.role === "all"
+			);
+		} else if (activeRole === "referral_ambassador") {
+			filteredCategories = categories.filter(
+				(category) =>
+					category.role === "referral_ambassador" || category.role === "all"
 			);
 		}
 		setCategoryLinks(filteredCategories);

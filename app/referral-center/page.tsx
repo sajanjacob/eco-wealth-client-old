@@ -1,10 +1,10 @@
 "use client";
 import ReferralAgreement from "@/components/referral/ReferralAgreement";
-import ReferralLinks from "@/components/referral/ReferralLinks";
+import { Component as Links } from "@/components/referral/Links/Component"; // Fix the casing of the import statement
+import { Component as Compensation } from "@/components/referral/Compensation/Component"; // Fix the casing of the import statement
 import ReferralMenu from "@/components/referral/ReferralMenu";
 import ReferralPayouts from "@/components/referral/ReferralPayouts";
-import ReferralReport from "@/components/referral/ReferralReport";
-import Referrals from "@/components/referral/Referrals";
+import { Component as Referrals } from "@/components/referral/Referrals/Component";
 import { useAppSelector } from "@/redux/hooks";
 import withAuth from "@/utils/withAuth";
 import axios from "axios";
@@ -14,50 +14,36 @@ import React, { useEffect, useState } from "react";
 type Props = {};
 
 function ReferralCenter({}: Props) {
-	const [refAgreement, setRefAgreement] = useState(false);
-	const [referralId, setReferralId] = useState("");
-	const [agreementAcceptedAt, setAgreementAcceptedAt] = useState("");
 	const user = useAppSelector((state) => state.user);
+	const referrerIds = user.referrerIds;
+	const agreementAcceptedAt = user.refAgreementAcceptedAt;
+	const refAgreement = user.refAgreement;
 	const searchParams = useSearchParams();
 	const router = useRouter();
-	// Check if user agreed to referral agreement
-	useEffect(() => {
-		axios
-			.post("/api/verify_referral_agreement", {
-				userId: user.id,
-			})
-			.then((res) => {
-				if (res.data.verified) {
-					setRefAgreement(true);
-					setReferralId(res.data.refId);
-					setAgreementAcceptedAt(res.data.agreementAcceptedAt);
-				}
-			})
-			.catch((err) => {
-				console.log("Unable to verify referral agreement: ", err);
-			});
-	}, [user]);
+
 	const navigateTo = (path: string) => {
 		router.push(path);
 	};
 	useEffect(() => {
 		if (searchParams?.get("tab") === null) {
-			navigateTo(`/referral-center/?tab=links`);
+			navigateTo(`/r/?tab=links`);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 	const renderTabContent = (tab: string) => {
 		switch (tab) {
 			case "links":
-				return <ReferralLinks referralId={referralId} />;
+				return <Links />;
 			case "referrals":
-				return <Referrals referralId={referralId} />;
+				return <Referrals />;
 			case "payouts":
 				return <ReferralPayouts />;
+			case "compensation":
+				return <Compensation />;
 			case "agreement":
 				return (
 					<ReferralAgreement
-						referralId={referralId}
+						referrerIds={referrerIds}
 						agreementAcceptedAt={agreementAcceptedAt}
 					/>
 				);
@@ -71,7 +57,7 @@ function ReferralCenter({}: Props) {
 		return (
 			<div className='w-[90vw] mx-auto my-8'>
 				<h1 className='text-3xl mb-2'>Referral Center</h1>
-				<ReferralAgreement setRefAgreement={setRefAgreement} />
+				<ReferralAgreement />
 			</div>
 		);
 	}

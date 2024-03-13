@@ -1,7 +1,7 @@
 type Category = {
 	category: string;
 	isVisible: boolean;
-	role: "producer" | "investor" | "all";
+	role: "producer" | "investor" | "referral_ambassador" | "all";
 };
 
 const categories: Category[] = [
@@ -105,6 +105,11 @@ const categories: Category[] = [
 		category: "Geological History",
 		isVisible: false,
 		role: "all",
+	},
+	{
+		category: "Affiliate Marketing",
+		isVisible: true,
+		role: "referral_ambassador",
 	},
 ];
 

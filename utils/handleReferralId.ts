@@ -3,7 +3,8 @@ import axios from "axios";
 // Store referralId in localStorage
 export default async function handleReferralId(
 	ReferralId: string,
-	setReferrer?: any
+	setReferrer?: any,
+	setReferralIds?: any
 ) {
 	// Check if there is existing referral data in localStorage
 	const storedData = localStorage.getItem("referralData");

@@ -27,6 +27,7 @@ const initialState: UserState = {
 	mfaFrequency: "",
 	loadingUser: true,
 	refAgreement: false,
+	refAgreementAcceptedAt: "",
 	referralId: "",
 };
 
@@ -43,6 +44,8 @@ export const userSlice = createSlice({
 			if (userData.investorId) state.investorId = userData.investorId;
 			if (userData.activeRole) state.activeRole = userData.activeRole;
 			if (userData.refAgreement) state.refAgreement = userData.refAgreement;
+			if (userData.refAgreementAcceptedAt)
+				state.refAgreementAcceptedAt = userData.refAgreementAcceptedAt;
 			if (userData.referralId) state.referralId = userData.referralId;
 			if (userData.currentTheme) state.currentTheme = userData.currentTheme;
 			if (userData.email) state.email = userData.email;

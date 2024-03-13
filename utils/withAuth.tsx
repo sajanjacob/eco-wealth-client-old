@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { supabaseClient } from "./supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { RootState } from "@/redux/store";
+import axios from "axios";
 
 export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 	const supabase = supabaseClient;
@@ -32,74 +33,87 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 		// Here we query public.users for the user's additional profile data
 		const fetchUserData = async (userId: string) => {
 			try {
-				const { data, error } = await supabase
-					.from("users")
-					.select("*, producers(*), investors(*)")
-					.eq("id", userId)
-					.single();
-				if (error) {
-					console.error("Error fetching user data:", error.message);
+				axios
+					.post("/api/user", { userId })
+					.then((res) => {
+						if (
+							res.data.data.mfa_verified_at &&
+							isOlderThanADay(res.data.data.mfa_verified_at)
+						) {
+							return router.push("/login");
+						}
+						console.log("user authenticated.", res);
+						dispatch(
+							setUser({
+								name: res.data.data.name,
+								email: res.data.data.email,
+								phoneNumber: res.data.data.phone_number,
+								isVerified: res.data.data.is_verified,
+								roles: res.data.data.roles ? res.data.data.roles : [""],
+								id: res.data.data.id,
+								investorId: res.data?.data.investors?.id,
+								producerId: res.data?.data.producers?.id,
+								activeRole: res.data.data.active_role,
+								loggedIn: true,
+								emailNotification: res.data.data.email_notification,
+								smsNotification: res.data.data.sms_notification,
+								pushNotification: res.data.data.push_notification,
+								onboardingComplete: res.data.data.onboarding_complete,
+								investorOnboardingComplete:
+									res.data?.data.investors?.onboarding_complete,
+								investorOnboardingSkipped:
+									res.data?.data.investors?.onboarding_skipped,
+								producerOnboardingComplete:
+									res.data?.data.producers?.onboarding_complete,
+								mfaEnabled: res.data.data.mfa_enabled,
+								mfaVerified: res.data.data.mfa_verified,
+								mfaVerifiedAt: res.data.data.mfa_verified_at,
+								mfaFrequency: res.data.data.mfa_frequency,
+								currentTheme:
+									res.data.data.current_theme !== null
+										? res.data.data.current_theme
+										: "dark",
+								loadingUser: false,
+								refAgreement: res.data.refUser.agreement_accepted,
+								refAgreementAcceptedAt: res.data.refUser.agreement_accepted_at,
+								referrerIds: res.data.refUser.id,
+							})
+						); // Dispatch a redux action
 
-					return null;
-				}
-				if (data.mfa_verified_at && isOlderThanADay(data.mfa_verified_at)) {
-					return router.push("/login");
-				}
-				console.log("user authenticated.");
-				dispatch(
-					setUser({
-						name: data.name,
-						email: data.email,
-						phoneNumber: data.phone_number,
-						isVerified: data.is_verified,
-						roles: data.roles ? data.roles : [""],
-						id: data.id,
-						investorId: data?.investors?.id,
-						producerId: data?.producers?.id,
-						activeRole: data.active_role,
-						loggedIn: true,
-						emailNotification: data.email_notification,
-						smsNotification: data.sms_notification,
-						pushNotification: data.push_notification,
-						onboardingComplete: data.onboarding_complete,
-						investorOnboardingComplete: data?.investors?.onboarding_complete,
-						investorOnboardingSkipped: data?.investors?.onboarding_skipped,
-						producerOnboardingComplete: data?.producers?.onboarding_complete,
-						mfaEnabled: data.mfa_enabled,
-						mfaVerified: data.mfa_verified,
-						mfaVerifiedAt: data.mfa_verified_at,
-						mfaFrequency: data.mfa_frequency,
-						currentTheme:
-							data.current_theme !== null ? data.current_theme : "dark",
-						loadingUser: false,
+						// Here we check for the user's active role from supabase and then push them to their
+						// respective onboarding page if they haven't completed it yet or we push them to their
+						// respective dashboard pages if they have completed their onboarding.
+
+						if (
+							res.data.data.active_role === "investor" &&
+							!res.data.data.investors[0].onboarding_complete &&
+							!res.data.data.investors[0].onboarding_skipped
+						) {
+							router.push("/i/onboarding/");
+						} else if (
+							res.data.data.active_role === "producer" &&
+							!res.data.data.producers[0].onboarding_complete
+						) {
+							router.push("/p/onboarding/");
+						} else if (
+							res.data.data.active_role === "referral_ambassador" &&
+							!res.data.refUser.agreement_accepted
+						) {
+							router.push("/r/onboarding/");
+						} else {
+							if (!res.data.data.mfa_enabled) {
+								console.log("MFA is not enabled");
+								return router.push("/setup-mfa");
+							}
+							if (!res.data.data.mfa_verified) {
+								console.log("MFA is not verified");
+								return router.push("/login");
+							}
+						}
 					})
-				); // Dispatch a redux action
-
-				// Here we check for the user's active role from supabase and then push them to their
-				// respective onboarding page if they haven't completed it yet or we push them to their
-				// respective dashboard pages if they have completed their onboarding.
-
-				if (
-					data.active_role === "investor" &&
-					!data.investors[0].onboarding_complete &&
-					!data.investors[0].onboarding_skipped
-				) {
-					router.push("/i/onboarding/");
-				} else if (
-					data.active_role === "producer" &&
-					!data.producers[0].onboarding_complete
-				) {
-					router.push("/p/onboarding/");
-				} else {
-					if (!data.mfa_enabled) {
-						console.log("MFA is not enabled");
-						return router.push("/setup-mfa");
-					}
-					if (!data.mfa_verified) {
-						console.log("MFA is not verified");
-						return router.push("/login");
-					}
-				}
+					.catch((err) => {
+						console.error("Unable to fetch user data: ", err);
+					});
 			} catch (err) {
 				console.error("Unexpected error fetching user data:", err);
 				return null;

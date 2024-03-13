@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { BASE_URL } from "@/constants";
 import { createClient } from "@supabase/supabase-js";
 import sanitizeHtml from "sanitize-html";
+import sanitizeJsonObject from "@/utils/sanitizeJsonObject";
 
 export async function POST(req: NextRequest) {
 	const cookieStore = cookies();
@@ -11,15 +12,23 @@ export async function POST(req: NextRequest) {
 	const SUPABASE_SERVICE_ROLE_KEY = process.env.supabase_service_role_key;
 	if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
 	const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-	const { email, password, referrer, referralSource, specificReferral } =
-		await req.json();
+	const {
+		email,
+		password,
+		referrer,
+		referralSource,
+		specificReferral,
+		referrers,
+		referrerIds,
+	} = await req.json();
 
 	const sanitizedEmail = sanitizeHtml(email);
-	const sanitizedReferrer = sanitizeHtml(referrer);
+	const sanitizedReferrers = sanitizeJsonObject(referrers);
 	const sanitizedReferralSource = sanitizeHtml(referralSource);
 	const sanitizedSpecificReferral = sanitizeHtml(specificReferral);
+	const sanitizedReferrerIds = sanitizeHtml(referrerIds);
 
-	console.log("referrer >>> ", referrer);
+	console.log("referrer >>> ", referrers);
 	console.log("referralSource >>> ", referralSource);
 	console.log("specificReferral >>> ", specificReferral);
 
@@ -43,7 +52,8 @@ export async function POST(req: NextRequest) {
 		const { data: userData, error: userError } = await supabase
 			.from("users")
 			.update({
-				referred_by: sanitizedReferrer,
+				referrer_ids: sanitizedReferrerIds,
+				referrers: sanitizedReferrers,
 				referral_source: sanitizedReferralSource,
 				specific_referral: sanitizedSpecificReferral,
 			})

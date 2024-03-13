@@ -1,7 +1,7 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
-import handleReferralId from "@/utils/handleReferralId";
+import handleReferrerIds from "@/utils/handleReferrerIds";
 type Props = {
 	setReferralSource: (arg0: string) => void;
 	setReferrer: (arg0: string) => void;
@@ -20,28 +20,28 @@ export default function CheckReferral({
 
 			if (ref) {
 				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(ref);
+				handleExistingReferral(JSON.parse(ref as string));
 				return;
 			} else {
 				const storedData = localStorage.getItem("referralData");
 				if (!storedData) return;
-				const { referralId } = JSON.parse(storedData as string);
+				const { referrerIds } = JSON.parse(storedData as string);
 				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(referralId);
+				handleExistingReferral(referrerIds);
 			}
 		}
 	};
 
-	// Check if referralId is present in URL or localStorage
+	// Check if referrerIds is present in URL or localStorage
 	useEffect(() => {
-		// Check if referralId is present in URL
+		// Check if referrerIds is present in URL
 		handleCheckReferral();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ref]);
 
-	// Check if referralId is present in localStorage
-	const handleExistingReferral = async (referralId: string) => {
-		await handleReferralId(referralId, setReferrer);
+	// Check if referrerIds is present in localStorage
+	const handleExistingReferral = async (referrerIds: string[]) => {
+		await handleReferrerIds(referrerIds, setReferrer);
 	};
 	return <></>;
 }

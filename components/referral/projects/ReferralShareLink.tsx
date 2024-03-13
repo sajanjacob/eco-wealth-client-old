@@ -13,8 +13,8 @@ export default function ReferralShareLink({}: Props) {
 	const path: any = useParams();
 	const { id } = path;
 	const user = useAppSelector((state) => state.user);
-	const referralId = user.referralId;
-	const referralLink = `${BASE_URL}/pub/projects/${id}?r=${referralId}`;
+	const referrerIds = user.referrerIds;
+	const referralLink = `${BASE_URL}/pub/projects/${id}?r=${referrerIds}`;
 	// Copy referral link to clipboard
 	const copyToClipboard = (link: string) => {
 		navigator.clipboard

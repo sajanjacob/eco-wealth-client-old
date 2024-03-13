@@ -5,10 +5,13 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { BASE_URL } from "@/constants";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import handleReferralId from "@/utils/handleReferralId";
+import handleReferrerIds from "@/utils/handleReferrerIds";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
 import { isEmailValid } from "@/utils/isEmailValid";
+import DOMPurify, { sanitize } from "dompurify";
+import sanitizeJsonObject from "@/utils/sanitizeJsonObject";
+import sanitizeStringArray from "@/utils/sanitizeStringArray";
 interface SignUpForm {
 	email: string;
 	password: string;
@@ -23,6 +26,7 @@ const SignUp: React.FC = () => {
 	const [passwordMatch, setPasswordMatch] = useState(false);
 	const [referralSource, setReferralSource] = useState("");
 	const [referrer, setReferrer] = useState("");
+	const [referrers, setReferrers] = useState<Object[]>([{}]);
 	const supabase = createClientComponentClient();
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
@@ -40,28 +44,28 @@ const SignUp: React.FC = () => {
 
 			if (ref) {
 				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(ref);
+				handleExistingReferral(JSON.parse(ref as string));
 				return;
 			} else {
 				const storedData = localStorage.getItem("referralData");
 				if (!storedData) return;
-				const { referralId } = JSON.parse(storedData as string);
+				const { referrerIds } = JSON.parse(storedData as string);
 				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(referralId);
+				handleExistingReferral(referrerIds);
 			}
 		}
 	};
 
-	// Check if referralId is present in URL or localStorage
+	// Check if referrerIds is present in URL or localStorage
 	useEffect(() => {
-		// Check if referralId is present in URL
+		// Check if referrerIds is present in URL
 		handleCheckReferral();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ref]);
 
-	// Check if referralId is present in localStorage
-	const handleExistingReferral = async (referralId: string) => {
-		await handleReferralId(referralId, setReferrer);
+	// Check if referrerIds is present in localStorage
+	const handleExistingReferral = async (referrerIds: string[]) => {
+		await handleReferrerIds(referrerIds, setReferrers);
 	};
 
 	// Handle referral source change
@@ -83,15 +87,26 @@ const SignUp: React.FC = () => {
 		}
 		// Check if there's stored referral data in localStorage
 		const storedData = localStorage.getItem("referralData");
+
+		// Sanitize inputs
+		const sanitizedEmail = DOMPurify.sanitize(email);
+		const sanitizedPassword = DOMPurify.sanitize(password);
+		const sanitizedReferralSource = DOMPurify.sanitize(referralSource || "");
+		const sanitizedReferrers = sanitizeJsonObject(referrers);
+		const sanitizedSpecificReferral = DOMPurify.sanitize(
+			specificReferral || ""
+		);
 		if (storedData) {
-			const { referralId } = JSON.parse(storedData as string);
+			const { referrerIds } = JSON.parse(storedData as string);
+			const sanitizedReferrerIds = sanitizeStringArray(referrerIds);
 			await axios
 				.post("/api/signup", {
-					email,
-					password,
-					referrer: referralId,
-					referralSource,
-					specificReferral,
+					email: sanitizedEmail,
+					password: sanitizedPassword,
+					referrerIds: sanitizedReferrerIds,
+					referrers: sanitizedReferrers,
+					referralSource: sanitizedReferralSource,
+					specificReferral: sanitizedSpecificReferral,
 				})
 				.then((res) => {
 					console.log("res >>> ", res);
@@ -105,10 +120,10 @@ const SignUp: React.FC = () => {
 			if (referralSource !== "") {
 				await axios
 					.post("/api/signup", {
-						email,
-						password,
-						referralSource,
-						specificReferral,
+						email: sanitizedEmail,
+						password: sanitizedPassword,
+						referralSource: sanitizedReferralSource,
+						specificReferral: sanitizedSpecificReferral,
 					})
 					.then((res) => {
 						console.log("res >>> ", res);
@@ -121,8 +136,8 @@ const SignUp: React.FC = () => {
 			}
 			await axios
 				.post("/api/signup", {
-					email,
-					password,
+					email: sanitizedEmail,
+					password: sanitizedPassword,
 				})
 				.then((res) => {
 					console.log("res >>> ", res);

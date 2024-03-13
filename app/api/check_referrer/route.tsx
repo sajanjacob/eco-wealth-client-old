@@ -33,7 +33,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
 			.single();
 		return NextResponse.json(
 			{
-				referrer: { name: userData.name, userId: userData.id, refId: refId },
+				referrer: {
+					name: userData.name,
+					userId: userData.id,
+					refId: refId,
+					email: userData.email,
+				},
 				message: "Referral ambassador found.",
 			},
 			{ status: 200 }

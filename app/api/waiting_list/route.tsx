@@ -1,22 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { gen } from "n-digit-token";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
 import { BASE_URL } from "@/constants";
-import validator from "validator";
 import sanitizeHtml from "sanitize-html";
-
+import { gen } from "n-digit-token"; // email validation token
+import validator from "validator"; // email validator
+import sanitizeJsonObject from "@/utils/sanitizeJsonObject";
+import sanitizeStringArray from "@/utils/sanitizeStringArray";
 const sgMail = require("@sendgrid/mail");
-
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 export async function POST(req: NextRequest, res: NextResponse) {
+	// Initialize Supabase
 	const SUPABASE_URL = process.env.supabase_public_url;
 	const SUPABASE_SERVICE_ROLE_KEY = process.env.supabase_service_role_key;
 	if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
 	const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-	const { name, email, referralSource, referrer, specificReferral } =
-		await req.json();
+	// Get request body data
+	const {
+		name,
+		email,
+		referralSource,
+		referrers,
+		referrerIds,
+		specificReferral,
+	} = await req.json();
 	// Validate & sanitize email
 	if (!validator.isEmail(email)) {
 		return NextResponse.json(
@@ -27,28 +34,21 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const sanitizedName = sanitizeHtml(name);
 	const sanitizedEmail = sanitizeHtml(email);
 	const sanitizedReferralSource = sanitizeHtml(referralSource);
-	const sanitizedReferrer = sanitizeHtml(referrer);
+	const sanitizedReferrers = referrers && sanitizeJsonObject(referrers);
 	const sanitizedSpecificReferral = sanitizeHtml(specificReferral);
+	const sanitizedReferrerIds = referrerIds && sanitizeStringArray(referrerIds);
 
 	const token: string = gen(333);
 	let waitingListData = {};
 
-	if (sanitizedSpecificReferral) {
-		waitingListData = {
-			name: sanitizedName,
-			email: sanitizedEmail,
-			referral_source: sanitizedReferralSource,
-			referrer: sanitizedReferrer,
-			referred_by: sanitizedSpecificReferral,
-		};
-	} else {
-		waitingListData = {
-			name: sanitizedName,
-			email: sanitizedEmail,
-			referral_source: sanitizedReferralSource,
-			referrer: sanitizedReferrer,
-		};
-	}
+	waitingListData = {
+		name: sanitizedName,
+		email: sanitizedEmail,
+		referral_source_type: sanitizedReferralSource,
+		referred_source: sanitizedSpecificReferral,
+		referrer_ids: sanitizedReferrerIds,
+		referrers: sanitizedReferrers,
+	};
 
 	const { data, error } = await supabase
 		.from("waiting_list")

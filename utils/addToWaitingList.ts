@@ -1,40 +1,40 @@
 import axios from "axios";
 import DOMPurify from "dompurify";
-
+import sanitizeJsonObject from "./sanitizeJsonObject";
+import sanitizeStringArray from "./sanitizeStringArray";
 type Props = {
 	name: string;
 	email: string;
 	referralSource?: string;
-	referrer?: string;
+	referrers?: object[];
 	specificReferral?: string;
-	referralId?: string;
+	referrerIds?: string[];
 	router: any;
 };
 async function addToWaitingList({
 	name,
 	email,
 	referralSource,
-	referrer,
+	referrers,
 	specificReferral,
-	referralId,
+	referrerIds,
 	router,
 }: Props) {
 	const sanitizedName = DOMPurify.sanitize(name);
 	const sanitizedEmail = DOMPurify.sanitize(email);
 	const sanitizedReferralSource = DOMPurify.sanitize(referralSource || "");
-	const sanitizedReferrer = DOMPurify.sanitize(referrer || "");
+	const sanitizedReferrers = referrers && sanitizeJsonObject(referrers);
 	const sanitizedSpecificReferral = DOMPurify.sanitize(specificReferral || "");
-	if (!referralId) {
+	const sanitizedReferrerIds = referrerIds && sanitizeStringArray(referrerIds);
+	//
+	if (!referrerIds) {
 		if (referralSource !== "") {
 			await axios
 				.post("/api/waiting_list", {
 					name: sanitizedName,
 					email: sanitizedEmail,
 					referralSource: sanitizedReferralSource,
-					specificReferral:
-						sanitizedReferrer !== ""
-							? sanitizedReferrer
-							: sanitizedSpecificReferral,
+					specificReferral: sanitizedSpecificReferral,
 				})
 				.then((res) => {
 					router.push(
@@ -69,11 +69,9 @@ async function addToWaitingList({
 				name: sanitizedName,
 				email: sanitizedEmail,
 				referralSource: sanitizedReferralSource,
-				referrer: referralId,
-				specificReferral:
-					sanitizedReferrer !== ""
-						? sanitizedReferrer
-						: sanitizedSpecificReferral,
+				referrerIds: sanitizedReferrerIds,
+				referrers: sanitizedReferrers,
+				specificReferral: sanitizedSpecificReferral,
 			})
 			.then((res) => {
 				router.push(

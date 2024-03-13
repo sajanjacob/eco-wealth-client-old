@@ -15,8 +15,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	// Get referred users from user accounts table
 	const { data, error } = await supabase
 		.from("users")
-		.select("*")
-		.eq("referred_by", refId);
+		.select("*", {
+			count: "exact",
+		})
+		.contains("referrer_ids", [`${refId}`]);
 
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 });
@@ -25,13 +27,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const { data: waitingListData, error: waitingListError } = await supabase
 		.from("waiting_list")
 		.select("*")
-		.eq("referred_by", refId);
+		.contains("referrer_ids", [`${refId}`]);
 
 	if (waitingListError)
 		return NextResponse.json(
 			{ error: waitingListError.message },
 			{ status: 500 }
 		);
+	// TODO: run a query to get number of investments made by the referred users.
+
 	// Restructure the app user registrations array into name, email, dateReferred, and type
 	data.map((referral) => {
 		referral.name = referral.name;

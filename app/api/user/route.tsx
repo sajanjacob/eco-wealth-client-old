@@ -1,5 +1,4 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import axios from "axios";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -35,6 +34,5 @@ export async function POST(req: any) {
 			{ status: 500 }
 		);
 	}
-	console.log("data >>> ", data);
 	return NextResponse.json({ data, refUser }, { status: 200 });
 }

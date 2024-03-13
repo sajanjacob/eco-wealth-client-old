@@ -18,15 +18,41 @@ export default function Roles({ user }: Props) {
 		setLoading(true);
 
 		// Add the new role to the user's roles array
-		const newRoles = [...user.roles, role.toLowerCase()];
+		let newRoles = [];
+		let newRole = "";
+		if (role === "referral ambassador") {
+			newRoles = [...user.roles, "referral_ambassador"];
+			newRole = "referral_ambassador";
+		} else {
+			newRoles = [...user.roles, role];
+			newRole = role;
+		}
 
 		await axios
-			.post("/api/settings/roles", { roles: newRoles, userId: user.id, role })
+			.post("/api/settings/roles", {
+				roles: newRoles,
+				userId: user.id,
+				role: newRole,
+			})
 			.then((res) => {
 				console.log(res.data);
-				dispatch(setUser({ ...user, roles: newRoles }));
-				if (role === "investor") router.push("/i/onboarding");
-				if (role === "producer") router.push("/p/onboarding");
+
+				let activeRole = "";
+				let nextRoute = "";
+				if (newRole === "investor") {
+					nextRoute = "/i/onboarding";
+					activeRole = "investor";
+				}
+				if (newRole === "producer") {
+					nextRoute = "/p/onboarding";
+					activeRole = "producer";
+				}
+				if (newRole === "referral_ambassador") {
+					nextRoute = "/r/onboarding";
+					activeRole = "referral_ambassador";
+				}
+				dispatch(setUser({ ...user, roles: newRoles, activeRole: activeRole }));
+				router.push(nextRoute);
 				setLoading(false);
 			})
 			.catch((error) => {
@@ -39,8 +65,12 @@ export default function Roles({ user }: Props) {
 	return (
 		<div className='md:w-[80%]'>
 			<h2 className='mb-6 text-2xl font-semibold'>Roles</h2>
-			{["Investor", "Producer"].map((role) => {
-				const isActive = user.roles.includes(role.toLowerCase());
+			{["Investor", "Producer", "Referral Ambassador"].map((role) => {
+				let searchedRole = role.toLowerCase();
+				if (role === "Referral Ambassador") {
+					searchedRole = "referral_ambassador";
+				}
+				const isActive = user.roles.includes(searchedRole);
 				return (
 					<div key={role}>
 						<div

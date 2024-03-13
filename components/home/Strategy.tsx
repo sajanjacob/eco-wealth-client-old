@@ -31,7 +31,7 @@ export default function Strategy({}: Props) {
 		{
 			name: "4 - Compliance Refactoring & Merchant Fee Reduction",
 			description:
-				"Refactor app with financial security regulatory compliance regulations, and reduce merchant transaction fees.",
+				"Refactor app with financial security compliance guidelines, and reduce merchant transaction fees.",
 			date: "TBD - 2024",
 			position: 130,
 		},

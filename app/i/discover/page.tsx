@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import ProjectCard from "@/components/ProjectCard";
+import ProjectCard from "@/components/global/ProjectCard";
 import withAuth from "@/utils/withAuth";
 import convertToCamelCase from "@/utils/convertToCamelCase";
 import axios from "axios";

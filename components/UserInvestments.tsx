@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { use, useEffect } from "react";
-import ManageInvestmentButton from "./ManageInvestmentButton";
+import ManageInvestmentButton from "./investor/projects/ManageInvestmentButton";
 
 type Props = {
 	energyInvestments?: any[];

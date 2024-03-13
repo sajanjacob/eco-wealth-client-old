@@ -194,6 +194,19 @@ const Onboarding: FC = () => {
 						<span className='text-4xl font-bold'>Producer:</span> <br />I want
 						to operate & raise funds for projects.
 					</button>
+					<button
+						data-account-role='referral_ambassador'
+						onClick={handleButtonClick}
+						className={`px-16 py-4 rounded text-white mb-4 w-[448px] ${
+							loading
+								? "bg-gray-500"
+								: "cursor-pointer bg-green-700 transition-all hover:scale-105 hover:bg-green-500"
+						}  `}
+					>
+						<span className='text-4xl font-bold'>Affiliate:</span> <br />I want
+						to make money with Eco Wealth by referring investors, producers, and
+						customers to Eco Wealth and associated affiliate offerings.
+					</button>
 				</div>
 			);
 	}

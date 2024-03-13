@@ -97,6 +97,9 @@ export default function Login() {
 				} else if (user.roles.includes("producer")) {
 					router.push("/p/dashboard");
 					setLoading(false);
+				} else if (user.roles.includes("referral_ambassador")) {
+					router.push("/r/?tab=links");
+					setLoading(false);
 				}
 			}
 			if (user.activeRole === "investor") {
@@ -104,6 +107,9 @@ export default function Login() {
 				setLoading(false);
 			} else if (user.activeRole === "producer") {
 				router.push("/p/dashboard");
+				setLoading(false);
+			} else if (user.activeRole === "referral_ambassador") {
+				router.push("/r/?tab=links");
 				setLoading(false);
 			}
 		}
