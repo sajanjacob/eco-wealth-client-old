@@ -47,7 +47,7 @@ const SignUp: React.FC = () => {
 				handleExistingReferral(JSON.parse(ref as string));
 				return;
 			} else {
-				const storedData = localStorage.getItem("referralData");
+				const storedData = localStorage.getItem("referrerData");
 				if (!storedData) return;
 				const { referrerIds } = JSON.parse(storedData as string);
 				setReferralSource("Friend/Someone referred");
@@ -58,7 +58,7 @@ const SignUp: React.FC = () => {
 
 	// Check if referrerIds is present in URL or localStorage
 	useEffect(() => {
-		// Check if referrerIds is present in URL
+		// Check if referrerIds are present in URL
 		handleCheckReferral();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ref]);
@@ -86,7 +86,7 @@ const SignUp: React.FC = () => {
 			return;
 		}
 		// Check if there's stored referral data in localStorage
-		const storedData = localStorage.getItem("referralData");
+		const storedData = localStorage.getItem("referrerData");
 
 		// Sanitize inputs
 		const sanitizedEmail = DOMPurify.sanitize(email);

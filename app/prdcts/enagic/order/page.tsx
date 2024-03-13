@@ -75,7 +75,7 @@ export default function Order() {
 				handleExistingReferral(JSON.parse(ref as string));
 				return;
 			} else {
-				const storedData = localStorage.getItem("referralData");
+				const storedData = localStorage.getItem("referrerData");
 				if (!storedData) return;
 				const { referrerIds } = JSON.parse(storedData as string);
 				handleExistingReferral(referrerIds);
@@ -89,7 +89,7 @@ export default function Order() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ref]);
 	const getreferrerIds = () => {
-		const storedData = localStorage.getItem("referralData");
+		const storedData = localStorage.getItem("referrerData");
 		if (!storedData) return null;
 		const { referrerIds } = JSON.parse(storedData as string);
 		return referrerIds;

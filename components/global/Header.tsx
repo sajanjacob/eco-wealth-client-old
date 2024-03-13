@@ -19,8 +19,8 @@ import {
 import { AiOutlineUserSwitch } from "react-icons/ai";
 import Link from "next/link";
 import { GiSolarPower } from "react-icons/gi";
-import WaitingListMobileMenu from "./WaitingListMobileMenu";
-import Logo from "./Logo";
+import WaitingListMobileMenu from "../WaitingListMobileMenu";
+import Logo from "../Logo";
 import { useMediaQuery } from "@mui/material";
 import { FaFolder, FaGraduationCap, FaHome } from "react-icons/fa";
 import { RiCompassDiscoverFill } from "react-icons/ri";

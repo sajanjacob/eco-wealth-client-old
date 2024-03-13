@@ -43,7 +43,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 				handleExistingReferral(JSON.parse(ref as string));
 				return;
 			} else {
-				const storedData = localStorage.getItem("referralData");
+				const storedData = localStorage.getItem("referrerData");
 				if (!storedData) return;
 				const { referrerIds } = JSON.parse(storedData as string);
 				setReferralSource("Friend/Someone referred");
@@ -128,7 +128,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 	};
 	const router = useRouter();
 	const getreferrerIds = () => {
-		const storedData = localStorage.getItem("referralData");
+		const storedData = localStorage.getItem("referrerData");
 		if (!storedData) return null;
 		const { referrerIds } = JSON.parse(storedData as string);
 		return referrerIds;

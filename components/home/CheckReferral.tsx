@@ -23,7 +23,7 @@ export default function CheckReferral({
 				handleExistingReferral(JSON.parse(ref as string));
 				return;
 			} else {
-				const storedData = localStorage.getItem("referralData");
+				const storedData = localStorage.getItem("referrerData");
 				if (!storedData) return;
 				const { referrerIds } = JSON.parse(storedData as string);
 				setReferralSource("Friend/Someone referred");
