@@ -32,6 +32,7 @@
     "eslint": "8.42.0",
     "eslint-config-next": "^13.4.12",
     "isomorphic-dompurify": "^1.6.0",
+    "lodash": "^4.17.21",
     "micro": "^10.0.1",
     "moment": "^2.29.4",
     "n-digit-token": "^2.2.1",
@@ -70,6 +71,7 @@
   "devDependencies": {
     "@types/dompurify": "^3.0.5",
     "@types/jsdom": "^21.1.1",
+    "@types/lodash": "^4.17.0",
     "@types/react": "^18.2.9",
     "@types/react-dom": "^18.2.4",
     "@types/react-signature-canvas": "^1.0.5",

@@ -9,8 +9,9 @@ import Logo from "./Logo";
 import ReCAPTCHA from "react-google-recaptcha";
 import validator from "validator";
 import addToWaitingList from "@/utils/addToWaitingList";
-import CheckReferral from "./home/CheckReferral";
-import handleReferrerIds from "@/utils/handleReferrerIds";
+
+import ReferrerInput from "./referral/WaitingList/ReferrerInput";
+import extractObjValuesToStringArray from "@/utils/extractObjValuesToStringArray";
 type Props = {
 	formHeight?: string;
 	showLogo?: boolean;
@@ -26,111 +27,19 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 	const [specificReferral, setSpecificReferral] = useState("");
 	const [isFormValid, setIsFormValid] = useState(false);
 	const searchParams = useSearchParams();
-	const ref = searchParams?.get("r");
+	const refIds = searchParams?.get("r");
 	const [captcha, setCaptcha] = useState<string | null>("");
 	const [referrerIds, setReferrerIds] = useState<string[]>([]);
 	const RECAPTCHA_SITE_KEY = process.env.recaptcha_site_key;
-	// Check if referrerIds is present in localStorage
-	const handleExistingReferral = async (referrerIds: string[]) => {
-		await handleReferrerIds(referrerIds, setReferrers, setReferrerIds);
-	};
-	const handleCheckReferral = () => {
-		if (typeof window !== "undefined") {
-			// The code now runs only on the client side
 
-			if (ref) {
-				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(JSON.parse(ref as string));
-				return;
-			} else {
-				const storedData = localStorage.getItem("referrerData");
-				if (!storedData) return;
-				const { referrerIds } = JSON.parse(storedData as string);
-				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(referrerIds);
-			}
-		}
-	};
-
-	// Check if referrerIds is present in URL or localStorage
-	useEffect(() => {
-		// Check if referrerIds is present in URL
-		handleCheckReferral();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ref]);
-
-	// Handle referral source change
-	const handleReferralChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setReferralSource(e.target.value);
-		setSpecificReferral(""); // Reset specific referral if the referral source is changed
-	};
-
-	// Render specific referral input based on referral source
-	const renderSpecificReferralInput = () => {
-		if (referralSource === "Friend/Someone referred") {
-			return (
-				<div className='flex flex-col mb-4'>
-					<label className='mb-2'>Who referred you?</label>
-					{referrerIds ? (
-						// Add list of referrers from referrerIds
-						// Name, affiliate contact email, and ref id
-						<>
-							<h3>Add another referrer</h3>
-							{/* Check through db to find affiliate by name or email and present with a selectable option to link affiliate */}
-							<input
-								type='text'
-								value={referringFriend}
-								placeholder='Name and/or email'
-								className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
-								onChange={(e) => setReferringFriend(e.target.value)}
-							/>
-						</>
-					) : (
-						<input
-							type='text'
-							value={referringFriend}
-							placeholder='Name and/or email'
-							className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
-							onChange={(e) => setReferringFriend(e.target.value)}
-						/>
-					)}
-				</div>
-			);
-		} else if (
-			[
-				"Instagram",
-				"Facebook",
-				"YouTube",
-				"TikTok",
-				"Threads",
-				"Blog/Website",
-			].includes(referralSource)
-		) {
-			return (
-				<div className='flex flex-col mb-4 w-[300px]'>
-					<label className='mb-2'>
-						Which {referralSource} account did you hear about Eco Wealth from?
-					</label>
-					<input
-						type='text'
-						value={specificReferral}
-						placeholder={
-							referralSource === "Blog/Website"
-								? "Blog/Website name"
-								: "@username"
-						}
-						className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
-						onChange={(e) => setSpecificReferral(e.target.value)}
-					/>
-				</div>
-			);
-		}
-	};
 	const router = useRouter();
-	const getreferrerIds = () => {
+	const getReferrerIds = () => {
 		const storedData = localStorage.getItem("referrerData");
 		if (!storedData) return null;
-		const { referrerIds } = JSON.parse(storedData as string);
+		const referrerIds = extractObjValuesToStringArray(
+			JSON.parse(storedData),
+			"referrerId"
+		);
 		return referrerIds;
 	};
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -144,7 +53,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 		setEmailError("");
 
 		// Check if referrerIds is present in URL or localStorage;
-		const referrerIds = getreferrerIds();
+		const referrerIds = getReferrerIds();
 		if (!name || !email || !captcha) return;
 		// Send form data to the server
 
@@ -155,7 +64,6 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 					name,
 					email,
 					referralSource,
-					referrerIds,
 					referrers,
 					specificReferral: referrer !== "" ? referrer : specificReferral,
 					router,
@@ -231,29 +139,15 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 				/>
 				{emailError && <p style={{ color: "red" }}>{emailError}</p>}
 			</div>
-			{/* Referral source dropdown */}
-			<div className='flex flex-col mb-4'>
-				<label className='mb-2'>How did you hear about Eco Wealth?</label>
-				<select
-					value={referralSource}
-					className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
-					onChange={handleReferralChange}
-				>
-					<option value=''>Select</option>
-					<option value='Instagram'>Instagram</option>
-					<option value='Facebook'>Facebook</option>
-					<option value='YouTube'>YouTube</option>
-					<option value='TikTok'>TikTok</option>
-					<option value='Threads'>Threads</option>
-					<option value='Blog/Website'>Blog/Website</option>
-					<option value='Friend/Someone referred'>
-						Friend/Someone referred me
-					</option>
-				</select>
-			</div>
 
-			{/* Conditional text input for referrers */}
-			{renderSpecificReferralInput()}
+			<ReferrerInput
+				referralSource={referralSource}
+				setReferralSource={setReferralSource}
+				setReferrerIds={setReferrerIds}
+				specificReferral={specificReferral}
+				setSpecificReferral={setSpecificReferral}
+				setReferrers={setReferrers}
+			/>
 			<ReCAPTCHA
 				sitekey={RECAPTCHA_SITE_KEY!}
 				onChange={setCaptcha}

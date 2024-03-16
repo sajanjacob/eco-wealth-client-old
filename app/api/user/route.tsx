@@ -30,8 +30,8 @@ export async function POST(req: any) {
 	if (refError) {
 		console.error("Error fetching referral data:", refError.message);
 		return NextResponse.json(
-			{ error: "Error fetching referral data" },
-			{ status: 500 }
+			{ data, refUser: { error: "Error fetching referral data" } },
+			{ status: 200 }
 		);
 	}
 	return NextResponse.json({ data, refUser }, { status: 200 });

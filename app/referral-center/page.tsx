@@ -15,7 +15,7 @@ type Props = {};
 
 function ReferralCenter({}: Props) {
 	const user = useAppSelector((state) => state.user);
-	const referrerIds = user.referrerIds;
+	const referralId = user.referralId;
 	const agreementAcceptedAt = user.refAgreementAcceptedAt;
 	const refAgreement = user.refAgreement;
 	const searchParams = useSearchParams();
@@ -43,7 +43,7 @@ function ReferralCenter({}: Props) {
 			case "agreement":
 				return (
 					<ReferralAgreement
-						referrerIds={referrerIds}
+						referralId={referralId}
 						agreementAcceptedAt={agreementAcceptedAt}
 					/>
 				);
@@ -65,9 +65,9 @@ function ReferralCenter({}: Props) {
 	// Show referral center if user has agreed to referral agreement
 	if (refAgreement)
 		return (
-			<div className='w-[90vw] mx-auto my-8'>
+			<div className='w-[90vw] mx-auto my-8 border-[2px] border-white'>
 				<h1 className='text-3xl mb-2'>Referral Center</h1>
-				<div className='xl:flex flex-col'>
+				<div className='flex w-max '>
 					<ReferralMenu />
 					<div>
 						{renderTabContent((searchParams?.get("tab") as string) || "links")}

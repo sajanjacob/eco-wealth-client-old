@@ -49,11 +49,12 @@ export async function POST(req: NextRequest) {
 		);
 	}
 	const sanitizedEmail = sanitizeHtml(email);
+	const sanitizedPassword = sanitizeHtml(password);
 
 	// Login user
 	const { data, error } = await supabase.auth.signInWithPassword({
 		email: sanitizedEmail,
-		password,
+		password: sanitizedPassword,
 	});
 	if (error) {
 		return NextResponse.json({ error: error.message }, { status: 500 });
@@ -149,11 +150,34 @@ export async function POST(req: NextRequest) {
 			activeRole: userData.active_role,
 		});
 	}
-
-	return NextResponse.json({
-		user: userData,
-		mfaVerified: true,
-		onboardingComplete: userData.onboarding_complete,
-		activeRole: userData.active_role,
-	});
+	const { data: refUser, error: refError } = await supabase
+		.from("referral_ambassadors")
+		.select("*")
+		.eq("user_id", userData.id)
+		.single();
+	if (refError) {
+		console.error("Error fetching referral data:", refError.message);
+		return NextResponse.json(
+			{
+				user: userData,
+				mfaVerified: true,
+				onboardingComplete: userData.onboarding_complete,
+				activeRole: userData.active_role,
+				refUser: {
+					error: "Error fetching referral data",
+				},
+			},
+			{ status: 200 }
+		);
+	}
+	return NextResponse.json(
+		{
+			user: userData,
+			mfaVerified: true,
+			onboardingComplete: userData.onboarding_complete,
+			activeRole: userData.active_role,
+			refUser,
+		},
+		{ status: 200 }
+	);
 }

@@ -4,7 +4,7 @@ import ProjectDetails from "@/components/ProjectDetails";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import { setUser } from "@/redux/features/userSlice";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import handleReferrerIds from "@/utils/handleReferrerIds";
 import { supabaseClient } from "@/utils/supabaseClient";
 import axios from "axios";
@@ -17,12 +17,16 @@ export default function PublicProject({}: Props) {
 	const dispatch = useAppDispatch();
 	const searchParams = useSearchParams();
 	const referrerIds = searchParams?.get("r");
+	const path = usePathname();
 	// Store referrerIds in localStorage
 	useEffect(() => {
-		if (referrerIds) {
-			handleReferrerIds(JSON.parse(referrerIds as string));
+		if (referrerIds && path) {
+			handleReferrerIds({
+				urlReferrerIds: JSON.parse(referrerIds as string),
+				pageSource: path,
+			});
 		}
-	}, [referrerIds]);
+	}, [referrerIds, path]);
 
 	// Here we query public.users for the user's additional profile data
 	const fetchUserData = async (userId: string) => {
@@ -42,7 +46,7 @@ export default function PublicProject({}: Props) {
 						name: userData.name,
 						email: userData.email,
 						refAgreement: refUser.agreement_accepted,
-						referrerIds: refUser.id,
+						referralId: refUser.id,
 						phoneNumber: userData.phone_number,
 						isVerified: userData.is_verified,
 						roles: userData.roles ? userData.roles : [""],

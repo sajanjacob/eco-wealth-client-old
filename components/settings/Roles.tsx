@@ -4,6 +4,7 @@ import { supabaseClient as supabase } from "@/utils/supabaseClient";
 import { setUser } from "@/redux/features/userSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import axios from "axios";
+import { MdOutlineSportsRugby } from "react-icons/md";
 
 type Props = {
 	user: UserState;
@@ -12,10 +13,10 @@ type Props = {
 export default function Roles({ user }: Props) {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
-	const [isLoading, setLoading] = useState(false);
-
-	const handleActivateRole = async (role: string) => {
-		setLoading(true);
+	const [loadingRole, setLoadingRole] = useState<string | null>(null);
+	const handleActivateRole = async (role: string, e: React.FormEvent) => {
+		e.preventDefault();
+		setLoadingRole(role);
 
 		// Add the new role to the user's roles array
 		let newRoles = [];
@@ -39,24 +40,43 @@ export default function Roles({ user }: Props) {
 
 				let activeRole = "";
 				let nextRoute = "";
+				let newDispatch = setUser({ ...user });
 				if (newRole === "investor") {
 					nextRoute = "/i/onboarding";
 					activeRole = "investor";
+					newDispatch = setUser({
+						...user,
+						roles: newRoles,
+						activeRole: activeRole,
+						investorId: res.data.id,
+					});
 				}
 				if (newRole === "producer") {
 					nextRoute = "/p/onboarding";
 					activeRole = "producer";
+					newDispatch = setUser({
+						...user,
+						roles: newRoles,
+						activeRole: activeRole,
+						producerId: res.data.id,
+					});
 				}
 				if (newRole === "referral_ambassador") {
 					nextRoute = "/r/onboarding";
 					activeRole = "referral_ambassador";
+					newDispatch = setUser({
+						...user,
+						roles: newRoles,
+						activeRole: activeRole,
+						referralId: res.data.id,
+					});
 				}
-				dispatch(setUser({ ...user, roles: newRoles, activeRole: activeRole }));
+				dispatch(newDispatch);
 				router.push(nextRoute);
-				setLoading(false);
+				setLoadingRole(role);
 			})
 			.catch((error) => {
-				setLoading(false);
+				setLoadingRole(role);
 				console.log("Error updating user roles:", error.message);
 			});
 
@@ -69,8 +89,9 @@ export default function Roles({ user }: Props) {
 				let searchedRole = role.toLowerCase();
 				if (role === "Referral Ambassador") {
 					searchedRole = "referral_ambassador";
-				}
+				} //get db value for referral
 				const isActive = user.roles.includes(searchedRole);
+				const isRoleLoading = loadingRole === searchedRole;
 				return (
 					<div key={role}>
 						<div
@@ -93,11 +114,13 @@ export default function Roles({ user }: Props) {
 								</p>
 							) : (
 								<button
-									onClick={() => handleActivateRole(role.toLowerCase())}
+									onClick={(e) => handleActivateRole(role.toLowerCase(), e)}
 									className='bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] transition-colors text-white font-bold py-2 px-4 rounded text-base'
-									disabled={isLoading}
+									disabled={isRoleLoading}
 								>
-									{isLoading ? "Activating account role..." : "Activate now"}
+									{isRoleLoading
+										? "Activating account role..."
+										: "Activate now"}
 								</button>
 							)}
 						</div>

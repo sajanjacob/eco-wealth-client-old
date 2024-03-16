@@ -23,7 +23,7 @@ export default function ReferralMenu({}: Props) {
 	};
 
 	return (
-		<div className='xl:flex-col flex rounded-md border-[1px] w-max p-3 border-green-950'>
+		<div className='flex rounded-md border-[1px] w-max p-3 border-green-950'>
 			<h2 className='mr-2 xl:mb-2 text-gray-300'>Referral Menu —</h2>
 			<p
 				className={

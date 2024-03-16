@@ -1,6 +1,6 @@
 "use client";
 import React, { FormEvent, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { BASE_URL } from "@/constants";
 import Image from "next/image";
@@ -35,6 +35,8 @@ const SignUp: React.FC = () => {
 
 	const RECAPTCHA_SITE_KEY = process.env.recaptcha_site_key;
 	const [captcha, setCaptcha] = useState<string | null>("");
+
+	const path = usePathname();
 	// TODO: Add password strength meter
 	// TODO: Add password requirements
 	// TODO: Add password reset
@@ -65,7 +67,11 @@ const SignUp: React.FC = () => {
 
 	// Check if referrerIds is present in localStorage
 	const handleExistingReferral = async (referrerIds: string[]) => {
-		await handleReferrerIds(referrerIds, setReferrers);
+		await handleReferrerIds({
+			urlReferrerIds: referrerIds,
+			setReferrers,
+			pageSource: path!,
+		});
 	};
 
 	// Handle referral source change

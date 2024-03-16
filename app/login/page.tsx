@@ -138,6 +138,9 @@ export default function Login() {
 					...getUserDetails(res.data.user),
 					mfaVerified: res.data.mfaVerified,
 					loadingUser: false,
+					refAgreement: res.data?.refUser?.agreementAccepted,
+					refAgreementAcceptedAt: res.data?.refUser?.agreementAcceptedAt,
+					referralId: res.data?.refUser?.id,
 				};
 				dispatch(setUser(userValues));
 				if (!res.data.onboardingComplete && res.data.mfaVerified) {

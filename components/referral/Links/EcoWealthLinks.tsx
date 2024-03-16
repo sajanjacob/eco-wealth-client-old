@@ -2,13 +2,13 @@ import copyToClipboard from "@/utils/copyToClipboard";
 import React from "react";
 
 type Props = {
-	referrerIds: string;
+	referralId: string;
 };
 
-export default function EcoWealthLinks({ referrerIds }: Props) {
-	const homePageReferralLink = `https://ecowealth.app/?r=${referrerIds}`;
-	const waitingListReferralLink = `https://ecowealth.app/register?r=${referrerIds}`;
-	const referralLink = `?r=${referrerIds}`;
+export default function EcoWealthLinks({ referralId }: Props) {
+	const homePageReferralLink = `https://ecowealth.app/?r=${referralId}`;
+	const waitingListReferralLink = `https://ecowealth.app/register?r=${referralId}`;
+	const referralLink = `?r=${referralId}`;
 	return (
 		<div>
 			<div className='mt-2'>
@@ -52,10 +52,13 @@ export default function EcoWealthLinks({ referrerIds }: Props) {
 					this:
 					<br />
 					<code>
-						https://alpha.ecowealth.app/pub/projects/[id]{referralLink}
+						https://alpha.ecowealth.app/pub/projects/[project_id]{referralLink}
 					</code>
+					<br />
+					<b>Note:</b> replace &quot;[project_id]&quot; with the actual project
+					id.
 				</p>
-				<div className='flex mt-[2px]'>
+				<div className='flex mt-2'>
 					<p
 						className='cursor-pointer mr-2 border-[var(--cta-one)] border-2 p-2 rounded-md w-[max-content] hover:text-[var(--cta-one)] transition-colors'
 						onClick={() => copyToClipboard(referralLink)}

@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { RootState } from "@/redux/store"; // Import RootState from your Redux store
 
@@ -28,32 +28,35 @@ export default function Home() {
 
 	const searchParams = useSearchParams();
 	const referrerIds = searchParams?.get("r");
-
+	const path = usePathname();
 	// Store referrerIds in localStorage
 	useEffect(() => {
 		if (referrerIds) {
-			handleReferrerIds(JSON.parse(referrerIds as string));
+			handleReferrerIds({
+				urlReferrerIds: JSON.parse(referrerIds as string),
+				pageSource: path!,
+			});
 		}
-	}, [referrerIds]);
+	}, [referrerIds, path]);
 
 	const user = useAppSelector((state: RootState) => state.user);
 
-	const fetchTreeCount = async () => {
-		const res = await fetch("/api/trees");
-		const data = await res.json();
-		setTreeCount(data.total);
-	};
+	// const fetchTreeCount = async () => {
+	// 	const res = await fetch("/api/trees");
+	// 	const data = await res.json();
+	// 	setTreeCount(data.total);
+	// };
 
-	const fetchArrayCount = async () => {
-		const res = await fetch("/api/solarArrays");
-		const data = await res.json();
-		setArrayCount(data.total);
-	};
+	// const fetchArrayCount = async () => {
+	// 	const res = await fetch("/api/solarArrays");
+	// 	const data = await res.json();
+	// 	setArrayCount(data.total);
+	// };
 
-	useEffect(() => {
-		fetchTreeCount();
-		fetchArrayCount();
-	}, []);
+	// useEffect(() => {
+	// 	fetchTreeCount();
+	// 	fetchArrayCount();
+	// }, []);
 	const [pinnedQuestions, setPinnedQuestions] = useState([]);
 
 	// useEffect(() => {

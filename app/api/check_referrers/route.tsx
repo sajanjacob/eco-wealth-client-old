@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import extractObjValuesToStringArray from "@/utils/extractObjValuesToStringArray";
 
 export async function POST(req: NextRequest) {
 	const cookieStore = cookies();
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
-	const { refIds } = await req.json(); // Expecting an array of refIds
+	const { refIds, pageSource, trackingEnabled, refSessionId } =
+		await req.json(); // Expecting an array of refIds
 
 	// Check if referral ids were provided
 	if (!refIds || refIds.length === 0)
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest) {
 			.eq("id", refId);
 
 		if (!error && data && data.length > 0) {
-			// Assuming the first matching record is the correct one
+			// Check user details for found referrer
 			const { data: userData, error: userError } = await supabase
 				.from("users")
 				.select("*")
@@ -32,12 +34,12 @@ export async function POST(req: NextRequest) {
 				.single();
 
 			if (!userError && userData) {
-				// Add the valid referrer to the list
 				referrers.push({
 					name: userData.name,
 					userId: userData.id,
 					refId: refId,
-					email: userData.email,
+					email: data[0].email,
+					pageSource,
 				});
 			}
 		}
@@ -51,12 +53,74 @@ export async function POST(req: NextRequest) {
 		);
 
 	// If valid referral ambassadors exist, return them
+	/**
+	 *
+	 * TODO: update referrer info in referrer tracking table already exists
+	 * TODO: push dateAdded to response data
+	 * Add the valid referrer to the list
+	 *
+	 * */
+	if (trackingEnabled) {
+		// Add referrer info to referrer tracking table
+		// Note: include referrerId, userId, email, dateAdded with unique session token
+		const referrerIds = extractObjValuesToStringArray(referrers, "refId");
+		if (!refSessionId) {
+			const { data: refSession, error: refSessionError } = await supabase
+				.from("referrer_tracking")
+				.insert({ referrers: referrers, referrer_ids: referrerIds })
+				.select()
+				.single();
+			if (refSessionError) {
+				console.error(
+					"Error adding referrer to referrer tracking table: ",
+					refSessionError
+				);
+				return NextResponse.json(
+					{
+						referrers: referrers,
+						message: `${referrers.length} Referral ambassador(s) found.`,
+					},
+					{ status: 200 }
+				);
+			}
+			return NextResponse.json(
+				{
+					referrers: referrers,
+					refSessionId: refSession.id,
+
+					message: `${referrers.length} Referral ambassador(s) found.`,
+				},
+				{ status: 200 }
+			);
+		} else {
+			const { data: refSession, error: refSessionError } = await supabase
+				.from("referrer_tracking")
+				.update({ referrers: referrers, referrer_ids: referrerIds })
+				.eq("id", refSessionId)
+				.select()
+				.single();
+			if (refSessionError) {
+				console.error(
+					"Error adding referrer to referrer tracking table: ",
+					refSessionError
+				);
+				return NextResponse.json(
+					{
+						referrers: referrers,
+						message: `${referrers.length} Referral ambassador(s) found.`,
+					},
+					{ status: 200 }
+				);
+			}
+			return NextResponse.json(
+				{
+					referrers: referrers,
+					refSessionId: refSession.id,
+					message: `${referrers.length} Referral ambassador(s) found.`,
+				},
+				{ status: 200 }
+			);
+		}
+	}
 	console.log("ambassadors found >>> ", referrers);
-	return NextResponse.json(
-		{
-			referrers: referrers,
-			message: `${referrers.length} Referral ambassador(s) found.`,
-		},
-		{ status: 200 }
-	);
 }

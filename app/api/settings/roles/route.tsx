@@ -49,7 +49,10 @@ export async function POST(req: any) {
 			);
 		}
 		return NextResponse.json(
-			{ message: "Investor profile successfully created." },
+			{
+				id: investorData[0].id,
+				message: "Investor profile successfully created.",
+			},
 			{ status: 200 }
 		);
 	}
@@ -82,7 +85,10 @@ export async function POST(req: any) {
 			);
 		}
 		return NextResponse.json(
-			{ message: "Producer profile successfully created." },
+			{
+				id: producerData[0].id,
+				message: "Producer profile successfully created.",
+			},
 			{ status: 200 }
 		);
 	}
@@ -119,8 +125,12 @@ export async function POST(req: any) {
 				{ status: 500 }
 			);
 		}
+
 		return NextResponse.json(
-			{ message: "Referral Ambassador profile successfully created." },
+			{
+				id: refAmbassadorData[0].id,
+				message: "Referral Ambassador profile successfully created.",
+			},
 			{ status: 200 }
 		);
 	}

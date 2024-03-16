@@ -5,43 +5,54 @@ import { cookies } from "next/headers";
 export async function POST(req: NextRequest, res: NextResponse) {
 	const cookieStore = cookies();
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
-	const { refId } = await req.json();
-	// Check if referral id was provided
-	if (!refId)
+	const { refIds } = await req.json(); // Expect an array of refIds
+
+	// Check if referral ids were provided
+	if (!refIds || refIds.length === 0)
 		return NextResponse.json(
-			{ error: "No referral id was provided, please provide a referral id." },
+			{ error: "No referral ids were provided, please provide referral ids." },
 			{ status: 500 }
 		);
 
-	// Get referral ambassador from user accounts table
-	const { data, error } = await supabase
-		.from("referral_ambassadors")
-		.select("*")
-		.eq("id", refId);
+	// Function to get referrer details by refId
+	async function getReferrerDetails(refId: string) {
+		const { data: ambassadorData, error: ambassadorError } = await supabase
+			.from("referral_ambassadors")
+			.select("*")
+			.eq("id", refId);
 
-	// Return error if there is an error retrieving the referral ambassador
-	if (error)
-		return NextResponse.json({ error: error.message }, { status: 500 });
+		if (ambassadorError || !ambassadorData || ambassadorData.length === 0) {
+			return null; // Return null if not found or error
+		}
 
-	// If referral ambassador exists, return true along with the referral ambassador id
-	if (data) {
-		console.log("ambassador found >>> ", data);
+		const ambassador = ambassadorData[0];
 		const { data: userData, error: userError } = await supabase
 			.from("users")
 			.select("*")
-			.eq("id", data[0].user_id)
+			.eq("id", ambassador.user_id)
 			.single();
-		return NextResponse.json(
-			{
-				referrer: {
-					name: userData.name,
-					userId: userData.id,
-					refId: refId,
-					email: userData.email,
-				},
-				message: "Referral ambassador found.",
-			},
-			{ status: 200 }
-		);
+
+		if (userError || !userData) {
+			return null; // Return null if not found or error
+		}
+
+		return {
+			name: userData.name,
+			userId: userData.id,
+			refId: refId,
+			email: ambassador.contact_email,
+		};
 	}
+
+	// Get details for all refIds provided
+	const referrerDetails = await Promise.all(refIds.map(getReferrerDetails));
+
+	// Filter out any null results (in case of errors or not found)
+	const validReferrers = referrerDetails.filter((details) => details !== null);
+
+	// Return the array of referrer objects
+	return NextResponse.json(
+		{ referrers: validReferrers, message: "Referral ambassadors found." },
+		{ status: 200 }
+	);
 }

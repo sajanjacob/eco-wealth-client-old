@@ -2,12 +2,12 @@ import copyToClipboard from "@/utils/copyToClipboard";
 import React from "react";
 
 type Props = {
-	referrerIds: string;
+	referralId: string;
 };
 
-export default function EnagicLinks({ referrerIds }: Props) {
-	const landingPageLink = `https://ecowealth.app/prdcts/enagic?r=${referrerIds}`;
-	const orderPageLink = `https://ecowealth.app/prdcts/enagic/order?r=${referrerIds}`;
+export default function EnagicLinks({ referralId }: Props) {
+	const landingPageLink = `https://ecowealth.app/prdcts/enagic?r=${referralId}`;
+	const orderPageLink = `https://ecowealth.app/prdcts/enagic/order?r=${referralId}`;
 
 	return (
 		<div>

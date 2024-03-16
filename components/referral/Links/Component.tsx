@@ -9,7 +9,7 @@ type Props = {};
 const Component = ({}: Props) => {
 	const [activeCategory, setActiveCategory] = useState("EcoWealth");
 	const user = useAppSelector((state) => state.user);
-	const referrerIds = user.referrerIds;
+	const referralId = user.referralId;
 	// Function to handle category change
 	const handleCategoryChange = (category: string) => {
 		setActiveCategory(category);
@@ -19,20 +19,18 @@ const Component = ({}: Props) => {
 	const renderComponent = () => {
 		switch (activeCategory) {
 			case "EcoWealth":
-				return <EcoWealthLinks referrerIds={referrerIds} />;
+				return <EcoWealthLinks referralId={referralId} />;
 			case "EnagicLinks":
-				return <EnagicLinks referrerIds={referrerIds} />; // Assuming you have this component
+				return <EnagicLinks referralId={referralId} />; // Assuming you have this component
 			// case "EcoxSolar":
-			// 	return <EcoxSolarLinks referrerIds={referrerIds} />; // Assuming you have this component
+			// 	return <EcoxSolarLinks referralId={referralId} />; // Assuming you have this component
 			default:
 				return null;
 		}
 	};
 	return (
 		<div className='mt-4'>
-			<p className='text-sm text-gray-500'>
-				Your Referral ID is: {referrerIds}
-			</p>
+			<p className='text-sm text-gray-500'>Your Referral ID is: {referralId}</p>
 			<h2 className='text-2xl'>Your Referral Links:</h2>
 			<div className='flex space-x-2 my-2'>
 				<button

@@ -7,10 +7,11 @@ import enagicLogo from "@/assets/images/enagic_logo.svg";
 import Image from "next/image";
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import handleReferrerIds from "@/utils/handleReferrerIds";
 import ReCAPTCHA from "react-google-recaptcha";
 import { isEmailValid } from "@/utils/isEmailValid";
+import { maxNumberOfReferrers } from "@/utils/constants";
 interface MachineItem {
 	selected: boolean;
 	quantity: number;
@@ -57,15 +58,20 @@ export default function Order() {
 	const sigPadRef = useRef(null);
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
-	const [referrer, setReferrer] = useState("");
+	const [referrers, setReferrers] = useState([{}]);
 	const [specificReferral, setSpecificReferral] = useState("");
 	const [captcha, setCaptcha] = useState<string | null>("");
 	const router = useRouter();
 	const RECAPTCHA_SITE_KEY = process.env.recaptcha_site_key;
 	const [isFormValid, setIsFormValid] = useState(false);
+	const path = usePathname();
 	// Check if referrerIds is present in localStorage
 	const handleExistingReferral = async (referrerIds: string[]) => {
-		await handleReferrerIds(referrerIds, setReferrer);
+		await handleReferrerIds({
+			urlReferrerIds: referrerIds,
+			pageSource: path!,
+			setReferrers,
+		});
 	};
 	const handleCheckReferral = () => {
 		if (typeof window !== "undefined") {
@@ -87,8 +93,8 @@ export default function Order() {
 		// Check if referrerIds is present in URL
 		handleCheckReferral();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ref]);
-	const getreferrerIds = () => {
+	}, [ref, path]);
+	const getReferrerIds = () => {
 		const storedData = localStorage.getItem("referrerData");
 		if (!storedData) return null;
 		const { referrerIds } = JSON.parse(storedData as string);

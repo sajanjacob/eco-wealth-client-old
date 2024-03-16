@@ -76,7 +76,7 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 								loadingUser: false,
 								refAgreement: res.data.refUser.agreement_accepted,
 								refAgreementAcceptedAt: res.data.refUser.agreement_accepted_at,
-								referrerIds: res.data.refUser.id,
+								referralId: res.data.refUser.id,
 							})
 						); // Dispatch a redux action
 

@@ -15,7 +15,7 @@ type Props = {};
 
 function ReferralCenter({}: Props) {
 	const user = useAppSelector((state) => state.user);
-	const referrerIds = user.referrerIds;
+	const referralId = user.referralId;
 	const agreementAcceptedAt = user.refAgreementAcceptedAt;
 	const refAgreement = user.refAgreement;
 	const searchParams = useSearchParams();
@@ -43,7 +43,7 @@ function ReferralCenter({}: Props) {
 			case "agreement":
 				return (
 					<ReferralAgreement
-						referrerIds={referrerIds}
+						referralId={referralId}
 						agreementAcceptedAt={agreementAcceptedAt}
 					/>
 				);
