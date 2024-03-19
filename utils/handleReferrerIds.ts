@@ -2,7 +2,14 @@ import axios from "axios";
 import { maxNumberOfReferrers } from "@/utils/constants";
 import deduplicateByUniqueKey from "./deduplicateByUniqueKey";
 import extractObjValuesToStringArray from "./extractObjValuesToStringArray";
-// New function to handle multiple referral IDs
+import { Dispatch, SetStateAction } from "react";
+
+type Referrer = {
+	id: string;
+	name: string;
+	email: string;
+	inputSource: string;
+};
 type ReferrerData = {
 	referrerId: string;
 	referrer: {
@@ -13,17 +20,17 @@ type ReferrerData = {
 	pageSource: string;
 };
 type Props = {
-	urlReferrerIds: string[];
 	pageSource: string;
+	urlReferrerIds?: string[];
 	maxStoredIds?: number;
 	setReferrer?: (referrer: any) => void;
 	setReferrers?: (referrers: any) => void;
 	setReferrerIds?: (referrerIds: string[]) => void;
-	setSavedReferrers?: (referrers: Object[]) => void;
+	setSavedReferrers?: Dispatch<SetStateAction<Referrer[]>>;
 };
 
 export default async function handleReferrerIds({
-	urlReferrerIds, //Referrer IDs from URL
+	urlReferrerIds = [], // Referrer IDs from URL
 	pageSource,
 	maxStoredIds = maxNumberOfReferrers, // Max number of stored referral IDs
 	setReferrer,
@@ -33,106 +40,92 @@ export default async function handleReferrerIds({
 }: Props) {
 	// Retrieve the existing array of referral data or initialize a new one
 	let referrerData = JSON.parse(localStorage.getItem("referrerData") || "[]");
-	console.log("hndlrfrids -- referrerData >>> ", referrerData);
 	let uniqueReferrerData = deduplicateByUniqueKey(referrerData, "referrerId"); // Deduplicate by referrerId
-	localStorage.setItem("referrerData", JSON.stringify(uniqueReferrerData)); // Update localStorage with deduplicated referrers
+	// Ensure the array is sorted by dateAdded to correctly remove the oldest entry if needed
+	uniqueReferrerData.sort(
+		(a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
+	);
+
 	// Check and remove the oldest referral data if exceeding maxStoredIds
-	if (uniqueReferrerData.length >= maxStoredIds) {
+	while (uniqueReferrerData.length > maxStoredIds) {
 		uniqueReferrerData.shift(); // Remove the oldest entry if max is reached
-		localStorage.setItem("referrerData", JSON.stringify(uniqueReferrerData));
 	}
+	localStorage.setItem("referrerData", JSON.stringify(uniqueReferrerData));
+
 	const referrerIds = extractObjValuesToStringArray(
 		uniqueReferrerData,
 		"referrerId"
-	); //Referrer IDs from localStorage
-
-	// Process the new ReferralId
-	if (!urlReferrerIds || urlReferrerIds.length === 0) {
-		console.log("No referral IDs provided");
-		return;
-	}
+	);
 
 	// Combine referrerIds and urlReferrerIds while removing duplicates
-	const combinedReferrerIds = [new Set(...urlReferrerIds, ...referrerIds)];
-	const cookieConsent = localStorage.getItem("cookieConsent");
-	let trackingEnabled = false;
-	if (cookieConsent === "accepted") {
-		trackingEnabled = true;
-	}
-	const refSessionId = localStorage.getItem("refSessionId");
-	let queryData = {};
-	if (refSessionId) {
-		queryData = {
-			refIds: combinedReferrerIds,
-			pageSource,
-			trackingEnabled,
-			refSessionId,
-		};
-	} else {
-		queryData = {
-			refIds: combinedReferrerIds,
-			pageSource,
-			trackingEnabled,
-		};
-	}
-	// Call the API to check the referrer data
-	await axios
-		.post("/api/check_referrers", queryData)
-		.then((res) => {
-			if (res.data && res.data.referrers && res.data.referrers.length > 0) {
-				let refData = [] as ReferrerData[];
-				// Iterate over each referrer returned by the API
-				res.data.referrers.forEach((referrer: any) => {
-					// Add each referrer to the referrerData
-					refData.push({
-						referrerId: referrer.refId,
-						referrer: {
-							name: referrer.name,
-							email: referrer.email,
-						},
-						dateAdded: new Date().toISOString(),
-						pageSource,
-					});
-				});
+	const combinedReferrerIds = Array.from(
+		new Set([...urlReferrerIds, ...referrerIds])
+	).filter((id) => id !== "");
 
-				// Update localStorage with the new array
-				localStorage.setItem("referrerData", JSON.stringify(refData));
-				if (res.data.refSessionId) {
-					localStorage.setItem("refSessionId", res.data.refSessionId);
-				}
-				// Assuming you want to update the URL with the first ReferralId if multiple are present
-				if (urlReferrerIds.length > 0) updateUrlWithReferrerIds(urlReferrerIds);
-				if (setReferrer && res.data.referrers.length > 0)
-					setReferrer(
-						res.data.referrers.map((data: ReferrerData) => data.referrer)
-					); // Set to the first referrer's name, adjust as needed
-				if (setReferrers)
-					setReferrers(refData.map((data: ReferrerData) => data.referrer)); // Pass all referrer data if needed
-				if (setReferrerIds)
-					setReferrerIds(refData.map((data: ReferrerData) => data.referrerId)); // Pass all stored IDs if needed
-				if (setSavedReferrers) {
-					const referrers = res.data.referrers.map((referrer: any) => ({
-						label: `${referrer.name} (${referrer.email}) - id: ${referrer.id}`,
-						value: {
-							id: referrer.id,
-							name: referrer.name,
-							email: referrer.email,
-						},
-					}));
-					setSavedReferrers(referrers);
-				}
+	// If no referrer IDs are present, exit function
+	if (combinedReferrerIds.length === 0) return;
+
+	let queryData = {
+		urlReferrerIds,
+		refIds: referrerIds,
+		pageSource,
+		trackingEnabled: localStorage.getItem("cookieConsent") === "accepted",
+		refSessionId: localStorage.getItem("refSessionId"),
+		referrers: uniqueReferrerData,
+	};
+
+	// Call the API to check the referrer data
+	try {
+		const res = await axios.post("/api/check_referrers", queryData);
+		if (res.data && res.data.referrers && res.data.referrers.length > 0) {
+			let refData = res.data.referrers.map((referrer: any) => ({
+				referrerId: referrer.refId,
+				referrer: {
+					name: referrer.name,
+					email: referrer.email,
+				},
+				dateAdded: new Date().toISOString(),
+				pageSource,
+			}));
+
+			// Update localStorage with the new array
+			localStorage.setItem("referrerData", JSON.stringify(refData));
+
+			// Update referral session id if not in localStorage already
+			if (res.data.refSessionId && !localStorage.getItem("refSessionId")) {
+				localStorage.setItem("refSessionId", res.data.refSessionId);
 			}
-		})
-		.catch((err) => {
-			console.log("err >>> ", err);
-			updateUrlWithReferrerIds([""]); // Clear the URL if there's an error
-			if (setReferrer) setReferrer("");
-			if (setReferrers) setReferrers([]); // Clear referrers if there's an error
-		});
+
+			// Update url with referrerIds from API
+			if (res.data.referrerIds && res.data.referrerIds.length > 0) {
+				updateUrlWithReferrerIds(res.data.referrerIds);
+			}
+
+			// Callback functions - safely invoked
+			setReferrer?.(refData.map((data: any) => data.referrer));
+			setReferrers?.(refData.map((data: any) => data.referrer));
+			setReferrerIds?.(refData.map((data: any) => data.referrerId));
+			setSavedReferrers?.(
+				res.data.referrers.map((referrer: any) => ({
+					label: referrer.email
+						? `${referrer.name} (${referrer.email}) - id: ${referrer.refId}`
+						: `${referrer.name} - id: ${referrer.refId}`,
+					value: referrer,
+				}))
+			);
+		}
+	} catch (err) {
+		console.error("handleReferrerIds - error: ", err);
+		updateUrlWithReferrerIds([]); // Clear the URL if there's an error
+		setReferrer?.([]);
+		setReferrers?.([]); // Clear referrers if there's an error
+		setReferrerIds?.([]);
+		setSavedReferrers?.([]);
+	}
 }
 
 function updateUrlWithReferrerIds(referrerIds: string[]) {
 	const url = new URL(window.location.href);
 	url.searchParams.set("r", JSON.stringify(referrerIds));
-	window.history.pushState({}, "", url);
+	window.history.pushState({}, "", url.toString());
 }

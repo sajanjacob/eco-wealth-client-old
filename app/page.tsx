@@ -23,8 +23,8 @@ export default function Home() {
 	const backgroundImageUrl =
 		"https://storage.googleapis.com/msgsndr/6xhGkq67K123q2R9TMf0/media/644868002b9d838721622a4d.jpeg";
 	const router = useRouter();
-	const [treeCount, setTreeCount] = React.useState(0);
-	const [arrayCount, setArrayCount] = React.useState(0);
+	// const [treeCount, setTreeCount] = React.useState(0);
+	// const [arrayCount, setArrayCount] = React.useState(0);
 
 	const searchParams = useSearchParams();
 	const referrerIds = searchParams?.get("r");
@@ -36,6 +36,8 @@ export default function Home() {
 				urlReferrerIds: JSON.parse(referrerIds as string),
 				pageSource: path!,
 			});
+		} else {
+			handleReferrerIds({ pageSource: path! });
 		}
 	}, [referrerIds, path]);
 

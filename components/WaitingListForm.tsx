@@ -108,7 +108,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 			onSubmit={handleSubmit}
 			className={`flex flex-col items-center justify-center ${
 				formHeight || "min-h-screen"
-			}`}
+			} w-[300px] mx-auto`}
 		>
 			{/* showLogo - default is true */}
 			{showLogo && (

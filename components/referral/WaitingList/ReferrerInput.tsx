@@ -5,8 +5,15 @@ import axios from "axios";
 import { usePathname, useSearchParams } from "next/navigation";
 import handleReferrerIds from "@/utils/handleReferrerIds";
 
+type Referrer = {
+	id: string;
+	name: string;
+	email: string;
+	inputSource: string;
+};
+
 type Props = {
-	setReferrers: (referrers: Object[]) => void;
+	setReferrers: (referrers: Referrer[]) => void;
 	referralSource: string;
 	setReferralSource: (referralSource: string) => void;
 	setReferrerIds: (referrerIds: string[]) => void;
@@ -24,70 +31,36 @@ const ReferrerInput = ({
 }: Props) => {
 	const [inputValue, setInputValue] = useState("");
 	const [referrerOptions, setReferrerOptions] = useState([]);
-	const [selectedReferrers, setSelectedReferrers] = useState<Object[]>([]);
-	const [savedReferrers, setSavedReferrers] = useState<Object[]>([]);
+	const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
+	const [savedReferrers, setSavedReferrers] = useState<Referrer[]>([]);
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
 	const path = usePathname();
-	// Load saved referrers from localStorage
-	// useEffect(() => {
-	// 	const storedData = localStorage.getItem("referrerData");
-	// 	if (storedData) {
-	// 		const { referrerIds } = JSON.parse(storedData);
-	// 		if (referrerIds && referrerIds.length) {
-	// 			// Convert saved referrer IDs to referrer objects for the component state
-	// 			loadSavedReferrers(referrerIds);
-	// 		}
-	// 	}
-	// }, []);
 
-	// // Function to load saved referrers by their IDs
-	// const loadSavedReferrers = async (referrerIds: string[]) => {
-	// 	// Structure query
-	// 	const cookieConsent = localStorage.getItem("cookieConsent");
-	// 	const trackingEnabled = cookieConsent === "accepted";
-	// 	const refSessionId = localStorage.getItem("refSessionId");
-	// 	let query = {};
-	// 	if (refSessionId) {
-	// 		query = { pageSource: path, refSessionId, referrerIds, trackingEnabled };
-	// 	} else {
-	// 		query = { pageSource: path, referrerIds, trackingEnabled };
-	// 	}
-	// 	// Call API
-	// 	const res = await axios.post("/api/check_referrers", query);
-	// 	if (res.data && res.data.referrers) {
-	// 		const referrers = res.data.referrers.map((referrer: any) => ({
-	// 			label: `${referrer.name} (${referrer.email}) - id: ${referrer.id}`,
-	// 			value: {
-	// 				id: referrer.id,
-	// 				name: referrer.name,
-	// 				email: referrer.email,
-	// 			},
-	// 		}));
-	// 		setSavedReferrers(referrers);
-	// 	}
-	// };
-
-	const fetchReferrers = debounce(async (searchTerm) => {
-		axios
-			.post("/api/find_referrers", { searchTerm })
-			.then((res) => {
-				if (res.data && res.data.referrers) {
-					const options = res.data.referrers.map((ambassador: any) => ({
+	// Refactor debounce usage to be inside useEffect
+	useEffect(() => {
+		const fetchReferrers = debounce(async (searchTerm) => {
+			try {
+				const { data } = await axios.post("/api/find_referrers", {
+					searchTerm,
+				});
+				if (data && data.referrers) {
+					const options = data.referrers.map((ambassador: any) => ({
 						label: `${ambassador.name} (${ambassador.email}) - id: ${ambassador.id}`,
-						value: {
-							id: ambassador.id,
-							name: ambassador.name,
-							email: ambassador.email,
-						},
+						value: ambassador,
 					}));
 					setReferrerOptions(options);
 				}
-			})
-			.catch((err) => {
+			} catch (err) {
 				console.error("Error fetching referrers: ", err);
-			});
-	}, 500);
+				setReferrerOptions([]); // Clear options on error
+			}
+		}, 500);
+
+		if (inputValue) {
+			fetchReferrers(inputValue);
+		}
+	}, [inputValue]); // fetchReferrers moved inside useEffect to ensure it's created once
 
 	const handleAddReferrer = () => {
 		const newSavedReferrers = [...savedReferrers, ...selectedReferrers];
@@ -111,59 +84,60 @@ const ReferrerInput = ({
 		handleDeleteReferrer(index);
 	};
 
-	const handleSelectReferrer = (selectedOption: any, index: number) => {
-		const updatedReferrers = [...selectedReferrers];
-		updatedReferrers[index] = selectedOption;
-		setSelectedReferrers(updatedReferrers);
+	const updateLocalStorageAndParent = (referrers: any[]) => {
+		localStorage.setItem("referrerData", JSON.stringify(referrers));
+		setReferrers(referrers.map((referrer) => referrer.value)); // Assuming `referrer.value` holds the detailed object
 	};
 
-	const updateLocalStorageAndParent = (referrers: any) => {
-		// Convert referrers to ID array for localStorage
-		const referrerDetails = referrers.map((referrer: any) => ({
-			...referrer.value,
-			addedThroughInput: true, // Mark as added through input
-		}));
-		localStorage.setItem("referrerData", JSON.stringify(referrerDetails));
-		setReferrers(referrers); // Update parent component
-	};
-	// Check if referrerIds is present in localStorage
-	const handleExistingReferral = async (referrerIds: string[]) => {
-		await handleReferrerIds({
-			urlReferrerIds: referrerIds,
-			setReferrers,
-			setReferrerIds,
-			pageSource: path!,
-		});
-	};
-	const handleCheckReferral = () => {
-		if (typeof window !== "undefined") {
-			// The code now runs only on the client side
+	// Improved error handling and validation for ref
+	useEffect(() => {
+		const handleCheckReferral = async () => {
+			if (typeof window === "undefined") return;
 
+			let referrerIds = [];
 			if (ref) {
-				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(JSON.parse(ref as string));
-				return;
+				try {
+					referrerIds = JSON.parse(ref);
+					if (!Array.isArray(referrerIds))
+						throw new Error("Referrer IDs must be an array.");
+				} catch (err) {
+					console.error("Invalid format for referrer IDs in URL.", err);
+					return;
+				}
 			} else {
 				const storedData = localStorage.getItem("referrerData");
-				if (!storedData) return;
-				const { referrerIds } = JSON.parse(storedData as string);
-				setReferralSource("Friend/Someone referred");
-				handleExistingReferral(referrerIds);
+				if (storedData) {
+					const parsedData = JSON.parse(storedData);
+					referrerIds = parsedData?.referrerIds || [];
+				}
 			}
-		}
-	};
 
-	// Check if referrerIds is present in URL or localStorage
-	useEffect(() => {
-		// Check if referrerIds is present in URL
+			if (referrerIds.length > 0) {
+				setReferralSource("Friend/Someone referred");
+				await handleReferrerIds({
+					urlReferrerIds: referrerIds,
+					setReferrers,
+					setReferrerIds,
+					pageSource: path!,
+					setSavedReferrers,
+				});
+			}
+		};
+
 		handleCheckReferral();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ref]);
+	}, [ref, path, setReferrers, setReferrerIds, setSavedReferrers]);
 
 	// Handle referral source change
 	const handleReferralChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setReferralSource(e.target.value);
 		setSpecificReferral(""); // Reset specific referral if the referral source is changed
+	};
+
+	// Handle referrer selection
+	const handleSelectedReferrer = (selectedOption: any, index: number) => {
+		const updatedReferrers = [...selectedReferrers];
+		updatedReferrers[index] = selectedOption;
+		setSelectedReferrers(updatedReferrers);
 	};
 	// Render specific referral input based on referral source
 	const renderSpecificReferralInput = () => {
@@ -181,13 +155,13 @@ const ReferrerInput = ({
 							key={index}
 							value={selectedReferrer}
 							onChange={(selectedOption) =>
-								handleSelectReferrer(selectedOption, index)
+								handleSelectedReferrer(selectedOption, index)
 							}
 							options={referrerOptions}
 						/>
 					))}
 					<button onClick={handleAddReferrer}>Add another referrer</button>
-					<div>
+					<div className='text-xs text-gray-400 p-2'>
 						{savedReferrers.map((referrer: any, index: number) => (
 							<div key={index}>
 								<span>{referrer.label}</span>
@@ -233,7 +207,6 @@ const ReferrerInput = ({
 
 	return (
 		<div>
-			{/* Referral source dropdown */}
 			<div className='flex flex-col mb-4'>
 				<label className='mb-2'>How did you hear about Eco Wealth?</label>
 				<select
