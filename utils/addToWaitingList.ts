@@ -7,24 +7,23 @@ type Props = {
 	email: string;
 	referralSource?: string;
 	referrers?: object[];
-	specificReferral?: string;
 	referrerIds?: string[];
 	router: any;
+	setLoading: (loading: boolean) => void;
 };
 async function addToWaitingList({
 	name,
 	email,
 	referralSource,
 	referrers,
-	specificReferral,
 	referrerIds,
 	router,
+	setLoading,
 }: Props) {
 	const sanitizedName = DOMPurify.sanitize(name);
 	const sanitizedEmail = DOMPurify.sanitize(email);
 	const sanitizedReferralSource = DOMPurify.sanitize(referralSource || "");
 	const sanitizedReferrers = referrers && sanitizeJsonObject(referrers);
-	const sanitizedSpecificReferral = DOMPurify.sanitize(specificReferral || "");
 	const sanitizedReferrerIds = referrerIds && sanitizeStringArray(referrerIds);
 	//
 	if (!referrerIds) {
@@ -34,15 +33,16 @@ async function addToWaitingList({
 					name: sanitizedName,
 					email: sanitizedEmail,
 					referralSource: sanitizedReferralSource,
-					specificReferral: sanitizedSpecificReferral,
 				})
 				.then((res) => {
+					setLoading(false);
 					router.push(
 						`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
 					);
 					return;
 				})
 				.catch((err) => {
+					setLoading(false);
 					console.log("/api/waiting_list >> err", err);
 					return;
 				});
@@ -53,12 +53,14 @@ async function addToWaitingList({
 					email: sanitizedEmail,
 				})
 				.then((res) => {
+					setLoading(false);
 					router.push(
 						`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
 					);
 					return;
 				})
 				.catch((err) => {
+					setLoading(false);
 					console.log("/api/waiting_list >> err", err);
 					return;
 				});
@@ -71,15 +73,16 @@ async function addToWaitingList({
 				referralSource: sanitizedReferralSource,
 				referrerIds: sanitizedReferrerIds,
 				referrers: sanitizedReferrers,
-				specificReferral: sanitizedSpecificReferral,
 			})
 			.then((res) => {
+				setLoading(false);
 				router.push(
 					`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
 				);
 				return;
 			})
 			.catch((err) => {
+				setLoading(false);
 				console.log("/api/waiting_list >> err", err);
 				return;
 			});

@@ -2,7 +2,8 @@ import axios from "axios";
 import { maxNumberOfReferrers } from "@/utils/constants";
 import deduplicateByUniqueKey from "./deduplicateByUniqueKey";
 import extractObjValuesToStringArray from "./extractObjValuesToStringArray";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import validator from "validator";
 
 type Referrer = {
 	id: string;
@@ -21,8 +22,7 @@ type ReferrerData = {
 };
 type Props = {
 	pageSource: string;
-	urlReferrerIds?: string[];
-	urlEmail?: string; // New optional property for email
+	urlEmail: string;
 	maxStoredIds?: number;
 	setReferrer?: (referrer: any) => void;
 	setReferrers?: (referrers: any) => void;
@@ -30,11 +30,10 @@ type Props = {
 	setSavedReferrers?: (referrers: any) => void;
 };
 
-export default async function handleReferrerIds({
-	urlReferrerIds = [],
-	urlEmail, // Include urlEmail in the function parameters
+export default async function handleReferrerUrlEmail({
+	urlEmail, // Referrer IDs from URL
 	pageSource,
-	maxStoredIds = maxNumberOfReferrers,
+	maxStoredIds = maxNumberOfReferrers, // Max number of stored referral IDs
 	setReferrer,
 	setReferrers,
 	setReferrerIds,
@@ -59,16 +58,15 @@ export default async function handleReferrerIds({
 		"referrerId"
 	);
 
-	// Combine referrerIds and urlReferrerIds while removing duplicates
-	const combinedReferrerIds = Array.from(
-		new Set([...urlReferrerIds, ...referrerIds])
-	).filter((id) => id !== "");
-
-	// If no referrer IDs are present, exit function
-	if (combinedReferrerIds.length === 0) return;
+	if (
+		!urlEmail ||
+		urlEmail === "" ||
+		typeof urlEmail !== "string" ||
+		!validator.isEmail(urlEmail)
+	)
+		return;
 
 	let queryData = {
-		urlReferrerIds,
 		urlEmail,
 		refIds: referrerIds,
 		pageSource,
@@ -79,16 +77,15 @@ export default async function handleReferrerIds({
 
 	// Call the API to check the referrer data
 	try {
-		const res = await axios.post("/api/check_referrers", queryData);
-
+		const res = await axios.post("/api/check/referrers/email", queryData);
 		if (res.data && res.data.referrers && res.data.referrers.length > 0) {
 			let refData = res.data.referrers.map((referrer: any) => ({
-				referrerId: referrer.referrerId,
+				referrerId: referrer.refId,
 				referrer: {
-					name: referrer.referrer.name,
-					email: referrer.referrer.email,
+					name: referrer.name,
+					email: referrer.email,
 				},
-				dateAdded: referrer.dateAdded,
+				dateAdded: new Date().toISOString(),
 				pageSource: referrer.pageSource,
 				inputSource: referrer.inputSource,
 			}));
@@ -113,8 +110,8 @@ export default async function handleReferrerIds({
 			setSavedReferrers?.(
 				res.data.referrers.map((referrer: any) => ({
 					label: referrer.email
-						? `${referrer.referrer.name} (${referrer.referrer.email}) - id: ${referrer.referrerId}`
-						: `${referrer.referrer.name} - id: ${referrer.referrerId}`,
+						? `${referrer.name} (${referrer.email}) - id: ${referrer.refId}`
+						: `${referrer.name} - id: ${referrer.refId}`,
 					value: referrer,
 				}))
 			);

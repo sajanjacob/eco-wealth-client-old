@@ -1,7 +1,7 @@
 "use client";
 import React, { ReactHTML, useEffect, useState } from "react";
 import { isEmailValid } from "@/utils/isEmailValid";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { BiLock } from "react-icons/bi";
 import Logo from "./Logo";
@@ -12,27 +12,49 @@ import addToWaitingList from "@/utils/addToWaitingList";
 
 import ReferrerInput from "./referral/WaitingList/ReferrerInput";
 import extractObjValuesToStringArray from "@/utils/extractObjValuesToStringArray";
+import EmailInput from "./referral/WaitingList/EmailInput";
+import Loading from "./Loading";
 type Props = {
 	formHeight?: string;
 	showLogo?: boolean;
 };
+type Referrer = {
+	referrerId: string;
+	referrer: {
+		name: string;
+		email: string;
+	};
+	dateAdded: string;
+	pageSource: string;
+	inputSource: string;
+};
+
 function WaitingListForm({ formHeight, showLogo = true }: Props) {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [emailError, setEmailError] = useState("");
 	const [referralSource, setReferralSource] = useState("");
 	const [referrer, setReferrer] = useState("");
-	const [referrers, setReferrers] = useState<Object[]>([{}]);
-	const [referringFriend, setReferringFriend] = useState("");
-	const [specificReferral, setSpecificReferral] = useState("");
+	const [referrers, setReferrers] = useState<Referrer[]>([]);
+	const [specificReferrer, setSpecificReferrer] = useState<Referrer>({
+		referrerId: "",
+		referrer: {
+			name: "",
+			email: "",
+		},
+		dateAdded: "",
+		pageSource: "",
+		inputSource: "",
+	});
 	const [isFormValid, setIsFormValid] = useState(false);
 	const searchParams = useSearchParams();
 	const refIds = searchParams?.get("r");
 	const [captcha, setCaptcha] = useState<string | null>("");
 	const [referrerIds, setReferrerIds] = useState<string[]>([]);
 	const RECAPTCHA_SITE_KEY = process.env.recaptcha_site_key;
-
+	const [isRegistered, setIsRegistered] = useState(false);
 	const router = useRouter();
+	const [loading, setLoading] = useState(false);
 	const getReferrerIds = () => {
 		const storedData = localStorage.getItem("referrerData");
 		if (!storedData) return null;
@@ -46,33 +68,42 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 		e.preventDefault();
 		// Validate email
 		console.log("submitting...");
+		setLoading(true);
 		if (!validator.isEmail(email)) {
 			setEmailError("Invalid email address");
 			return;
 		}
 		setEmailError("");
-
+		if (
+			specificReferrer.referrer.name !== "" &&
+			specificReferrer.referrer.name.length >= 3
+		) {
+			setReferrers([...referrers, specificReferrer]);
+		}
 		// Check if referrerIds is present in URL or localStorage;
 		const referrerIds = getReferrerIds();
 		if (!name || !email || !captcha) return;
 		// Send form data to the server
-
 		if (!referrerIds) {
 			// Send form data to the server
 			if (referralSource !== "") {
+				// TODO: Add a check for email or name and modify referrers to include the specificReferral as
+				// either the name or email based on the check, referrers should include any localStorage referrers even if the
+				// referralSource is not 'friend/someone referred'
 				addToWaitingList({
 					name,
 					email,
 					referralSource,
 					referrers,
-					specificReferral: referrer !== "" ? referrer : specificReferral,
 					router,
+					setLoading,
 				});
 			} else {
 				addToWaitingList({
 					name,
 					email,
 					router,
+					setLoading,
 				});
 			}
 		} else {
@@ -81,17 +112,15 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 				email,
 				referralSource,
 				referrers,
-				specificReferral,
 				referrerIds,
 				router,
+				setLoading,
 			});
 		}
 	};
 
 	useEffect(() => {
-		console.log("referrer >>> ", referrers);
-		console.log("referralSource >>> ", referralSource);
-		console.log("specificReferral >>> ", specificReferral);
+		console.log("isRegistered >>> ", isRegistered);
 
 		// Check if all required fields are filled and valid
 		const isValid =
@@ -99,10 +128,39 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 			isEmailValid(email) &&
 			captcha !== null &&
 			captcha !== "" &&
-			captcha !== undefined;
+			captcha !== undefined &&
+			!isRegistered;
 		// Add reCaptcha validation here
 		setIsFormValid(isValid);
-	}, [name, email, captcha, referrers, referralSource, specificReferral]);
+	}, [
+		name,
+		email,
+		captcha,
+		referrers,
+		referralSource,
+		specificReferrer,
+		isRegistered,
+	]);
+
+	if (loading)
+		return (
+			<div
+				className={`flex flex-col items-center justify-center ${
+					formHeight || "min-h-screen"
+				} w-[300px] mx-auto`}
+			>
+				{showLogo && (
+					<Logo
+						width={384}
+						height={150}
+					/>
+				)}
+				<h2 className='mb-12 lg:text-xl text-gray-400 text-center'>
+					Be the first to know when Eco Wealth launches!
+				</h2>
+				<Loading message='Adding you to the waitlist...' />
+			</div>
+		);
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -129,23 +187,20 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 					onChange={(e) => setName(e.target.value)}
 				/>
 			</div>
-			<div className='flex flex-col mb-4'>
-				<label className='mb-2'>Email:</label>
-				<input
-					type='email'
-					value={email}
-					className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
-					onChange={(e) => setEmail(e.target.value)}
-				/>
-				{emailError && <p style={{ color: "red" }}>{emailError}</p>}
-			</div>
+			<EmailInput
+				email={email}
+				setEmail={setEmail}
+				emailError={emailError}
+				isRegistered={isRegistered}
+				setIsRegistered={setIsRegistered}
+			/>
 
 			<ReferrerInput
 				referralSource={referralSource}
 				setReferralSource={setReferralSource}
 				setReferrerIds={setReferrerIds}
-				specificReferral={specificReferral}
-				setSpecificReferral={setSpecificReferral}
+				specificReferrer={specificReferrer}
+				setSpecificReferrer={setSpecificReferrer}
 				setReferrers={setReferrers}
 			/>
 			<ReCAPTCHA
