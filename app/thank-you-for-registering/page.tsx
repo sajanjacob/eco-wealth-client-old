@@ -11,6 +11,8 @@ export default function ThankYouForRegistering({}: Props) {
 	function handleReturnHome() {
 		router.push("/");
 	}
+	// TODO: add a route to try resending the confirmation email
+	// TODO: add a update email field and route
 
 	return (
 		<div className='flex flex-col w-5/6 mx-auto justify-center min-h-screen  '>

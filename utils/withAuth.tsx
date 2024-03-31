@@ -77,6 +77,16 @@ export default function withAuth(WrappedComponent: React.ComponentType<any>) {
 								refAgreement: res.data.refUser.agreement_accepted,
 								refAgreementAcceptedAt: res.data.refUser.agreement_accepted_at,
 								referralId: res.data.refUser.id,
+								ecoWealthContributionPercentage:
+									res.data?.refUser
+										?.eco_wealth_non_profit_contribution_percentage,
+								enagicContributionPercentage:
+									res.data?.refUser?.enagic_non_profit_contribution_percentage,
+								ecoXSolarContributionPercentage:
+									res.data?.refUser
+										?.eco_x_solar_non_profit_contribution_percentage,
+								contactEmail: res.data?.refUser?.contact_email,
+								enagicId: res.data?.refUser?.enagic_id,
 							})
 						); // Dispatch a redux action
 

@@ -138,9 +138,22 @@ export default function Login() {
 					...getUserDetails(res.data.user),
 					mfaVerified: res.data.mfaVerified,
 					loadingUser: false,
-					refAgreement: res.data?.refUser?.agreementAccepted,
-					refAgreementAcceptedAt: res.data?.refUser?.agreementAcceptedAt,
-					referralId: res.data?.refUser?.id,
+					refAgreement:
+						res.data?.user?.referral_ambassadors?.agreement_accepted,
+					refAgreementAcceptedAt:
+						res.data?.user?.referral_ambassadors?.agreement_accepted_at,
+					referralId: res.data?.user?.referral_ambassadors?.id,
+					ecoWealthContributionPercentage:
+						res.data?.user?.referral_ambassadors
+							?.eco_wealth_non_profit_contribution_percentage,
+					enagicContributionPercentage:
+						res.data?.user?.referral_ambassadors
+							?.enagic_non_profit_contribution_percentage,
+					ecoXSolarContributionPercentage:
+						res.data?.user?.referral_ambassadors
+							?.eco_x_solar_non_profit_contribution_percentage,
+					contactEmail: res.data?.user?.referral_ambassadors?.contact_email,
+					enagicId: res.data?.user?.referral_ambassadors?.enagic_id,
 				};
 				dispatch(setUser(userValues));
 				if (!res.data.onboardingComplete && res.data.mfaVerified) {

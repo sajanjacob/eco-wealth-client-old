@@ -75,7 +75,8 @@ export default function EcoWealth({}: Props) {
 			<h3 className='text-gray-400 text-sm py-2'>
 				<b>Note:</b> All Enagic sales are collaborative sales meaning referral
 				ambassadors can stack referral ids with other ambassadors before a sale
-				is made and split the sale commissions.
+				is made and split the sale commissions. Commissions are subject to
+				change throughout alpha and beta testing, and when the platform is live.
 			</h3>
 			<TieredCommissionTable />
 		</div>

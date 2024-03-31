@@ -43,7 +43,7 @@ const Component = ({}: Props) => {
 				>
 					Eco Wealth
 				</button>
-				<button
+				{/* <button
 					onClick={() => handleCategoryChange("EnagicLinks")}
 					className={`px-4 py-2 ${
 						activeCategory === "EnagicLinks"
@@ -52,7 +52,7 @@ const Component = ({}: Props) => {
 					}`}
 				>
 					Enagic
-				</button>
+				</button> */}
 				{/* <button
 					onClick={() => handleCategoryChange("EcoxSolar")}
 					className={`px-4 py-2 ${

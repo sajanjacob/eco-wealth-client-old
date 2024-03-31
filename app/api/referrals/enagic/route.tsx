@@ -13,7 +13,7 @@ interface DataObject {
 	add_ons: object[];
 	referrer_ids: string[];
 	referrer_info: string;
-	referral_source: string;
+	referral_source_type: string;
 	status: string;
 }
 export async function POST(req: NextRequest, res: NextResponse) {

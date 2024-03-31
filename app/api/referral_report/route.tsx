@@ -5,7 +5,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const cookieStore = cookies();
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-	const { referrerIds } = await req.json();
+	const { referralId } = await req.json();
 	// Check total number of referral ambassadors
 	const { error: referralAmbassadorsError, count: referralAmbassadorsCount } =
 		await supabase.from("referral_ambassadors").select("*", { count: "exact" });
@@ -15,11 +15,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		.from("total_referrals_view")
 		.select("*");
 
-	console.log("referrerIds >> ", referrerIds);
+	console.log("referralId >> ", referralId);
 	const { data: userReferrals, error: userReferralsError } = await supabase
 		.from("total_user_referrals_view")
 		.select("*")
-		.contains("referrer_ids", [`${referrerIds}`]);
+		.contains("referrer_ids", [`${referralId}`]);
 	// Return error if there is an error retrieving the total number of referral ambassadors or total number of referrals
 	if (referralAmbassadorsError || totalReferralsError || userReferralsError) {
 		return NextResponse.json(

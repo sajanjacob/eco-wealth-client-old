@@ -14,6 +14,7 @@ import ReferrerInput from "./referral/WaitingList/ReferrerInput";
 import extractObjValuesToStringArray from "@/utils/extractObjValuesToStringArray";
 import EmailInput from "./referral/WaitingList/EmailInput";
 import Loading from "./Loading";
+import ReferrerCount from "./referral/WaitingList/ReferrerCount";
 type Props = {
 	formHeight?: string;
 	showLogo?: boolean;
@@ -46,6 +47,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 		pageSource: "",
 		inputSource: "",
 	});
+	const [inputValueParent, setInputValueParent] = useState("");
 	const [isFormValid, setIsFormValid] = useState(false);
 	const searchParams = useSearchParams();
 	const refIds = searchParams?.get("r");
@@ -55,6 +57,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 	const [isRegistered, setIsRegistered] = useState(false);
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
+	const path = usePathname();
 	const getReferrerIds = () => {
 		const storedData = localStorage.getItem("referrerData");
 		if (!storedData) return null;
@@ -64,6 +67,11 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 		);
 		return referrerIds;
 	};
+	useEffect(() => {
+		if (referralSource) {
+			console.log("referralSource >>> ", referralSource);
+		}
+	}, [referralSource]);
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		// Validate email
@@ -74,12 +82,38 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 			return;
 		}
 		setEmailError("");
+		let finalReferrers = [...referrers];
 		if (
 			specificReferrer.referrer.name !== "" &&
-			specificReferrer.referrer.name.length >= 3
+			specificReferrer.referrer.name.length >= 3 &&
+			!finalReferrers.some(
+				(r) => r.referrer.name === specificReferrer.referrer.name
+			)
 		) {
+			finalReferrers = [...referrers, specificReferrer];
 			setReferrers([...referrers, specificReferrer]);
+		} else {
+			finalReferrers = referrers;
 		}
+		// Check if there's inputValue that hasn't been added as a referrer
+		if (
+			inputValueParent &&
+			inputValueParent.length >= 3 &&
+			!finalReferrers.some((r) => r.referrer.name === inputValueParent)
+		) {
+			const newReferrer = {
+				referrerId: "",
+				referrer: {
+					name: inputValueParent,
+					email: "", // If you need an email, you can adjust accordingly
+				},
+				dateAdded: new Date().toISOString(),
+				pageSource: path || "",
+				inputSource: "text",
+			};
+			finalReferrers.push(newReferrer);
+		}
+
 		// Check if referrerIds is present in URL or localStorage;
 		const referrerIds = getReferrerIds();
 		if (!name || !email || !captcha) return;
@@ -87,14 +121,11 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 		if (!referrerIds) {
 			// Send form data to the server
 			if (referralSource !== "") {
-				// TODO: Add a check for email or name and modify referrers to include the specificReferral as
-				// either the name or email based on the check, referrers should include any localStorage referrers even if the
-				// referralSource is not 'friend/someone referred'
 				addToWaitingList({
 					name,
 					email,
 					referralSource,
-					referrers,
+					referrers: finalReferrers,
 					router,
 					setLoading,
 				});
@@ -111,7 +142,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 				name,
 				email,
 				referralSource,
-				referrers,
+				referrers: finalReferrers,
 				referrerIds,
 				router,
 				setLoading,
@@ -120,8 +151,6 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 	};
 
 	useEffect(() => {
-		console.log("isRegistered >>> ", isRegistered);
-
 		// Check if all required fields are filled and valid
 		const isValid =
 			name.trim() !== "" &&
@@ -202,6 +231,7 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 				specificReferrer={specificReferrer}
 				setSpecificReferrer={setSpecificReferrer}
 				setReferrers={setReferrers}
+				setInputValueParent={setInputValueParent}
 			/>
 			<ReCAPTCHA
 				sitekey={RECAPTCHA_SITE_KEY!}
@@ -237,6 +267,9 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 					</a>
 					.
 				</p>
+			</div>
+			<div className='flex justify-start w-[100%] mt-4'>
+				{referralSource === "" && <ReferrerCount />}
 			</div>
 		</form>
 	);

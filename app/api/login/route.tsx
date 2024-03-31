@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 	// Get user data from public.users table
 	const { data: userData, error: userError } = await supabase
 		.from("users")
-		.select("*, producers(*), investors(*)")
+		.select("*, producers(*), investors(*), referral_ambassadors(*)")
 		.eq("id", data.user.id)
 		.single();
 

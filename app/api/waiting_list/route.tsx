@@ -4,10 +4,33 @@ import { BASE_URL } from "@/constants";
 import sanitizeHtml from "sanitize-html";
 import { gen } from "n-digit-token"; // email validation token
 import validator from "validator"; // email validator
-import sanitizeJsonObject from "@/utils/sanitizeJsonObject";
+
 import sanitizeStringArray from "@/utils/sanitizeStringArray";
+import sanitizeArrayOfObjects from "@/utils/sanitizeArrayOfObjects";
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+type ReferrerItem = {
+	referrer: {
+		name: string;
+		email: string;
+	};
+	dateAdded: string;
+	pageSource: string;
+	referrerId: string;
+	inputSource: string;
+};
+function deduplicateReferrers(referrerArray: ReferrerItem[]): ReferrerItem[] {
+	const uniqueReferrers = new Map<string, ReferrerItem>();
+
+	referrerArray.forEach((item) => {
+		const referrerId = item.referrerId;
+		if (!uniqueReferrers.has(referrerId)) {
+			uniqueReferrers.set(referrerId, item);
+		}
+	});
+
+	return Array.from(uniqueReferrers.values());
+}
 
 export async function POST(req: NextRequest, res: NextResponse) {
 	// Initialize Supabase
@@ -34,10 +57,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const sanitizedName = sanitizeHtml(name);
 	const sanitizedEmail = sanitizeHtml(email);
 	const sanitizedReferralSource = sanitizeHtml(referralSource);
-	const sanitizedReferrers = referrers && sanitizeJsonObject(referrers);
+	let sanitizedReferrers = referrers && sanitizeArrayOfObjects(referrers);
+	sanitizedReferrers = deduplicateReferrers(sanitizedReferrers);
 	const sanitizedSpecificReferral = sanitizeHtml(specificReferral);
-	const sanitizedReferrerIds = referrerIds && sanitizeStringArray(referrerIds);
-
+	let sanitizedReferrerIds = referrerIds && sanitizeStringArray(referrerIds);
+	sanitizedReferrerIds = sanitizedReferrerIds.filter(
+		(item: string) => item !== ""
+	); // Remove empty strings within the referrerIds array
+	console.log("sanitizedReferrerIds >>> ", sanitizedReferrerIds);
 	const token: string = gen(333);
 	let waitingListData = {};
 
@@ -45,17 +72,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		name: sanitizedName,
 		email: sanitizedEmail,
 		referral_source_type: sanitizedReferralSource,
-		referred_source: sanitizedSpecificReferral,
 		referrer_ids: sanitizedReferrerIds,
 		referrers: sanitizedReferrers,
 	};
-
+	console.log("waiting list data >>> ", waitingListData);
 	const { data, error } = await supabase
 		.from("waiting_list")
 		.insert([waitingListData])
 		.select();
 
 	if (error) {
+		console.log("error", error.message);
 		return NextResponse.json({ message: error.message }, { status: 501 });
 	}
 	const { error: verificationTokenError } = await supabase
@@ -68,6 +95,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 		])
 		.select();
 	if (verificationTokenError) {
+		console.log("error", verificationTokenError.message);
 		return NextResponse.json(
 			{ message: verificationTokenError.message },
 			{ status: 501 }
@@ -86,7 +114,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	const firstName = extractFirstName(name);
 
 	const msg = {
-		to: email,
+		to: sanitizedEmail,
 		from: { email: "info@ecowealth.app", name: "Eco Wealth Notifications" },
 		subject: `Thank you for registering ${firstName}, please verify your email to join Eco Wealth's waiting list now!`,
 		html: `<div style="color:#444444; line-height:20px; padding:16px 16px 16px 16px; text-align:Left;">
@@ -100,15 +128,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
       </div>`,
 	};
 
-	await sgMail
-		.send(msg)
-		.then(() => {
-			console.log("verification email sent");
-		})
-		.catch((error: any) => {
-			console.log("error", error);
-			return NextResponse.json({ message: error.message }, { status: 501 });
-		});
+	// Disabled for testing
+
+	// await sgMail
+	// 	.send(msg)
+	// 	.then(() => {
+	// 		console.log("verification email sent");
+	// 	})
+	// 	.catch((error: any) => {
+	// 		console.log("error sending verification email", error);
+	// 		return NextResponse.json({ message: error.message }, { status: 501 });
+	// 	});
 
 	// TODO: Add to mailing list
 	return NextResponse.json({ message: "success" }, { status: 200 });

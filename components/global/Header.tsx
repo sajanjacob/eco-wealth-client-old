@@ -506,23 +506,23 @@ const Header = ({}: Props) => {
 							Join the waiting list today
 						</button>
 						<WaitingListMobileMenu />
-						{BASE_URL === "https://alpha.ecowealth.app" ||
-							(BASE_URL === "http://localhost:3000" && (
-								<div className='flex-col'>
-									<a
-										className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
-										onClick={handleLoginClick}
-									>
-										Login
-									</a>
-									<a
-										className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
-										onClick={handleSignupClick}
-									>
-										Signup
-									</a>
-								</div>
-							))}
+						{(BASE_URL === "https://alpha.ecowealth.app" ||
+							BASE_URL === "http://localhost:3000") && (
+							<div className='flex-col'>
+								<a
+									className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
+									onClick={handleLoginClick}
+								>
+									Login
+								</a>
+								<a
+									className='hidden md:block cursor-pointer hover:underline text-green-600 font-medium'
+									onClick={handleSignupClick}
+								>
+									Signup
+								</a>
+							</div>
+						)}
 					</>
 				)}
 			</div>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { AiOutlineClose } from "react-icons/ai"; // Assuming you're using react-icons for the close icon as well
+import { BASE_URL } from "@/constants";
 
 type Props = {};
 
@@ -62,20 +63,25 @@ export default function WaitingListMobileMenu({}: Props) {
 					>
 						Join the waiting list today
 					</a>
-					<a
-						href='/login'
-						className='p-4'
-						onClick={() => setIsMenuOpen(false)}
-					>
-						Login
-					</a>
-					<a
-						href='/signup'
-						className='p-4'
-						onClick={() => setIsMenuOpen(false)}
-					>
-						Signup
-					</a>
+					{(BASE_URL === "https://alpha.ecowealth.app" ||
+						BASE_URL === "http://localhost:3000") && (
+						<>
+							<a
+								href='/login'
+								className='p-4'
+								onClick={() => setIsMenuOpen(false)}
+							>
+								Login
+							</a>
+							<a
+								href='/signup'
+								className='p-4'
+								onClick={() => setIsMenuOpen(false)}
+							>
+								Signup
+							</a>
+						</>
+					)}
 				</div>
 			)}
 		</div>

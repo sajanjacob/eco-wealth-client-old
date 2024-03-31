@@ -2,10 +2,10 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 type Props = {
-	referrerIds: string;
+	referralId: string;
 };
 
-export default function ReferralReport({ referrerIds }: Props) {
+export default function ReferralReport({ referralId }: Props) {
 	const [totalCollectiveReferrals, setCollectiveTotalReferrals] = useState(0);
 	const [totalCollectivePotentialPayouts, setTotalCollectivePotentialPayouts] =
 		useState(0);
@@ -15,7 +15,7 @@ export default function ReferralReport({ referrerIds }: Props) {
 	// Get referral report
 	const getReport = async () => {
 		axios
-			.post("/api/referral_report", { referrerIds: referrerIds })
+			.post("/api/referral_report", { referralId: referralId })
 			.then((res) => {
 				console.log(res.data);
 				setCollectiveTotalReferrals(res.data.totalReferrals);

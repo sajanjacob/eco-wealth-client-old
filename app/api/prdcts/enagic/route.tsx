@@ -27,7 +27,7 @@ export async function POST(req: any) {
 			addOns,
 			referrer_info: referrerInfo,
 			referrer_ids: referrerIds,
-			referral_source: referralSource,
+			referral_source_type: referralSource,
 		},
 	]);
 	if (error) {

@@ -9,7 +9,7 @@ type Props = {};
 const Component = ({}: Props) => {
 	const [activeCategory, setActiveCategory] = useState("EcoWealth");
 	const user = useAppSelector((state) => state.user);
-	const referrerIds = user.referrerIds;
+	const referralId = user.referralId;
 	// Function to handle category change
 	const handleCategoryChange = (category: string) => {
 		setActiveCategory(category);

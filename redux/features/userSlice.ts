@@ -9,6 +9,8 @@ const initialState: UserState = {
 	activeRole: "",
 	currentTheme: "dark",
 	email: "",
+	contactEmail: "",
+	enagicId: "",
 	name: "",
 	phoneNumber: "",
 	isVerified: false,
@@ -29,6 +31,9 @@ const initialState: UserState = {
 	refAgreement: false,
 	refAgreementAcceptedAt: "",
 	referralId: "",
+	ecoWealthContributionPercentage: 0,
+	enagicContributionPercentage: 0,
+	ecoXSolarContributionPercentage: 0,
 };
 
 export const userSlice = createSlice({
@@ -47,6 +52,17 @@ export const userSlice = createSlice({
 			if (userData.refAgreementAcceptedAt)
 				state.refAgreementAcceptedAt = userData.refAgreementAcceptedAt;
 			if (userData.referralId) state.referralId = userData.referralId;
+			if (userData.contactEmail) state.contactEmail = userData.contactEmail;
+			if (userData.enagicId) state.enagicId = userData.enagicId;
+			if (userData.ecoWealthContributionPercentage)
+				state.ecoWealthContributionPercentage =
+					userData.ecoWealthContributionPercentage;
+			if (userData.enagicContributionPercentage)
+				state.enagicContributionPercentage =
+					userData.enagicContributionPercentage;
+			if (userData.ecoXSolarContributionPercentage)
+				state.ecoXSolarContributionPercentage =
+					userData.ecoXSolarContributionPercentage;
 			if (userData.currentTheme) state.currentTheme = userData.currentTheme;
 			if (userData.email) state.email = userData.email;
 			if (userData.phoneNumber) state.phoneNumber = userData.phoneNumber;

@@ -2,7 +2,6 @@ import axios from "axios";
 import { maxNumberOfReferrers } from "@/utils/constants";
 import deduplicateByUniqueKey from "./deduplicateByUniqueKey";
 import extractObjValuesToStringArray from "./extractObjValuesToStringArray";
-import { Dispatch, SetStateAction } from "react";
 
 type Referrer = {
 	id: string;
@@ -40,6 +39,8 @@ export default async function handleReferrerIds({
 	setReferrerIds,
 	setSavedReferrers,
 }: Props) {
+	console.log("urlReferrerIds >>> ", urlReferrerIds);
+	console.log("urlEmail >>> ", urlEmail);
 	// Retrieve the existing array of referral data or initialize a new one
 	let referrerData = JSON.parse(localStorage.getItem("referrerData") || "[]");
 	let uniqueReferrerData = deduplicateByUniqueKey(referrerData, "referrerId"); // Deduplicate by referrerId
@@ -47,11 +48,11 @@ export default async function handleReferrerIds({
 	uniqueReferrerData.sort(
 		(a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
 	);
-
 	// Check and remove the oldest referral data if exceeding maxStoredIds
 	while (uniqueReferrerData.length > maxStoredIds) {
 		uniqueReferrerData.shift(); // Remove the oldest entry if max is reached
 	}
+	// Update localStorage with the filtered array
 	localStorage.setItem("referrerData", JSON.stringify(uniqueReferrerData));
 
 	const referrerIds = extractObjValuesToStringArray(
@@ -65,7 +66,7 @@ export default async function handleReferrerIds({
 	).filter((id) => id !== "");
 
 	// If no referrer IDs are present, exit function
-	if (combinedReferrerIds.length === 0) return;
+	if (combinedReferrerIds.length === 0 && !urlEmail) return;
 
 	let queryData = {
 		urlReferrerIds,
@@ -82,6 +83,7 @@ export default async function handleReferrerIds({
 		const res = await axios.post("/api/check_referrers", queryData);
 
 		if (res.data && res.data.referrers && res.data.referrers.length > 0) {
+			console.log("res.data.referrers >>> ", res.data.referrers);
 			let refData = res.data.referrers.map((referrer: any) => ({
 				referrerId: referrer.referrerId,
 				referrer: {
@@ -108,7 +110,7 @@ export default async function handleReferrerIds({
 
 			// Callback functions - safely invoked
 			setReferrer?.(refData.map((data: any) => data.referrer));
-			setReferrers?.(refData.map((data: any) => data.referrer));
+			setReferrers?.(refData.map((data: any) => data));
 			setReferrerIds?.(refData.map((data: any) => data.referrerId));
 			setSavedReferrers?.(
 				res.data.referrers.map((referrer: any) => ({

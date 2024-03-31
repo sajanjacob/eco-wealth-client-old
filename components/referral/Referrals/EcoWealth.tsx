@@ -16,12 +16,12 @@ type Props = {};
 const EcoWealth = ({}: Props) => {
 	const [referrals, setReferrals] = useState<Referral[]>([]);
 	const user = useAppSelector((state) => state.user);
-	const referrerIds = user.referrerIds;
+	const referralId = user.referralId;
 	// Fetch referrals from the backend
 	const fetchReferrals = async () => {
 		axios
 			.post("/api/referrals", {
-				refId: referrerIds,
+				refId: referralId,
 			})
 			.then((res) => {
 				setReferrals(res.data);
@@ -39,7 +39,7 @@ const EcoWealth = ({}: Props) => {
 
 	return (
 		<div className='mt-4'>
-			<ReferralReport referrerIds={referrerIds} />
+			{/* <ReferralReport referralId={referralId} /> */}
 			<h2 className='text-2xl mb-2'>Your Referrals:</h2>
 			<table className='w-[100%] border-white rounded-md border-[1px]'>
 				<thead className='text-left border-b-[1px]'>

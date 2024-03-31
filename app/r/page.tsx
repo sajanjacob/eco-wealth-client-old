@@ -5,6 +5,7 @@ import { Component as Compensation } from "@/components/referral/Compensation/Co
 import ReferralMenu from "@/components/referral/ReferralMenu";
 import ReferralPayouts from "@/components/referral/ReferralPayouts";
 import { Component as Referrals } from "@/components/referral/Referrals/Component";
+import { Component as Settings } from "@/components/referral/Settings/Component";
 import { useAppSelector } from "@/redux/hooks";
 import withAuth from "@/utils/withAuth";
 import axios from "axios";
@@ -40,6 +41,8 @@ function ReferralCenter({}: Props) {
 				return <ReferralPayouts />;
 			case "compensation":
 				return <Compensation />;
+			case "settings":
+				return <Settings />;
 			case "agreement":
 				return (
 					<ReferralAgreement

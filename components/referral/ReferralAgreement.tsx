@@ -163,19 +163,28 @@ export default function ReferralAgreement({
 						<strong>Materials for Affiliates:</strong> Provision of landing
 						pages, graphics, and video training (eventually).
 					</li>
+					<li>
+						<strong>Consensual Promotion & Conduct:</strong> You agree to refer
+						clients and customers for Eco Wealth and any third-party product
+						consensually. Inappropriate marketing or promotional methods are
+						subject to termination of your referral ambassador account.
+						<br /> This includes adding clients to promotional funnels without
+						their explicit consent, adding referral links to spam emails,
+						unsolicited messages, or any other form of unsolicited
+						communication.
+					</li>
 				</ul>
 				<h2 className='text-2xl mt-8 mb-2 font-bold text-white'>
 					7. Program Monitoring and Adjustments
 				</h2>
 				<ul>
 					<li>
-						<strong>Performance Monitoring:</strong> Internal high-level KPIs
-						and individual KPIs for ambassadors (e.g., number of referred users,
-						link clicks).
+						<strong>Performance Monitoring:</strong> As the app develops, we
+						will add relevant performance indicators to help you track progress.
 					</li>
 					<li>
-						<strong>Adjustments:</strong> Openness to making adjustments based
-						on performance metrics and feedback.
+						<strong>Adjustments:</strong> Metrics and KPI&apos;s are open for
+						feedback for adjustments.
 					</li>
 				</ul>
 				<h2 className='text-2xl mt-8 mb-2 font-bold text-white'>
@@ -183,13 +192,8 @@ export default function ReferralAgreement({
 				</h2>
 				<ul>
 					<li>
-						<strong>Legal Considerations:</strong> To be determined in
-						consultation with a compliance specialist.
-					</li>
-					<li>
-						<strong>Policy Documentation:</strong> Detailed policy documents to
-						be reviewed and agreed upon by participants before creating their
-						referral center account.
+						<strong>Legal Consideration:</strong> All content within this
+						agreement, is subject to change after legal review.
 					</li>
 				</ul>
 			</div>

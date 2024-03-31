@@ -2,6 +2,7 @@ import axios from "axios";
 import DOMPurify from "dompurify";
 import sanitizeJsonObject from "./sanitizeJsonObject";
 import sanitizeStringArray from "./sanitizeStringArray";
+import sanitizeArrayOfObjects from "./sanitizeArrayOfObjects";
 type Props = {
 	name: string;
 	email: string;
@@ -23,7 +24,7 @@ async function addToWaitingList({
 	const sanitizedName = DOMPurify.sanitize(name);
 	const sanitizedEmail = DOMPurify.sanitize(email);
 	const sanitizedReferralSource = DOMPurify.sanitize(referralSource || "");
-	const sanitizedReferrers = referrers && sanitizeJsonObject(referrers);
+	const sanitizedReferrers = referrers && sanitizeArrayOfObjects(referrers);
 	const sanitizedReferrerIds = referrerIds && sanitizeStringArray(referrerIds);
 	//
 	if (!referrerIds) {
@@ -35,10 +36,11 @@ async function addToWaitingList({
 					referralSource: sanitizedReferralSource,
 				})
 				.then((res) => {
-					setLoading(false);
-					router.push(
-						`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
-					);
+					router
+						.push(
+							`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
+						)
+						.then(setTimeout(() => setLoading(false), 3000));
 					return;
 				})
 				.catch((err) => {
@@ -53,10 +55,11 @@ async function addToWaitingList({
 					email: sanitizedEmail,
 				})
 				.then((res) => {
-					setLoading(false);
-					router.push(
-						`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
-					);
+					router
+						.push(
+							`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
+						)
+						.then(setTimeout(() => setLoading(false), 3000));
 					return;
 				})
 				.catch((err) => {
@@ -75,10 +78,11 @@ async function addToWaitingList({
 				referrers: sanitizedReferrers,
 			})
 			.then((res) => {
-				setLoading(false);
-				router.push(
-					`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
-				);
+				router
+					.push(
+						`/thank-you-for-registering?name=${sanitizedName}&email=${sanitizedEmail}`
+					)
+					.then(setTimeout(() => setLoading(false), 3000));
 				return;
 			})
 			.catch((err) => {
@@ -90,3 +94,8 @@ async function addToWaitingList({
 }
 
 export default addToWaitingList;
+[
+	"aab6cd38-9051-4127-a3d2-75287e04cb60",
+	"ce7ef793-cdcf-4490-9539-fb761c4e4d46",
+	"202774d3-11a4-4ea3-9201-6cc3148a07b6",
+];

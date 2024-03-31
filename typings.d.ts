@@ -39,6 +39,8 @@ interface UserState {
 	name: string | null;
 	email: string | null;
 	phoneNumber: string | null;
+	contactEmail: string | null;
+	enagicId: string | null;
 
 	// User Status
 	loggedIn: boolean | null;
@@ -77,7 +79,24 @@ interface UserState {
 	refAgreement: boolean;
 	refAgreementAcceptedAt: string;
 	referralId: string;
+	ecoWealthContributionPercentage: number;
+	enagicContributionPercentage: number;
+	ecoXSolarContributionPercentage: number;
 }
+type Referrer = {
+	referrerId: string;
+	referrer: {
+		name: string;
+		email: string;
+	};
+	dateAdded: string;
+	pageSource: string;
+	inputSource: string;
+};
+type ReferrerState = {
+	savedReferrers: Referrer[];
+	referralSource: string;
+};
 
 interface ProducerState {
 	// Identifier

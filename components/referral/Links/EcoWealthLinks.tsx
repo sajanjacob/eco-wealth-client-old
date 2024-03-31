@@ -1,6 +1,8 @@
+"use client";
 import copyToClipboard from "@/utils/copyToClipboard";
-import React from "react";
-
+import React, { useState } from "react";
+import QRCode from "qrcode.react";
+import { BiDownload } from "react-icons/bi";
 type Props = {
 	referralId: string;
 };
@@ -9,10 +11,12 @@ export default function EcoWealthLinks({ referralId }: Props) {
 	const homePageReferralLink = `https://ecowealth.app/?r=${referralId}`;
 	const waitingListReferralLink = `https://ecowealth.app/register?r=${referralId}`;
 	const referralLink = `?r=${referralId}`;
+	const [showHomePageQr, setShowHomePageQr] = useState(false);
+	const [showWaitingListQr, setShowWaitingListQr] = useState(false);
 	return (
 		<div>
 			<div className='mt-2'>
-				<label>Home page:</label>
+				<label>Home pagee:</label>
 				<div className='flex mt-[2px]'>
 					<p
 						className='cursor-pointer mr-2 border-[var(--cta-one)] border-2 p-2 rounded-md w-[max-content] hover:text-[var(--cta-one)] transition-colors'
@@ -26,6 +30,21 @@ export default function EcoWealthLinks({ referralId }: Props) {
 					>
 						Copy link
 					</button>
+				</div>
+				<div className='mt-2'>
+					<p
+						className='text-gray-400 text-xs cursor-pointer hover:text-gray-300 transition-colors'
+						onClick={() => setShowHomePageQr(!showHomePageQr)}
+					>
+						{showHomePageQr ? "Hide " : "Show "}QR Code
+					</p>
+					{showHomePageQr && (
+						<QRCode
+							value={homePageReferralLink}
+							size={150}
+							className='p-2 bg-white rounded-md w-max mt-2'
+						/>
+					)}
 				</div>
 			</div>
 			<div className='mt-4'>
@@ -43,6 +62,21 @@ export default function EcoWealthLinks({ referralId }: Props) {
 					>
 						Copy link
 					</button>
+				</div>
+				<div className='mt-2'>
+					<p
+						className='text-gray-400 text-xs cursor-pointer hover:text-gray-300 transition-colors'
+						onClick={() => setShowWaitingListQr(!showWaitingListQr)}
+					>
+						{showWaitingListQr ? "Hide " : "Show "}QR Code
+					</p>
+					{showWaitingListQr && (
+						<QRCode
+							value={waitingListReferralLink}
+							size={150}
+							className='p-2 bg-white rounded-md w-max mt-2'
+						/>
+					)}
 				</div>
 			</div>
 			<div className='mt-4'>

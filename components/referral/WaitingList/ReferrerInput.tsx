@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Select, { OptionsOrGroups } from "react-select";
 import debounce from "@/utils/debounce";
 import axios from "axios";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -8,18 +7,10 @@ import { buttonClass, inputClass } from "@/lib/tw-styles";
 import AsyncSelect from "react-select/async";
 import { BiPlusCircle } from "react-icons/bi";
 import validator from "validator";
-import handleReferrerUrlEmail from "@/utils/handleReferrerUrlEmail";
-import { MdPeople } from "react-icons/md";
-type Referrer = {
-	referrerId: string;
-	referrer: {
-		name: string;
-		email: string;
-	};
-	dateAdded: string;
-	pageSource: string;
-	inputSource: string;
-};
+import ReferrerCount from "./ReferrerCount";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { setRdxReferrers } from "@/redux/features/referrerSlice";
+import { RootState } from "@/redux/store";
 
 type Props = {
 	setReferrers: (referrers: Referrer[]) => void;
@@ -28,6 +19,7 @@ type Props = {
 	setReferrerIds: (referrerIds: string[]) => void;
 	specificReferrer: Referrer;
 	setSpecificReferrer: (specificReferrer: Referrer) => void;
+	setInputValueParent: (value: string) => void;
 };
 
 const ReferrerInput = ({
@@ -37,10 +29,10 @@ const ReferrerInput = ({
 	setReferrerIds,
 	specificReferrer,
 	setSpecificReferrer,
+	setInputValueParent,
 }: Props) => {
 	const [inputValue, setInputValue] = useState("");
 	const [influencerBrandReferrer, setInfluencerBrandReferrer] = useState("");
-	const [referrerOptions, setReferrerOptions] = useState([]);
 	const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
 	const [selectedReferrer, setSelectedReferrer] = useState<Referrer>({
 		referrerId: "",
@@ -55,7 +47,18 @@ const ReferrerInput = ({
 	const [savedReferrers, setSavedReferrers] = useState<Referrer[]>([]);
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
-
+	const dispatch = useAppDispatch();
+	const rdxReferrers = useAppSelector((state: RootState) => state.referrers);
+	useEffect(() => {
+		setInputValueParent(inputValue);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [inputValue]);
+	useEffect(() => {
+		if (savedReferrers.length > 0) {
+			dispatch(setRdxReferrers({ savedReferrers }));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [savedReferrers]);
 	const path = usePathname();
 
 	// This function creates options of referrers for the visitor to select from
@@ -63,13 +66,13 @@ const ReferrerInput = ({
 		searchTerm: string,
 		callback: (options: any[]) => void
 	) => {
-		console.log("Fetching referrers...");
 		// Check if the input value meets the minimum length requirement
-		if (inputValue.length <= 3) {
+		if (searchTerm.length <= 3) {
 			// Assuming a minimum of 3 characters before fetching
 			callback([]);
 			return;
 		}
+		console.log("Fetching referrers...");
 		await axios
 			.post("/api/find_referrers", {
 				searchTerm,
@@ -80,7 +83,9 @@ const ReferrerInput = ({
 				if (data && data.referrers) {
 					console.log("Referrers: ", data.referrers);
 					const options = data.referrers.map((ambassador: any) => ({
-						label: `${ambassador.users.name} (${ambassador.contact_email}) - id: ${ambassador.id}`,
+						label: `${ambassador.users.name} ${
+							ambassador.contact_email && `(${ambassador.contact_email})`
+						} - id: ${ambassador.id}`,
 						value: {
 							referrerId: ambassador.id,
 							referrer: {
@@ -92,13 +97,11 @@ const ReferrerInput = ({
 							inputSource: "search",
 						},
 					}));
-					// setReferrerOptions(options);
 					callback(options);
 				}
 			})
 			.catch((err) => {
 				console.error("Error fetching referrers: ", err);
-				// setReferrerOptions([]); // Clear options on error
 				callback([]);
 			});
 	};
@@ -111,24 +114,12 @@ const ReferrerInput = ({
 		[]
 	); // this useCallback ensures that the debounced function is created only once
 
-	// Refactor debounce usage to be inside useEffect
-	// useEffect(() => {
-
-	// 	if (inputValue) {
-	// 		fetchReferrers(inputValue);
-	// 	}
-	// }, [inputValue]); // fetchReferrers moved inside useEffect to ensure it's created once
-
-	// useEffect(() => {
-	// 	if (referrerOptions.length > 0) {
-	// 		console.log("Referrer options: ", referrerOptions);
-	// 	}
-	// }, [referrerOptions]);
-
 	const handleAddReferrer = (e: React.MouseEvent) => {
 		if (selectedReferrer === null) return;
 		const newSavedReferrers = [...savedReferrers, selectedReferrer];
 		setSavedReferrers(newSavedReferrers);
+		console.log("newSavedReferrers >>> ", newSavedReferrers);
+		setInputValue("");
 		setSelectedReferrer({
 			referrerId: "",
 			referrer: {
@@ -147,6 +138,7 @@ const ReferrerInput = ({
 		const updatedReferrers = [...savedReferrers];
 		updatedReferrers.splice(index, 1);
 		setSavedReferrers(updatedReferrers);
+		dispatch(setRdxReferrers({ savedReferrers: updatedReferrers }));
 		// Update localStorage and parent state
 		updateLocalStorageAndParent(updatedReferrers);
 	};
@@ -158,8 +150,9 @@ const ReferrerInput = ({
 	};
 
 	const updateLocalStorageAndParent = (referrers: any[]) => {
-		localStorage.setItem("referrerData", JSON.stringify(referrers));
-		setReferrers(referrers.map((referrer) => referrer.value)); // Assuming `referrer.value` holds the detailed object
+		const referrerValues = referrers.map((referrer) => referrer.value);
+		localStorage.setItem("referrerData", JSON.stringify(referrerValues));
+		setReferrers(referrerValues);
 	};
 
 	// Improved error handling and validation for ref
@@ -173,6 +166,7 @@ const ReferrerInput = ({
 
 			// Check if the referrerIdentifiers is an email, an array, or a single ID
 			if (referrerIdentifiers) {
+				console.log("referrerIdentifiers: ", referrerIdentifiers);
 				isEmail = validator.isEmail(referrerIdentifiers);
 				if (!isEmail) {
 					try {
@@ -181,13 +175,14 @@ const ReferrerInput = ({
 							// Treat as a single ID
 							referrerIds = [referrerIdentifiers];
 						}
-					} catch {
+					} catch (e) {
 						// In case parsing failed, treat as a single ID
+						console.error("Error parsing referrer IDs: ", e);
 						referrerIds = [referrerIdentifiers];
 					}
 				}
 			}
-
+			console.log("isEmail >>> ", isEmail);
 			// Fetch and handle referrer data based on the type of identifier
 			if (referrerIdentifiers && isEmail) {
 				await handleReferrerIds({
@@ -221,6 +216,7 @@ const ReferrerInput = ({
 	// Handle referral source change
 	const handleReferralChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setReferralSource(e.target.value);
+		dispatch(setRdxReferrers({ referralSource: e.target.value }));
 		setSpecificReferrer({
 			referrerId: "",
 			referrer: {
@@ -242,19 +238,25 @@ const ReferrerInput = ({
 		setSelectedReferrers(updatedReferrers);
 	};
 
-	const handleInputChange = (newValue: string) => {
-		setInputValue(newValue);
-		setSpecificReferrer({
-			referrerId: "",
-			referrer: {
-				name: newValue,
-				email: "",
-			},
-			dateAdded: "",
-			pageSource: "",
-			inputSource: "",
-		});
-
+	const handleInputChange = (newValue: string, actionMeta: any) => {
+		if (actionMeta.action === "input-change") {
+			setInputValue(newValue);
+		} else if (
+			actionMeta.action === "menu-close" &&
+			!selectedReferrer.referrerId
+		) {
+			// When the menu is closed without a selection, preserve the input value
+			setSelectedReferrer({
+				referrerId: "",
+				referrer: {
+					name: newValue,
+					email: "",
+				},
+				dateAdded: new Date().toISOString(),
+				pageSource: path ?? "",
+				inputSource: "text",
+			});
+		}
 		return newValue;
 	};
 
@@ -275,10 +277,80 @@ const ReferrerInput = ({
 		});
 	};
 	const handleSelectChange = (selectedOption: any) => {
-		setSelectedReferrer(selectedOption);
-		setReferrers([...savedReferrers, selectedOption.value]); // Adjust as needed to match expected structure
+		// setSelectedReferrer(selectedOption);
+		const newSavedReferrers = [...savedReferrers, selectedOption];
+		setReferrers(newSavedReferrers); // Adjust as needed to match expected structure
+		dispatch(
+			setRdxReferrers({
+				savedReferrers: newSavedReferrers,
+			})
+		);
+		updateLocalStorageAndParent(newSavedReferrers);
+		// clear input
+		setInputValue("");
+		setSelectedReferrer({
+			referrerId: "",
+			referrer: {
+				name: "",
+				email: "",
+			},
+			dateAdded: "",
+			pageSource: "",
+			inputSource: "",
+		});
 	};
-	const [showAllReferrers, setShowAllReferrers] = useState(false);
+	const handleInputBlur = () => {
+		// Check if there's text in the input and no selection has been made
+		if (inputValue && selectedReferrer.referrerId === "") {
+			const newReferrer = {
+				...selectedReferrer,
+				referrer: { ...selectedReferrer.referrer, name: inputValue },
+			};
+			setSelectedReferrer(newReferrer);
+			// Optionally, if you want to add this referrer to the savedReferrers list
+			// you can call the handleAddReferrer function or similar logic here.
+		}
+	};
+	const handleAddManualReferrer = () => {
+		if (inputValue) {
+			const newReferrer = {
+				label: `${inputValue}`,
+				value: {
+					referrerId: "", // Empty string or some identifier if available
+					referrer: {
+						name: inputValue,
+						email: "", // Assuming email is empty if the user is manually entering a name
+					},
+					dateAdded: new Date().toISOString(),
+					pageSource: path ?? "",
+					inputSource: "text", // You could add a new input source type 'manual'
+				},
+			};
+
+			// Update the savedReferrers state
+			const newSavedReferrers = [...savedReferrers, newReferrer] as Referrer[];
+			setSavedReferrers(newSavedReferrers);
+
+			// Update the Redux store if needed
+			dispatch(setRdxReferrers({ savedReferrers: newSavedReferrers }));
+
+			// Update localStorage
+			updateLocalStorageAndParent(newSavedReferrers);
+
+			// Reset the inputValue and selectedReferrer
+			setInputValue("");
+			setSelectedReferrer({
+				referrerId: "",
+				referrer: {
+					name: "",
+					email: "",
+				},
+				dateAdded: "",
+				pageSource: "",
+				inputSource: "",
+			});
+		}
+	};
 	// Render specific referral input based on referral source
 	const renderSpecificReferralInput = () => {
 		if (referralSource === "Friend/Someone referred") {
@@ -298,61 +370,47 @@ const ReferrerInput = ({
 								cacheOptions
 								defaultOptions
 								value={selectedReferrer}
+								inputValue={inputValue}
 								loadOptions={debouncedCheck}
 								onInputChange={handleInputChange}
 								onChange={handleSelectChange}
+								onBlur={handleInputBlur}
 								className='text-gray-900 flex-1 my-4'
 							/>
 							{selectedReferrer.referrerId !== "" && (
 								<button
 									className={
-										inputValue.length >= 3
+										selectedReferrer.referrerId !== ""
 											? `${buttonClass} ml-2 !p-3`
 											: `my-4 p-3 ml-2 cursor-default bg-gray-400 hover:bg-gray-400 border-none rounded-md`
 									}
-									disabled={inputValue.length <= 3}
+									disabled={!selectedReferrer.referrerId}
 									onClick={(e) => handleAddReferrer(e)}
+								>
+									<BiPlusCircle className='text-lg' />
+								</button>
+							)}
+							{inputValue && selectedReferrer.referrerId === "" && (
+								<button
+									className={`${buttonClass} ${
+										!inputValue
+											? `my-4 p-3 ml-2 cursor-default bg-gray-400 hover:bg-gray-400 border-none rounded-md`
+											: ""
+									}`}
+									onClick={handleAddManualReferrer}
+									disabled={!inputValue} // Disable the button if there is no input value
 								>
 									<BiPlusCircle className='text-lg' />
 								</button>
 							)}
 						</div>
 					</div>
-					<div className='text-xs text-gray-400 pb-2'>
-						{!showAllReferrers && savedReferrers && (
-							<div
-								className='flex items-center cursor-pointer w-max'
-								onClick={() => setShowAllReferrers(true)}
-								title={`${savedReferrers.length} ${
-									savedReferrers.length === 1 ? "person" : "people"
-								} referred you — click to view`}
-							>
-								<MdPeople className='mr-[2px]' /> {savedReferrers.length}{" "}
-								referrers
-							</div>
-						)}
-						{showAllReferrers &&
-							savedReferrers &&
-							savedReferrers.map((referrer: any, index: number) => (
-								<div
-									key={index}
-									className='mb-2 w-[300px] cursor-pointer'
-									onClick={() => setShowAllReferrers(false)}
-									title='Click to hide'
-								>
-									<span>{referrer.label}</span>
-									{referrer.inputSource === "search" && (
-										<>
-											<button onClick={() => handleEditReferrer(index)}>
-												Edit
-											</button>
-											<button onClick={() => handleDeleteReferrer(index)}>
-												Delete
-											</button>
-										</>
-									)}
-								</div>
-							))}
+					<div className='pb-2'>
+						<ReferrerCount
+							showEditReferrer={true}
+							handleDeleteReferrer={handleDeleteReferrer}
+							handleEditReferrer={handleEditReferrer}
+						/>
 					</div>
 				</div>
 			);
@@ -365,6 +423,7 @@ const ReferrerInput = ({
 				"Threads",
 				"Twitter/X",
 				"Twitch",
+				"Rumble",
 				"Blog/Website",
 			].includes(referralSource)
 		) {
@@ -410,6 +469,7 @@ const ReferrerInput = ({
 					<option value='Threads'>Threads</option>
 					<option value='Twitter/X'>Twitter/X</option>
 					<option value='Twitch'>Twitch</option>
+					<option value='Rumble'>Rumble</option>
 					<option value='Blog/Website'>Blog/Website</option>
 					<option value='Friend/Someone referred'>
 						Friend/Someone referred me
