@@ -13,13 +13,13 @@ type Props = {};
 export default function Enagic({}: Props) {
 	const [referrals, setReferrals] = useState<Referral[]>([]);
 	const user = useAppSelector((state) => state.user);
-	const referrerIds = user.referrerIds;
+	const referralId = user.referralId;
 	// Fetch referrals from the backend
 	const fetchReferrals = async () => {
 		console.log("fetching referrals...");
 		axios
 			.post("/api/referrals/enagic", {
-				refId: referrerIds,
+				refId: referralId,
 			})
 			.then((res) => {
 				setReferrals(res.data);
