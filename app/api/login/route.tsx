@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 	const { data: userData, error: userError } = await supabase
 		.from("users")
 		.select("*, producers(*), investors(*), referral_ambassadors(*)")
-		.eq("id", data.user.id)
+		.eq("id", data.user?.id)
 		.maybeSingle();
 
 	if (userError) {
@@ -74,8 +74,8 @@ export async function POST(req: NextRequest) {
 
 	// Handle MFA verification
 	const checkMFAReverification = (user: any) => {
-		const verificationFrequency = user.mfa_frequency;
-		const verificationTimestamp = user.mfa_verified_at;
+		const verificationFrequency = user?.mfa_frequency;
+		const verificationTimestamp = user?.mfa_verified_at;
 		console.log("verificationFrequency >> ", verificationFrequency);
 		switch (verificationFrequency) {
 			case "Always":
@@ -102,60 +102,60 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ message: "MFA unverified." }, { status: 200 });
 	};
 
-	if (userData.mfa_enabled && userData.mfa_verified) {
+	if (userData?.mfa_enabled && userData?.mfa_verified) {
 		console.log("MFA is enabled and verified");
 		const shouldVerify = checkMFAReverification(userData);
 		console.log("shouldVerify", shouldVerify);
 		if (shouldVerify) {
 			console.log("MFA should be verified");
-			await handleUnverifiedMFA(userData.id);
+			await handleUnverifiedMFA(userData?.id);
 			return NextResponse.json({
 				user: userData,
 				mfaVerified: false,
-				mfaEnabled: userData.mfa_enabled,
-				onboardingComplete: userData.onboarding_complete,
-				activeRole: userData.active_role,
+				mfaEnabled: userData?.mfa_enabled,
+				onboardingComplete: userData?.onboarding_complete,
+				activeRole: userData?.active_role,
 			});
 		}
 	}
-	if (userData.mfa_enabled && !userData.mfa_verified) {
+	if (userData?.mfa_enabled && !userData?.mfa_verified) {
 		console.log("MFA is enabled but not verified");
-		await handleUnverifiedMFA(userData.id);
+		await handleUnverifiedMFA(userData?.id);
 		return NextResponse.json({
 			user: userData,
 			mfaVerified: false,
-			mfaEnabled: userData.mfa_enabled,
-			onboardingComplete: userData.onboarding_complete,
-			activeRole: userData.active_role,
+			mfaEnabled: userData?.mfa_enabled,
+			onboardingComplete: userData?.onboarding_complete,
+			activeRole: userData?.active_role,
 		});
 	}
-	if (!userData.mfa_verified_at) {
+	if (!userData?.mfa_verified_at) {
 		console.log("MFA has no timestamp -- not verified");
-		await handleUnverifiedMFA(userData.id);
+		await handleUnverifiedMFA(userData?.id);
 		return NextResponse.json({
 			user: userData,
 			mfaVerified: false,
-			mfaEnabled: userData.mfa_enabled,
-			onboardingComplete: userData.onboarding_complete,
-			activeRole: userData.active_role,
+			mfaEnabled: userData?.mfa_enabled,
+			onboardingComplete: userData?.onboarding_complete,
+			activeRole: userData?.active_role,
 		});
 	}
 
-	if (!userData.mfa_verified) {
+	if (!userData?.mfa_verified) {
 		console.log("MFA is not verified");
-		await handleUnverifiedMFA(userData.id);
+		await handleUnverifiedMFA(userData?.id);
 		return NextResponse.json({
 			user: userData,
 			mfaVerified: false,
-			mfaEnabled: userData.mfa_enabled,
-			onboardingComplete: userData.onboarding_complete,
-			activeRole: userData.active_role,
+			mfaEnabled: userData?.mfa_enabled,
+			onboardingComplete: userData?.onboarding_complete,
+			activeRole: userData?.active_role,
 		});
 	}
 	const { data: refUser, error: refError } = await supabase
 		.from("referral_ambassadors")
 		.select("*")
-		.eq("user_id", userData.id)
+		.eq("user_id", userData?.id)
 		.single();
 	if (refError) {
 		console.error("Error fetching referral data:", refError.message);
@@ -163,8 +163,8 @@ export async function POST(req: NextRequest) {
 			{
 				user: userData,
 				mfaVerified: true,
-				onboardingComplete: userData.onboarding_complete,
-				activeRole: userData.active_role,
+				onboardingComplete: userData?.onboarding_complete,
+				activeRole: userData?.active_role,
 				refUser: {
 					error: "Error fetching referral data",
 				},
@@ -176,8 +176,8 @@ export async function POST(req: NextRequest) {
 		{
 			user: userData,
 			mfaVerified: true,
-			onboardingComplete: userData.onboarding_complete,
-			activeRole: userData.active_role,
+			onboardingComplete: userData?.onboarding_complete,
+			activeRole: userData?.active_role,
 			refUser,
 		},
 		{ status: 200 }
