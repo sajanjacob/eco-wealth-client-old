@@ -19,7 +19,7 @@ export default function Roles({ user }: Props) {
 		setLoadingRole(role);
 
 		// Add the new role to the user's roles array
-		let newRoles = [];
+		let newRoles: string[] = [];
 		let newRole = "";
 		if (role === "referral ambassador") {
 			newRoles = [...user.roles, "referral_ambassador"];
