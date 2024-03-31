@@ -4,12 +4,12 @@ import React, { useEffect } from "react";
 import handleReferrerIds from "@/utils/handleReferrerIds";
 type Props = {
 	setReferralSource: (arg0: string) => void;
-	setReferrer: (arg0: string) => void;
+	setReferrers: (arg0: string) => void;
 };
 
 export default function CheckReferral({
 	setReferralSource,
-	setReferrer,
+	setReferrers,
 }: Props) {
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
@@ -40,8 +40,9 @@ export default function CheckReferral({
 	}, [ref]);
 
 	// Check if referrerIds is present in localStorage
-	const handleExistingReferral = async (referrerIds: string[]) => {
-		await handleReferrerIds(referrerIds, setReferrer);
+	const handleExistingReferral = async (referrerIds: string) => {
+		// @ts-ignore
+		await handleReferrerIds(referrerIds, setReferrers);
 	};
 	return <></>;
 }
