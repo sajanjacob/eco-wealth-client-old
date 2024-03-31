@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
 		password: sanitizedPassword,
 	});
 	if (error) {
+		console.log("Error logging in:", error.message);
 		return NextResponse.json({ error: error.message }, { status: 500 });
 	}
 	// Get user data from public.users table
@@ -64,9 +65,10 @@ export async function POST(req: NextRequest) {
 		.from("users")
 		.select("*, producers(*), investors(*), referral_ambassadors(*)")
 		.eq("id", data.user.id)
-		.single();
+		.maybeSingle();
 
 	if (userError) {
+		console.log("Error fetching user data:", userError.message);
 		return NextResponse.json({ error: userError.message }, { status: 500 });
 	}
 
