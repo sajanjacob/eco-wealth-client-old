@@ -440,234 +440,238 @@ const ProjectCard = ({
 
 	if (role === "owner")
 		return (
-			<div className='mb-4 lg:w-[308px] w-[408px]  bg-transparent rounded-2xl shadow-md relative md:mr-4 z-10 h-fit'>
-				<div>
-					<Link
-						href={`/p/projects/${projectId}`}
-						passHref
-						className='h-[max-content] w-[max-content]'
-					>
-						<div>
-							{/* eslint-disable-next-line @next/next/no-img-element */}
-							<Image
-								width={288}
-								height={150}
-								src={bannerUrl}
-								alt={title}
-								className='w-full h-48 object-cover rounded-2xl relative'
-							/>
-							<div className='absolute inset-2 flex z-10 justify-end h-12 w-[95%]'>
-								{type === "Energy" ? "⚡" : type === "Tree" ? "🌳" : null}
-								{isNonProfit && "💚"}
-							</div>
-						</div>
-					</Link>
-					<Menu
-						id='basic-menu'
-						anchorEl={anchorEl}
-						open={open}
-						onClose={handleClose}
-						MenuListProps={{
-							"aria-labelledby": "basic-button",
-						}}
-						sx={
-							theme === "dark"
-								? {
-										"& .MuiPaper-root": {
-											backgroundColor: "#0C2100",
-											borderColor: "rgb(20 83 45 / 90%)",
-											borderWidth: "2px",
-											color: "white",
-										},
-										"& .css-6hp17o-MuiList-root-MuiMenu-list": {
-											paddingTop: "0px",
-											paddingBottom: "0px",
-											padding: "4px",
-										},
-								  }
-								: {
-										"& .MuiPaper-root": {
-											backgroundColor: "",
-										},
-								  }
-						}
-					>
-						<MenuItem
-							onClick={handleViewProjectClick}
-							className='hover:bg-[var(--cta-one)] transition-colors'
+			<>
+				<div className='mb-4 lg:w-[308px] w-[408px]  bg-transparent rounded-2xl shadow-md relative md:mr-4 z-10 h-fit'>
+					<div>
+						<Link
+							href={`/p/projects/${projectId}`}
+							passHref
+							className='h-[max-content] w-[max-content]'
 						>
-							View
-						</MenuItem>
-						{status === "approved" && (
+							<div>
+								{/* eslint-disable-next-line @next/next/no-img-element */}
+								<Image
+									width={288}
+									height={150}
+									src={bannerUrl}
+									alt={title}
+									className='w-full h-48 object-cover rounded-2xl relative'
+								/>
+								<div className='absolute inset-2 flex z-10 justify-end h-12 w-[95%]'>
+									{type === "Energy" ? "⚡" : type === "Tree" ? "🌳" : null}
+									{isNonProfit && "💚"}
+								</div>
+							</div>
+						</Link>
+						<Menu
+							id='basic-menu'
+							anchorEl={anchorEl}
+							open={open}
+							onClose={handleClose}
+							MenuListProps={{
+								"aria-labelledby": "basic-button",
+							}}
+							sx={
+								theme === "dark"
+									? {
+											"& .MuiPaper-root": {
+												backgroundColor: "#0C2100",
+												borderColor: "rgb(20 83 45 / 90%)",
+												borderWidth: "2px",
+												color: "white",
+											},
+											"& .css-6hp17o-MuiList-root-MuiMenu-list": {
+												paddingTop: "0px",
+												paddingBottom: "0px",
+												padding: "4px",
+											},
+									  }
+									: {
+											"& .MuiPaper-root": {
+												backgroundColor: "",
+											},
+									  }
+							}
+						>
 							<MenuItem
-								onClick={handlePublish}
+								onClick={handleViewProjectClick}
 								className='hover:bg-[var(--cta-one)] transition-colors'
 							>
-								Publish
+								View
 							</MenuItem>
-						)}
-						<MenuItem
-							onClick={handleEdit}
-							className='hover:bg-[var(--cta-one)] transition-colors'
-						>
-							Edit
-						</MenuItem>
-					</Menu>
-				</div>
-				<div className='mt-[4px]'>
-					{" "}
-					{percentageFunded && percentageFunded >= 0 ? (
-						<div className='my-2'>
-							{project?.projectFinancials?.totalAmountRaised &&
-								project?.projectFinancials?.finalEstProjectFundRequestTotal && (
-									<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
-										$
-										{project?.projectFinancials?.totalAmountRaised?.toLocaleString()}{" "}
-										raised out of $
-										{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
+							{status === "approved" && (
+								<MenuItem
+									onClick={handlePublish}
+									className='hover:bg-[var(--cta-one)] transition-colors'
+								>
+									Publish
+								</MenuItem>
+							)}
+							<MenuItem
+								onClick={handleEdit}
+								className='hover:bg-[var(--cta-one)] transition-colors'
+							>
+								Edit
+							</MenuItem>
+						</Menu>
+					</div>
+					<div className='mt-[4px]'>
+						{" "}
+						{percentageFunded && percentageFunded >= 0 ? (
+							<div className='my-2'>
+								{project?.projectFinancials?.totalAmountRaised &&
+									project?.projectFinancials
+										?.finalEstProjectFundRequestTotal && (
+										<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
+											$
+											{project?.projectFinancials?.totalAmountRaised?.toLocaleString()}{" "}
+											raised out of $
+											{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
+										</p>
+									)}
+								<div>
+									<LinearProgress
+										variant='determinate'
+										color='success'
+										value={percentageFunded}
+									/>
+									<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
+										{percentageFunded.toFixed(2)}% Funded
 									</p>
-								)}
-							<div>
-								<LinearProgress
-									variant='determinate'
-									color='success'
-									value={percentageFunded}
-								/>
-								<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
-									{percentageFunded.toFixed(2)}% Funded
+								</div>
+							</div>
+						) : (
+							<div className='my-2'>
+								<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
+									$0 raised out of $
+									{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
 								</p>
+
+								<div>
+									<LinearProgress
+										variant='determinate'
+										color='success'
+										value={0}
+									/>
+									<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
+										0.00% Funded
+									</p>
+								</div>
+							</div>
+						)}
+						<div className='flex justify-between items-center w-[100%]'>
+							<h3 className='overflow-hidden overflow-ellipsis flex '>
+								<Link
+									href={`/p/projects/${projectId}`}
+									className='no-underline cursor-pointer h-[max-content] w-[max-content]'
+								>
+									<span className='flex-[10] font-semibold text-lg'>
+										{title}
+									</span>
+								</Link>
+								<span
+									className={`bg-transparent border-none cursor-help ${
+										status === "approved"
+											? "text-green-300 text-2xl"
+											: status === "published"
+											? "text-green-500 text-2xl"
+											: "text-red-400 text-2xl"
+									} ml-2 mt-[2px] font-bold flex-[0.5]`}
+								>
+									{status === "approved" || status === "published" ? (
+										<IoCheckmarkCircle
+											data-tooltip-id='tooltip'
+											data-tooltip-content={removeUnderscores(status)}
+										/>
+									) : (
+										<MdOutlineError
+											data-tooltip-id='tooltip'
+											data-tooltip-content={status}
+										/>
+									)}
+								</span>
+							</h3>
+
+							<Tooltip id='tooltip' />
+							<div>
+								<button
+									className='cursor-pointer text-2xl mt-[2px] mr-[-2px]'
+									onClick={handleClick}
+								>
+									<BsThreeDotsVertical />
+								</button>
 							</div>
 						</div>
-					) : (
-						<div className='my-2'>
-							<p className='text-right text-sm mb-[2px] font-semibold tracking-wide'>
-								$0 raised out of $
-								{project?.projectFinancials?.finalEstProjectFundRequestTotal?.toLocaleString()}
+						<Link
+							href={`/p/projects/${projectId}`}
+							className='no-underline cursor-pointer h-[max-content] w-[max-content]'
+						>
+							<p className='text-xs text-gray-400'>
+								{treeProjects
+									? `${
+											treeProjects.projectType === "Restoration"
+												? `Non-profit • Restoration`
+												: treeProjects.projectType
+									  }`
+									: null}
+								{energyProjects && solarProjects
+									? `${
+											isNonProfit
+												? `Non-profit • ${solarProjects[0].locationType}`
+												: solarProjects[0].locationType
+									  }`
+									: null}{" "}
+								{projectFinancials.totalNumberOfInvestors === null ? (
+									`• 0 Investors`
+								) : (
+									<span className='text-xs text-gray-400 mt-[2px]'>
+										{projectFinancials.totalNumberOfInvestors === 1
+											? "• 1 Investor"
+											: `• ${projectFinancials.totalNumberOfInvestors} Investors`}{" "}
+									</span>
+								)}
 							</p>
 
-							<div>
-								<LinearProgress
-									variant='determinate'
-									color='success'
-									value={0}
-								/>
-								<p className='text-xs text-right mt-[2px] tracking-wide text-gray-300'>
-									0.00% Funded
-								</p>
-							</div>
-						</div>
-					)}
-					<div className='flex justify-between items-center w-[100%]'>
-						<h3 className='overflow-hidden overflow-ellipsis flex '>
-							<Link
-								href={`/p/projects/${projectId}`}
-								className='no-underline cursor-pointer h-[max-content] w-[max-content]'
-							>
-								<span className='flex-[10] font-semibold text-lg'>{title}</span>
-							</Link>
-							<span
-								className={`bg-transparent border-none cursor-help ${
-									status === "approved"
-										? "text-green-300 text-2xl"
-										: status === "published"
-										? "text-green-500 text-2xl"
-										: "text-red-400 text-2xl"
-								} ml-2 mt-[2px] font-bold flex-[0.5]`}
-							>
-								{status === "approved" || status === "published" ? (
-									<IoCheckmarkCircle
-										data-tooltip-id='tooltip'
-										data-tooltip-content={removeUnderscores(status)}
-									/>
-								) : (
-									<MdOutlineError
-										data-tooltip-id='tooltip'
-										data-tooltip-content={status}
-									/>
-								)}
-							</span>
-						</h3>
-
-						<Tooltip id='tooltip' />
-						<div>
-							<button
-								className='cursor-pointer text-2xl mt-[2px] mr-[-2px]'
-								onClick={handleClick}
-							>
-								<BsThreeDotsVertical />
-							</button>
-						</div>
-					</div>
-					<Link
-						href={`/p/projects/${projectId}`}
-						className='no-underline cursor-pointer h-[max-content] w-[max-content]'
-					>
-						<p className='text-xs text-gray-400'>
-							{treeProjects
-								? `${
-										treeProjects.projectType === "Restoration"
-											? `Non-profit • Restoration`
-											: treeProjects.projectType
-								  }`
-								: null}
-							{energyProjects && solarProjects
-								? `${
-										isNonProfit
-											? `Non-profit • ${solarProjects[0].locationType}`
-											: solarProjects[0].locationType
-								  }`
-								: null}{" "}
-							{projectFinancials.totalNumberOfInvestors === null ? (
-								`• 0 Investors`
-							) : (
-								<span className='text-xs text-gray-400 mt-[2px]'>
-									{projectFinancials.totalNumberOfInvestors === 1
-										? "• 1 Investor"
-										: `• ${projectFinancials.totalNumberOfInvestors} Investors`}{" "}
-								</span>
+							{treeProjects && (
+								<div className='flex'>
+									<p className='text-xs text-gray-400 mr-[4px]'>
+										Target →{" "}
+										{Number(treeProjects.treeTarget).toLocaleString("en-US")}{" "}
+										Trees •{" "}
+									</p>
+									<p className='text-xs text-gray-400'>
+										{" "}
+										Requested ${treeProjects.fundsRequestedPerTree} per Tree
+									</p>
+								</div>
 							)}
-						</p>
-
-						{treeProjects && (
-							<div className='flex'>
-								<p className='text-xs text-gray-400 mr-[4px]'>
-									Target →{" "}
-									{Number(treeProjects.treeTarget).toLocaleString("en-US")}{" "}
-									Trees •{" "}
-								</p>
-								<p className='text-xs text-gray-400'>
-									{" "}
-									Requested ${treeProjects.fundsRequestedPerTree} per Tree
-								</p>
-							</div>
-						)}
-						{energyProjects && solarProjects && (
-							<div className='flex'>
-								<p className='text-xs text-gray-400 mr-[4px]'>
-									Target →{" "}
-									{Number(solarProjects[0].estYearlyOutputInKwh).toLocaleString(
-										"en-US",
-										{
+							{energyProjects && solarProjects && (
+								<div className='flex'>
+									<p className='text-xs text-gray-400 mr-[4px]'>
+										Target →{" "}
+										{Number(
+											solarProjects[0].estYearlyOutputInKwh
+										).toLocaleString("en-US", {
 											minimumFractionDigits: 2,
 											maximumFractionDigits: 2,
-										}
-									)}{" "}
-									kwh/yr •{" "}
-								</p>
-								<p className='text-xs text-gray-400'>
-									{" "}
-									Requested ${energyProjects.fundsRequestedPerKwh.toFixed(2)}
-									/kwh
-								</p>
-							</div>
-						)}
+										})}{" "}
+										kwh/yr •{" "}
+									</p>
+									<p className='text-xs text-gray-400'>
+										{" "}
+										Requested ${energyProjects.fundsRequestedPerKwh.toFixed(2)}
+										/kwh
+									</p>
+								</div>
+							)}
 
-						<span className='text-xs text-gray-400'>
-							Created {moment(createdAt).format("dddd, MMMM Do YYYY")}
-						</span>
-					</Link>
+							<span className='text-xs text-gray-400'>
+								Created {moment(createdAt).format("dddd, MMMM Do YYYY")}
+							</span>
+						</Link>
+					</div>
 				</div>
-			</div>
+			</>
 		);
 };
 
