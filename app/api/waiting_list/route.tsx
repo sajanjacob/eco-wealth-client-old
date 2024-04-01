@@ -128,17 +128,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
       </div>`,
 	};
 
-	// Disabled for testing
-
-	// await sgMail
-	// 	.send(msg)
-	// 	.then(() => {
-	// 		console.log("verification email sent");
-	// 	})
-	// 	.catch((error: any) => {
-	// 		console.log("error sending verification email", error);
-	// 		return NextResponse.json({ message: error.message }, { status: 501 });
-	// 	});
+	await sgMail
+		.send(msg)
+		.then(() => {
+			console.log("verification email sent");
+		})
+		.catch((error: any) => {
+			console.log("error sending verification email", error);
+			return NextResponse.json({ message: error.message }, { status: 501 });
+		});
 
 	// TODO: Add to mailing list
 	return NextResponse.json({ message: "success" }, { status: 200 });
