@@ -6,9 +6,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 export async function POST(req: NextRequest, res: any) {
+	// TODO: add multiple currency options as operations expand
 	const { projectId, numOfShares } = await req.json();
 	const cookieStore = cookies();
 	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+	// Get project data for calculating transaction amount and passing metadata to Stripe
 	const { data: project, error } = await supabase
 		.from("projects")
 		.select(
@@ -18,6 +20,7 @@ export async function POST(req: NextRequest, res: any) {
 		.single();
 	if (error)
 		return NextResponse.json({ error: error.message }, { status: 500 });
+	// Get logged in user id directly from sb to prevent user manipulation
 	const user = await supabase.auth.getUser();
 	const { data: userData, error: userDataError } = await supabase
 		.from("users")
@@ -26,6 +29,8 @@ export async function POST(req: NextRequest, res: any) {
 		.single();
 	if (userDataError)
 		return NextResponse.json({ error: userDataError.message }, { status: 500 });
+
+	// Set variables for creating Stripe session
 	const customerEmail = userData.email;
 	const investorId = userData.investors.id;
 	const projectName = project.title;
@@ -42,6 +47,7 @@ export async function POST(req: NextRequest, res: any) {
 	const feeAmountWithPercentage = feeAmount * merchantFeePercentage;
 	const finalFeeAmountRounded = feeAmountWithPercentage.toFixed(2);
 
+	// Here we assemble the data that will be passed to Stripe as metadata which will be passed back to us in the webhook
 	let metaData;
 	if (type === "Energy") {
 		const kwhPerShare =
