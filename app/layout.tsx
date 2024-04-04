@@ -11,7 +11,7 @@ import CookieConsent from "@/components/global/CookieConsent";
 export const metadata: Metadata = {
 	title: "Eco Wealth",
 	description:
-		"Eco Wealth is a platform that allows you to invest in tree planting and solar energy projects.",
+		"Eco Wealth is a crowdfunding platform for tree-based agriculture and solar energy projects.",
 };
 
 export default function RootLayout({
