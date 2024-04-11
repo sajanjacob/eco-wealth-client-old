@@ -10,7 +10,17 @@ export async function POST(req: NextRequest) {
 	if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return;
 	const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 	const { searchTerm } = await req.json();
+	// Function to check if an email contains 'test' or 'Test' in the alias
+	const isTestEmail = (email: string) => {
+		const localPart = email.split("@")[0];
+		return localPart.includes("+test") || localPart.includes("+Test");
+	};
 
+	// Function to check if the last name contains 'Test-'
+	const hasTestLastName = (name: string) => {
+		if (!name) return false;
+		return name && name?.split(" ").some((part) => part.startsWith("Test-"));
+	};
 	// Fetch all referral ambassadors and their associated users
 	const { data, error } = await supabase
 		.from("referral_ambassadors")
@@ -57,8 +67,13 @@ export async function POST(req: NextRequest) {
 		}
 	});
 
-	console.log("filteredData >>> ", filteredData);
+	const testFilteredData = filteredData.filter(
+		(ambassador: any) =>
+			!isTestEmail(ambassador.contact_email) &&
+			!hasTestLastName(ambassador.users.name)
+	);
+	console.log("testFilteredData >>> ", testFilteredData);
 
 	// Return filtered data
-	return NextResponse.json({ referrers: filteredData }, { status: 200 });
+	return NextResponse.json({ referrers: testFilteredData }, { status: 200 });
 }
