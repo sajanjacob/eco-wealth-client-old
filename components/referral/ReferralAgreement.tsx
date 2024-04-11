@@ -25,15 +25,18 @@ export default function ReferralAgreement({
 	const [isAgreementActive, setIsAgreementActive] = useState(false);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const referralId = user.referralId;
+	const referralAgreement = user.refAgreement;
 	// Add user to referral ambassador list if they agree to T&C and refresh the page
 	const HandleAgreementClick = async () => {
 		await axios
 			.post("/api/confirm_referral_agreement", {
 				userId: user.id,
+				refId: referralId,
 			})
 			.then((res) => {
 				console.log("res >>> ", res);
 				dispatch(setUser({ ...user, refAgreement: true }));
+				router.push("/r?tab=links");
 			})
 			.catch((err) => {
 				console.log("Unable to add user to referral ambassador list: ", err);
@@ -197,20 +200,27 @@ export default function ReferralAgreement({
 					</li>
 				</ul>
 			</div>
-			{!referralId ? (
+			{!referralAgreement ? (
 				<div className='flex mt-2'>
-					<button
-						onClick={HandleAgreementClick}
-						disabled={!isAgreementActive}
-						className={`flex mr-2 text-sm md:text-base items-center ${
-							isAgreementActive
-								? "bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] cursor-pointer"
-								: "bg-gray-600"
-						}  text-white font-bold py-2 px-4 rounded transition-colors `}
-						title={!isAgreementActive ? "Scroll to the bottom to agree" : ""}
-					>
-						I agree to the referral ambassador terms & conditions
-					</button>
+					<div>
+						<button
+							onClick={HandleAgreementClick}
+							disabled={!isAgreementActive}
+							className={`flex mr-2 text-sm md:text-base items-center ${
+								isAgreementActive
+									? "bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] cursor-pointer"
+									: "bg-gray-600"
+							}  text-white font-bold py-2 px-4 rounded transition-colors `}
+							title={!isAgreementActive ? "Scroll to the bottom to agree" : ""}
+						>
+							I agree to the referral ambassador terms & conditions
+						</button>
+						{!isAgreementActive && (
+							<span className='text-gray-400 font-bold mt-1 absolute'>
+								(scroll to bottom to activate)
+							</span>
+						)}
+					</div>
 					<button
 						onClick={HandleDisagreementClick}
 						className='flex text-sm md:text-base items-center bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer'
