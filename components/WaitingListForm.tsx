@@ -268,6 +268,12 @@ function WaitingListForm({ formHeight, showLogo = true }: Props) {
 					.
 				</p>
 			</div>
+			<div className='w-[300px] mt-4'>
+				<p className='text-xs mt-2 text-gray-500'>
+					<b>Age of Majority:</b> By registering, you confirm that you are of
+					the age of majority in your area which is commonly 18+.
+				</p>
+			</div>
 			<div className='flex justify-start w-[100%] mt-4'>
 				{referralSource === "" && <ReferrerCount />}
 			</div>
