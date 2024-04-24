@@ -1,8 +1,9 @@
 "use client";
 import copyToClipboard from "@/utils/copyToClipboard";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import QRCode from "qrcode.react";
 import { BiDownload } from "react-icons/bi";
+import { useRouter } from "next/navigation";
 type Props = {
 	referralId: string;
 };
@@ -13,6 +14,17 @@ export default function EcoWealthLinks({ referralId }: Props) {
 	const referralLink = `?r=${referralId}`;
 	const [showHomePageQr, setShowHomePageQr] = useState(false);
 	const [showWaitingListQr, setShowWaitingListQr] = useState(false);
+	const router = useRouter();
+
+	// After 3s if the referralId is not available, refresh the page
+	useEffect(() => {
+		setTimeout(() => {
+			if (!referralId) {
+				router.refresh();
+			}
+		}, 3000);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [referralId]);
 	return (
 		<div>
 			<div className='mt-2'>
