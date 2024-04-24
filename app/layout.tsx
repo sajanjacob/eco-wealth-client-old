@@ -12,6 +12,9 @@ export const metadata: Metadata = {
 	title: "Eco Wealth",
 	description:
 		"Eco Wealth is a crowdfunding platform for tree-based agriculture and solar energy projects.",
+	openGraph: {
+		images: "/mandala_logo_green.png",
+	},
 };
 
 export default function RootLayout({
