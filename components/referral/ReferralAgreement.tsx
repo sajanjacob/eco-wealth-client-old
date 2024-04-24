@@ -45,7 +45,8 @@ export default function ReferralAgreement({
 	const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
 		const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
 		// Check if the user has scrolled to the bottom
-		if (scrollHeight - scrollTop === clientHeight) {
+		console.log(scrollHeight - scrollTop, clientHeight);
+		if (scrollHeight - scrollTop - 1 === clientHeight) {
 			setIsAgreementActive(true);
 		}
 	};
