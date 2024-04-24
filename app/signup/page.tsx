@@ -12,6 +12,8 @@ import { isEmailValid } from "@/utils/isEmailValid";
 import DOMPurify, { sanitize } from "dompurify";
 import sanitizeJsonObject from "@/utils/sanitizeJsonObject";
 import sanitizeStringArray from "@/utils/sanitizeStringArray";
+import ReferrerInput from "@/components/referral/WaitingList/ReferrerInput";
+import sanitizeArrayOfObjects from "@/utils/sanitizeArrayOfObjects";
 interface SignUpForm {
 	email: string;
 	password: string;
@@ -26,13 +28,24 @@ const SignUp: React.FC = () => {
 	const [passwordMatch, setPasswordMatch] = useState(false);
 	const [referralSource, setReferralSource] = useState("");
 	const [referrer, setReferrer] = useState("");
-	const [referrers, setReferrers] = useState<Object[]>([{}]);
 	const supabase = createClientComponentClient();
 	const searchParams = useSearchParams();
 	const ref = searchParams?.get("r");
 	const [specificReferral, setSpecificReferral] = useState("");
 	const [isFormValid, setIsFormValid] = useState(false);
-
+	const [referrerIds, setReferrerIds] = useState<string[]>([]);
+	const [specificReferrer, setSpecificReferrer] = useState<Referrer>({
+		referrerId: "",
+		referrer: {
+			name: "",
+			email: "",
+		},
+		dateAdded: "",
+		pageSource: "",
+		inputSource: "",
+	});
+	const [inputValueParent, setInputValueParent] = useState("");
+	const [referrers, setReferrers] = useState<Referrer[]>([]);
 	const RECAPTCHA_SITE_KEY = process.env.recaptcha_site_key;
 	const [captcha, setCaptcha] = useState<string | null>("");
 
@@ -98,13 +111,13 @@ const SignUp: React.FC = () => {
 		const sanitizedEmail = DOMPurify.sanitize(email);
 		const sanitizedPassword = DOMPurify.sanitize(password);
 		const sanitizedReferralSource = DOMPurify.sanitize(referralSource || "");
-		const sanitizedReferrers = sanitizeJsonObject(referrers);
+		const sanitizedReferrers = sanitizeArrayOfObjects(referrers);
 		const sanitizedSpecificReferral = DOMPurify.sanitize(
 			specificReferral || ""
 		);
+		const sanitizedReferrerIds = sanitizeStringArray(referrerIds);
 		if (storedData) {
 			const { referrerIds } = JSON.parse(storedData as string);
-			const sanitizedReferrerIds = sanitizeStringArray(referrerIds);
 			await axios
 				.post("/api/signup", {
 					email: sanitizedEmail,
@@ -129,6 +142,8 @@ const SignUp: React.FC = () => {
 						email: sanitizedEmail,
 						password: sanitizedPassword,
 						referralSource: sanitizedReferralSource,
+						referrers: sanitizedReferrers,
+						referrerIds: sanitizedReferrerIds,
 						specificReferral: sanitizedSpecificReferral,
 					})
 					.then((res) => {
@@ -179,50 +194,50 @@ const SignUp: React.FC = () => {
 		router.push("/login");
 	};
 	// Render specific referral input based on referral source
-	const renderSpecificReferralInput = () => {
-		if (referralSource === "Friend/Someone referred") {
-			return (
-				<div className='flex flex-col mb-4'>
-					<label className='mb-2'>Who referred you?</label>
-					<input
-						type='text'
-						value={referrer}
-						placeholder='Name and/or email'
-						className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
-						onChange={(e) => setReferrer(e.target.value)}
-					/>
-				</div>
-			);
-		} else if (
-			[
-				"Instagram",
-				"Facebook",
-				"YouTube",
-				"TikTok",
-				"Threads",
-				"Blog/Website",
-			].includes(referralSource)
-		) {
-			return (
-				<div className='flex flex-col mb-4 w-[300px]'>
-					<label className='mb-2'>
-						Which {referralSource} account did you hear about Eco Wealth from?
-					</label>
-					<input
-						type='text'
-						value={specificReferral}
-						placeholder={
-							referralSource === "Blog/Website"
-								? "Blog/Website name"
-								: "@username"
-						}
-						className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
-						onChange={(e) => setSpecificReferral(e.target.value)}
-					/>
-				</div>
-			);
-		}
-	};
+	// const renderSpecificReferralInput = () => {
+	// 	if (referralSource === "Friend/Someone referred") {
+	// 		return (
+	// 			<div className='flex flex-col mb-4'>
+	// 				<label className='mb-2'>Who referred you?</label>
+	// 				<input
+	// 					type='text'
+	// 					value={referrer}
+	// 					placeholder='Name and/or email'
+	// 					className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
+	// 					onChange={(e) => setReferrer(e.target.value)}
+	// 				/>
+	// 			</div>
+	// 		);
+	// 	} else if (
+	// 		[
+	// 			"Instagram",
+	// 			"Facebook",
+	// 			"YouTube",
+	// 			"TikTok",
+	// 			"Threads",
+	// 			"Blog/Website",
+	// 		].includes(referralSource)
+	// 	) {
+	// 		return (
+	// 			<div className='flex flex-col mb-4 w-[300px]'>
+	// 				<label className='mb-2'>
+	// 					Which {referralSource} account did you hear about Eco Wealth from?
+	// 				</label>
+	// 				<input
+	// 					type='text'
+	// 					value={specificReferral}
+	// 					placeholder={
+	// 						referralSource === "Blog/Website"
+	// 							? "Blog/Website name"
+	// 							: "@username"
+	// 					}
+	// 					className='w-[300px] px-2 py-2 rounded-lg border border-gray-300 text-gray-900'
+	// 					onChange={(e) => setSpecificReferral(e.target.value)}
+	// 				/>
+	// 			</div>
+	// 		);
+	// 	}
+	// };
 	useEffect(() => {
 		// Check if all required fields are filled and valid
 		const isValid =
@@ -283,7 +298,7 @@ const SignUp: React.FC = () => {
 					<p className='text-red-500'>Passwords do not match.</p>
 				)}
 				{/* Referral source dropdown */}
-				<div className='flex flex-col mb-4'>
+				{/* <div className='flex flex-col mb-4'>
 					<label className='mb-2'>How did you hear about Eco Wealth?</label>
 					<select
 						value={referralSource}
@@ -301,10 +316,19 @@ const SignUp: React.FC = () => {
 							Friend/Someone referred me
 						</option>
 					</select>
-				</div>
+				</div> */}
 
-				{/* Conditional text input for referrer */}
-				{renderSpecificReferralInput()}
+				<ReferrerInput
+					referralSource={referralSource}
+					setReferralSource={setReferralSource}
+					setReferrerIds={setReferrerIds}
+					specificReferrer={specificReferrer}
+					setSpecificReferrer={setSpecificReferrer}
+					setReferrers={setReferrers}
+					setInputValueParent={setInputValueParent}
+				/>
+				{/* Conditional text input for referrer
+				{renderSpecificReferralInput()} */}
 				<ReCAPTCHA
 					sitekey={RECAPTCHA_SITE_KEY!}
 					onChange={setCaptcha}
