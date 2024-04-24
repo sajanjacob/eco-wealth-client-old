@@ -67,4 +67,27 @@ export async function POST(req: any) {
 			return NextResponse.json({ data: producerData });
 		}
 	}
+
+	if (role === "referral_ambassador") {
+		const { data: referralAmbassadorData, error: referralAmbassadorError } =
+			await supabase.from("referral_ambassadors").insert([
+				{
+					user_id: userId,
+					status: "pending",
+				},
+			]);
+		if (referralAmbassadorError) {
+			console.error(
+				"Error inserting referral ambassador:",
+				referralAmbassadorError.message
+			);
+			return NextResponse.json(
+				{ error: referralAmbassadorError.message },
+				{ status: 500 }
+			);
+		}
+		if (referralAmbassadorData) {
+			return NextResponse.json({ data: referralAmbassadorData });
+		}
+	}
 }
