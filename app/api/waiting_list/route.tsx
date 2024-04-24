@@ -7,9 +7,10 @@ import validator from "validator"; // email validator
 
 import sanitizeStringArray from "@/utils/sanitizeStringArray";
 import sanitizeArrayOfObjects from "@/utils/sanitizeArrayOfObjects";
+import { deduplicateReferrers } from "@/utils/deduplicateReferrers";
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-type ReferrerItem = {
+export type ReferrerItem = {
 	referrer: {
 		name: string;
 		email: string;
@@ -19,19 +20,6 @@ type ReferrerItem = {
 	referrerId: string;
 	inputSource: string;
 };
-function deduplicateReferrers(referrerArray: ReferrerItem[]): ReferrerItem[] {
-	const uniqueReferrers = new Map<string, ReferrerItem>();
-
-	referrerArray.forEach((item) => {
-		const referrerId = item.referrerId;
-		if (!uniqueReferrers.has(referrerId)) {
-			uniqueReferrers.set(referrerId, item);
-		}
-	});
-
-	return Array.from(uniqueReferrers.values());
-}
-
 export async function POST(req: NextRequest, res: NextResponse) {
 	// Initialize Supabase
 	const SUPABASE_URL = process.env.supabase_public_url;
