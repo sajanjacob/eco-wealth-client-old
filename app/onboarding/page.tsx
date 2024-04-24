@@ -50,6 +50,7 @@ const Onboarding: FC = () => {
 				router.push(`/${getFirstCharacterLowerCase(role)}/onboarding`);
 			})
 			.catch((error) => {
+				setLoading(false);
 				console.error("Error updating user role:", error.message);
 			});
 	};
