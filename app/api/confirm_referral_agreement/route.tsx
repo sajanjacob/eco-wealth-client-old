@@ -19,6 +19,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 					user_id: userId,
 					agreement_accepted: true,
 					agreement_accepted_at: new Date(),
+					status: "active",
 				},
 			])
 			.single();
@@ -28,7 +29,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
 	}
 	const { data, error } = await supabase
 		.from("referral_ambassadors")
-		.update({ agreement_accepted: true, agreement_accepted_at: new Date() })
+		.update({
+			agreement_accepted: true,
+			agreement_accepted_at: new Date(),
+			status: "active",
+		})
 		.eq("id", refId)
 		.single();
 	if (error) {
