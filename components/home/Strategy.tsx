@@ -24,7 +24,7 @@ export default function Strategy({}: Props) {
 		{
 			name: "3 - Key Team Hiring",
 			description:
-				"Hire developers, designers, securities lawyers, financial analysts, advisors and support representatives to build the team.",
+				"Hire developers, designers, securities lawyers, financial analysts, advisors, social media specialists, and support representatives to build the team.",
 			date: "TBD - 2024",
 			position: 100,
 		},
