@@ -96,46 +96,39 @@ export default function Home() {
 						Together, we&apos;ve planted {treeCount} trees & installed{" "}
 						{arrayCount} solar arrays.
 					</h1> */}
-						<h1 className='text-white font-bold text-2xl md:text-3xl md:w-[100%] mt-8 md:mt-0'>
-							Participate in creating a monumental positive impact worldwide by{" "}
-							<span
-								className='text-[var(--h-one)] cursor-pointer'
-								onClick={(e) => {
-									e.preventDefault();
-									router.push("/#about");
-								}}
-							>
-								{" "}
-								planting trees
-							</span>
-							,{" "}
-							<span
-								className='text-[var(--h-one)] cursor-pointer'
-								onClick={(e) => {
-									e.preventDefault();
-									router.push("/#about");
-								}}
-							>
-								prioritizing soil health
-							</span>
-							, and{" "}
-							<span
-								className='text-[var(--h-one)] cursor-pointer'
-								onClick={(e) => {
-									e.preventDefault();
-									router.push("/#about");
-								}}
-							>
-								transitioning to renewable energy
-							</span>
-							.
+						<h1 className='text-2xl font-bold mb-4'>
+							Empower sustainable solutions today.
 						</h1>
 						{!user.loggedIn && (
 							<div>
-								<h3 className='font-medium tracking-wide text-gray-400 text-lg md:text-2xl mt-4'>
-									Bring balance between the environment and economy so we ensure
-									future generations thrive.
+								<h3 className='text-gray-400 font-bold text-lg md:text-2xl md:w-[100%] mt-8 md:mt-0'>
+									Participate in funding or running
+									<span
+										className='text-[var(--h-one)] cursor-pointer'
+										onClick={(e) => {
+											e.preventDefault();
+											router.push("/#about");
+										}}
+									>
+										{" "}
+										tree-based agriculture
+									</span>{" "}
+									or{" "}
+									<span
+										className='text-[var(--h-one)] cursor-pointer'
+										onClick={(e) => {
+											e.preventDefault();
+											router.push("/#about");
+										}}
+									>
+										renewable energy
+									</span>{" "}
+									projects.
 								</h3>
+								<h4 className='mt-4 text-gray-300 text-lg font-light'>
+									Join the waiting list today and help unite ecology and
+									economy.
+								</h4>
 								<button
 									className='z-[1000] pulsate mb-4 cursor-pointer transition-all bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] text-white font-medium rounded-md text-sm lg:text-lg lg:px-8 px-4 py-2 mt-8'
 									onClick={handleWaitingListClick}
