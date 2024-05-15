@@ -187,3 +187,29 @@ body {
 .anchor {
   scroll-margin-top: calc(9vh + 2.5em);
 }
+
+.blog-content > p {
+  margin: 0px 0 16px 0;
+  color: lightgray;
+}
+
+.blog-content > h4, .blog-content > h3 {
+  margin-top: 48px;
+  margin-bottom: 16px;
+  font-size: 32px;
+  font-weight: bold;
+}
+.blog-content > h5 {
+  margin-top: 48px;
+  margin-bottom: 16px;
+  font-size: 24px;
+  font-weight: bold;
+}
+.blog-content > h1, .blog-content > div > h1 {
+  font-size: 40px;
+  font-weight: bold;
+}
+
+.blog-content > div {
+  margin-bottom: 32px;
+}

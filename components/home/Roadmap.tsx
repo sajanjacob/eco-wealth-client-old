@@ -104,7 +104,9 @@ const Roadmap: React.FC<Props> = ({ milestones }) => {
 							</div>
 						)}
 						<div
-							className={`w-6 h-6 bg-[var(--cta-one)] hover:bg-[var(--cta-one-hover)] rounded-full flex items-center justify-center text-white transition-transform transform-gpu hover:scale-110`}
+							className={`w-6 h-6 ${
+								index >= 1 ? "bg-yellow-500" : "bg-[var(--cta-one)]"
+							} hover:bg-[var(--cta-one-hover)] rounded-full flex items-center justify-center text-white transition-transform transform-gpu hover:scale-110`}
 						></div>
 					</div>
 					{isMilestoneOpen && (
@@ -112,7 +114,14 @@ const Roadmap: React.FC<Props> = ({ milestones }) => {
 							className={`absolute bg-gradient-to-r from-[#000308] to-[#0C2100] p-3 rounded-lg shadow-md shadow-green-400 z-10 w-[200px] `}
 							style={milestoneDetailsStyle}
 						>
-							<p className='text-sm font-bold text-green-400'>
+							<p className={`text-sm font-bold text-gray-300`}>
+								<span
+									className={`${
+										index >= 1 ? "text-yellow-500" : "text-green-400"
+									}`}
+								>
+									⬤
+								</span>{" "}
 								{milestone.name}
 							</p>
 							<p className='text-sm font-bold text-gray-300 mb-2'>

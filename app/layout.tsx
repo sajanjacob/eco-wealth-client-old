@@ -7,13 +7,14 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Metadata } from "next";
 import CookieConsent from "@/components/global/CookieConsent";
+import Check from "@/components/referrer/Check";
 
 export const metadata: Metadata = {
 	title: "Eco Wealth",
 	description:
 		"Eco Wealth is a crowdfunding platform for tree-based agriculture and solar energy projects.",
 	openGraph: {
-		images: "/mandala_logo_green.png",
+		images: "/images/mandala_logo_green.png",
 	},
 };
 
@@ -29,6 +30,7 @@ export default function RootLayout({
 		>
 			<body>
 				<Providers>
+					<Check />
 					<Header />
 					<ToastContainer />
 					{children}
