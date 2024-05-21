@@ -20,8 +20,7 @@ import { buttonClass } from "@/lib/tw-styles";
 
 // TODO: remove guard statements in login & sign up pages when launching beta
 export default function Home() {
-	const backgroundImageUrl =
-		"https://storage.googleapis.com/msgsndr/6xhGkq67K123q2R9TMf0/media/644868002b9d838721622a4d.jpeg";
+	const backgroundImageUrl = "/images/matthew-smith-rFBA42UFpLs-unsplash.jpg";
 	const router = useRouter();
 	// const [treeCount, setTreeCount] = React.useState(0);
 	// const [arrayCount, setArrayCount] = React.useState(0);
