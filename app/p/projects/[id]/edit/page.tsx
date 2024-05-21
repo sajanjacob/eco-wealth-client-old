@@ -567,59 +567,11 @@ function Edit() {
 									(property: {
 										id: React.Key | null | undefined;
 										address: {
-											addressLineOne:
-												| string
-												| number
-												| boolean
-												| React.ReactElement<
-														any,
-														string | React.JSXElementConstructor<any>
-												  >
-												| React.ReactFragment
-												| React.ReactPortal
-												| React.PromiseLikeOfReactNode
-												| null
-												| undefined;
+											addressLineOne: string | number | null | undefined;
 											addressLineTwo: any;
-											city:
-												| string
-												| number
-												| boolean
-												| React.ReactElement<
-														any,
-														string | React.JSXElementConstructor<any>
-												  >
-												| React.ReactFragment
-												| React.ReactPortal
-												| React.PromiseLikeOfReactNode
-												| null
-												| undefined;
-											stateProvince:
-												| string
-												| number
-												| boolean
-												| React.ReactElement<
-														any,
-														string | React.JSXElementConstructor<any>
-												  >
-												| React.ReactFragment
-												| React.ReactPortal
-												| React.PromiseLikeOfReactNode
-												| null
-												| undefined;
-											country:
-												| string
-												| number
-												| boolean
-												| React.ReactElement<
-														any,
-														string | React.JSXElementConstructor<any>
-												  >
-												| React.ReactFragment
-												| React.ReactPortal
-												| React.PromiseLikeOfReactNode
-												| null
-												| undefined;
+											city: string | number | null | undefined;
+											stateProvince: string | number | null | undefined;
+											country: string | number | null | undefined;
 										};
 									}) => (
 										<option
